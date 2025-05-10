@@ -1,0 +1,25 @@
+[tool.poetry]
+name = "backend"
+version = "0.1.0"
+description = ""
+authors = ["Ashish K <64360092+Ashishkumaraswamy@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = "^0.115.12"
+scalar-fastapi = "^1.0.3"
+fastapi-utils = "^0.8.0"
+uvicorn = "^0.34.2"
+pydantic-settings = "^2.9.1"
+pyyaml = "^6.0.2"
+structlog = "^25.3.0"
+pyjwt = "^2.10.1"
+typing-inspect = "^0.9.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+scalar-fastapi = "^1.0.3"
+fastapi-utils = "^0.8.0"
