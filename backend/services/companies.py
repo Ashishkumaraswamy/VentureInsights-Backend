@@ -33,7 +33,7 @@ class CompaniesService:
                 foundingYear=2015,
                 headquarters="San Francisco, CA",
                 website="https://ventureinsights.com",
-                logo="https://ventureinsights.com/logo.png",
+                logo="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Apple_logo_grey.svg/1010px-Apple_logo_grey.svg.png",
             ),
             analysis=CompanyAnalysis(
                 documentProcessing=DocumentProcessing(
