@@ -13,6 +13,12 @@ class MongoConnectionDetails(BaseModel):
     port: int = Field(..., description="Database port to use")
     dbname: str = Field(..., description="Database name")
 
+    def get_connection_string(self):
+        return f"mongodb+srv://{self.user}:{self.password}@{self.host}/"
+
+    def __str__(self):
+        return self.get_connection_string()
+
 class LLMConfig(BaseModel):
     api_key: str = Field(..., description="API key for the LLM service")
     api_base: str = Field(..., description="Base URL for the LLM service")
@@ -22,6 +28,7 @@ class LLMConfig(BaseModel):
 class JWTConfig(BaseModel):
     secret_key: str = Field(..., description="Secret key for JWT")
     algorithm: str = Field(..., description="Algorithm for JWT")
+    expire_after: int = Field(..., description="Validity for the JWT token in minutes")
 
 class AppSettings(BaseSettings):
     db_config: MongoConnectionDetails = Field(..., description="MongoDB connection details")
@@ -62,7 +69,8 @@ class AppSettings(BaseSettings):
             ),
             jwt_config=JWTConfig(
                 secret_key=os.environ.get("JWT_SECRET_KEY"),
-                algorithm=os.environ.get("JWT_ALGORITHM")
+                algorithm=os.environ.get("JWT_ALGORITHM"),
+                expire_after=os.environ.get("JWT_TOKEN_EXPIRY_MINUTES")
             ),
             local_user = os.environ.get("LOCAL_USER"),
             local = os.environ.get("LOCAL"),

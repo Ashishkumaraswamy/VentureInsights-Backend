@@ -14,9 +14,9 @@ class AuthorizationApi:
     auth_service: AuthService = Depends(get_auth_service_settings)
 
     @auth_router.post("/signup", status_code=status.HTTP_201_CREATED)
-    def signup(self, signup_request: SignUpRequest):
-        return self.auth_service.signup(signup_request)
+    async def signup(self, signup_request: SignUpRequest):
+        return await self.auth_service.signup(signup_request)
 
     @auth_router.post("/login", status_code=status.HTTP_200_OK)
-    def login(self, login_request: LoginRequest):
-        return self.auth_service.login(login_request)
+    async def login(self, login_request: LoginRequest):
+        return await self.auth_service.login(login_request)

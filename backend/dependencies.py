@@ -14,7 +14,7 @@ async def get_user(request: Request):
 def get_auth_service_settings(
     app_settings: AppSettings = Depends(get_app_settings),
 ):
-    return AuthService(app_settings.db_config)
+    return AuthService(app_settings.db_config, app_settings.jwt_config)
 
 
 class CommonDeps:
