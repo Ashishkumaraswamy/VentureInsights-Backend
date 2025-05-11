@@ -103,19 +103,38 @@ class CompaniesService:
         )
 
     async def get_companies(self, limit: int = None) -> list[CompanyBaseInfo]:
-        return [
-            CompanyBaseInfo(
-                name="DataGenie", founding_date=datetime(2020, 1, 1), members_count=10
-            ),
-            CompanyBaseInfo(
-                name="VentureInsights",
-                founding_date=datetime(2015, 1, 1),
-                members_count=50,
-            ),
-            CompanyBaseInfo(
-                name="CypherD", founding_date=datetime(2015, 1, 1), members_count=50
-            ),
-            CompanyBaseInfo(
-                name="Test", founding_date=datetime(2015, 1, 1), members_count=50
-            ),
+        mock_companies = [
+            {
+                "name": "DataGenie",
+                "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQS7QDxSkojyltJTl6vIloCWUDzmtohbDsWCg&s",
+                "founder": "Ashish Verma",
+                "headquarters": "San Francisco, CA, USA",
+                "founding_date": "2020-01-01T00:00:00",
+                "members_count": 10
+            },
+            {
+                "name": "Meta",
+                "logo": "https://m.economictimes.com/thumb/msid-111856636,width-1200,height-900,resizemode-4,imgsize-155652/a-microsoft-logo.jpg",
+                "founder": "Mark Zuckerberg",
+                "headquarters": "Menlo Park, CA, USA",
+                "founding_date": "2015-01-01T00:00:00",
+                "members_count": 50
+            },
+            {
+                "name": "CypherD",
+                "logo": "https://play-lh.googleusercontent.com/-dmoFW03JcyJihlNoguKe5mZBGSigpDGVlZKkJi6EhDLnzvUJQMIUhw3l6TrCW6CksE",
+                "founder": "John Doe",
+                "headquarters": "New York, NY, USA",
+                "founding_date": "2015-01-01T00:00:00",
+                "members_count": 50
+            },
+            {
+                "name": "PayPal",
+                "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZ0ffI8EqxD3ClancA6PDjV_Blp1dZuZv_HVb6KkSXn1Z3i9fAdz4i1WBmun75iVpQU38&usqp=CAU",
+                "founder": "Elon Musk, Peter Thiel, Max Levchin",
+                "headquarters": "San Jose, CA, USA",
+                "founding_date": "2015-01-01T00:00:00",
+                "members_count": 50
+            }
         ]
+        return [CompanyBaseInfo(**company) for company in mock_companies]

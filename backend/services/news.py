@@ -17,16 +17,18 @@ class NewsService:
                 "source": ["https://openai.com/blog/gpt-5"],
                 "publishedAt": datetime.now(),
                 "category": "technology",
-                "image": "https://developer-blogs.nvidia.com/wp-content/uploads/2020/07/OpenAI-GPT-3-featured-image.png"
+                "image": "https://developer-blogs.nvidia.com/wp-content/uploads/2020/07/OpenAI-GPT-3-featured-image.png",
             },
             {
                 "id": "2",
                 "title": "Apple Unveils New M4 Chip",
                 "content": "Apple's new M4 chip sets a new benchmark in energy-efficient performance for laptops.",
-                "source": ["https://www.apple.com/newsroom/2025/05/apple-unveils-m4-chip/"],
+                "source": [
+                    "https://www.apple.com/newsroom/2025/05/apple-unveils-m4-chip/"
+                ],
                 "publishedAt": datetime.now(),
                 "category": "technology",
-                "image": "https://developer-blogs.nvidia.com/wp-content/uploads/2020/07/OpenAI-GPT-3-featured-image.png"
+                "image": "https://developer-blogs.nvidia.com/wp-content/uploads/2020/07/OpenAI-GPT-3-featured-image.png",
             },
             {
                 "id": "3",
@@ -35,7 +37,7 @@ class NewsService:
                 "source": ["https://blog.google/products/search/generative-ai/"],
                 "publishedAt": datetime.now(),
                 "category": "technology",
-                "image": "https://developer-blogs.nvidia.com/wp-content/uploads/2020/07/OpenAI-GPT-3-featured-image.png"
+                "image": "https://developer-blogs.nvidia.com/wp-content/uploads/2020/07/OpenAI-GPT-3-featured-image.png",
             },
             {
                 "id": "4",
@@ -44,7 +46,7 @@ class NewsService:
                 "source": ["https://about.fb.com/news/2025/05/meta-quest-4-launch/"],
                 "publishedAt": datetime.now(),
                 "category": "technology",
-                "image": "https://m.economictimes.com/thumb/msid-111856636,width-1200,height-900,resizemode-4,imgsize-155652/a-microsoft-logo.jpg"
+                "image": "https://m.economictimes.com/thumb/msid-111856636,width-1200,height-900,resizemode-4,imgsize-155652/a-microsoft-logo.jpg",
             },
             {
                 "id": "5",
@@ -53,7 +55,7 @@ class NewsService:
                 "source": ["https://nvidia.com/en-us/news/next-gen-gpus/"],
                 "publishedAt": datetime.now(),
                 "category": "technology",
-                "image": "https://m.economictimes.com/thumb/msid-111856636,width-1200,height-900,resizemode-4,imgsize-155652/a-microsoft-logo.jpg"
+                "image": "https://m.economictimes.com/thumb/msid-111856636,width-1200,height-900,resizemode-4,imgsize-155652/a-microsoft-logo.jpg",
             },
             {
                 "id": "6",
@@ -62,7 +64,7 @@ class NewsService:
                 "source": ["https://www.tesla.com/blog/fsd-v12-update"],
                 "publishedAt": datetime.now(),
                 "category": "technology",
-                "image": "https://m.economictimes.com/thumb/msid-111856636,width-1200,height-900,resizemode-4,imgsize-155652/a-microsoft-logo.jpg"
+                "image": "https://m.economictimes.com/thumb/msid-111856636,width-1200,height-900,resizemode-4,imgsize-155652/a-microsoft-logo.jpg",
             },
             {
                 "id": "7",
@@ -71,16 +73,18 @@ class NewsService:
                 "source": ["https://amazon.com/news/ai-shopping-assistant"],
                 "publishedAt": datetime.now(),
                 "category": "technology",
-                "image": "https://ux-news.com/content/images/2025/01/Meta.png"
+                "image": "https://ux-news.com/content/images/2025/01/Meta.png",
             },
             {
                 "id": "8",
                 "title": "Microsoft Rolls Out CoPilot for Office",
                 "content": "Microsoft integrates AI-powered CoPilot into Word, Excel, and PowerPoint for productivity boost.",
-                "source": ["https://blogs.microsoft.com/blog/2025/05/copilot-for-office/"],
+                "source": [
+                    "https://blogs.microsoft.com/blog/2025/05/copilot-for-office/"
+                ],
                 "publishedAt": datetime.now(),
                 "category": "technology",
-                "image": "https://ux-news.com/content/images/2025/01/Meta.png"
-            }
+                "image": "https://ux-news.com/content/images/2025/01/Meta.png",
+            },
         ]
         return [NewsItem(**news) for news in mock_tech_news]

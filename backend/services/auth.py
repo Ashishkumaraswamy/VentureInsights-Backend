@@ -2,9 +2,11 @@ from datetime import datetime, timedelta
 
 import jwt
 import bcrypt
+
 from backend.database.mongo import MongoDBConnector
 from backend.models.base.exceptions import Status
 from backend.models.requests.auth import SignUpRequest, LoginRequest
+from backend.models.response.auth import UserResponse
 from backend.settings import MongoConnectionDetails, JWTConfig
 from backend.utils.exceptions import ServiceException
 from backend.utils.logger import get_logger
@@ -57,7 +59,7 @@ class AuthService:
         user = user_details[0] if user_details else None
 
         if not user:
-            return {"status": Status.NOT_FOUND, "message": "User not found"}
+            raise ServiceException(Status.NOT_FOUND, message="User Not Found")
 
         raw_password = login_request.password.get_secret_value()
         hashed_password = user["password"]
@@ -66,10 +68,11 @@ class AuthService:
             raw_password.encode("utf-8"), hashed_password.encode("utf-8")
         ):
             token = self.create_auth_token(user["email"])
-            return {
-                "status": Status.SUCCESS,
-                "message": "User Logged In Successfully",
-                "token": token,
-            }
+            return UserResponse(
+                email=user["email"],
+                first_name=user["first_name"],
+                last_name=user["last_name"],
+                token=token
+            )
         else:
-            return {"status": Status.INVALID_PARAM, "message": "Invalid Password"}
+            raise ServiceException(Status.UNAUTHORIZED, message="Invalid Password")

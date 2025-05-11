@@ -5,6 +5,9 @@ from pydantic import BaseModel, Field
 
 class CompanyBaseInfo(BaseModel):
     name: str = Field(..., description="Name of the company")
+    logo: str = Field(..., description="URL to the company logo image")
+    founder: str = Field(..., description="Name of the founder")
+    headquarters: str = Field(..., description="Headquarters location")
     founding_date: datetime = Field(..., description="Founding Date of the company")
     members_count: int = Field(..., description="Number of members in the company")
 
