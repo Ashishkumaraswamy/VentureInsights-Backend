@@ -2,6 +2,8 @@ from backend.models.base.users import User
 from backend.services.auth import AuthService
 from backend.services.companies import CompaniesService
 from backend.services.news import NewsService
+from backend.services.chat import ChatService
+from backend.services.files import FilesService
 from backend.settings import get_app_settings, AppSettings
 from fastapi import Request, Depends
 
@@ -25,6 +27,14 @@ def get_auth_service_settings(
 
 def get_company_service(app_settings: AppSettings = Depends(get_app_settings)):
     return CompaniesService(app_settings.db_config)
+
+
+def get_chat_service(app_settings: AppSettings = Depends(get_app_settings)):
+    return ChatService(app_settings.db_config)
+
+
+def get_files_service(app_settings: AppSettings = Depends(get_app_settings)):
+    return FilesService(app_settings.db_config)
 
 
 class CommonDeps:
