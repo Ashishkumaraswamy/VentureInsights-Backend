@@ -72,7 +72,6 @@ class RiskAssessment(BaseModel):
 
 
 class CompanyAnalysisCompanyInfo(BaseModel):
-    id: str = Field(..., description="Unique identifier for the company")
     name: str = Field(..., description="Name of the company")
     description: str = Field(..., description="Short description of the company")
     industry: str = Field(..., description="Industry sector of the company")

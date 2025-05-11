@@ -20,7 +20,7 @@ class CompaniesAPI:
         return await self.company_service.get_companies(limit)
 
     @companies_router.get(
-        "/{companyId}/analysis", response_model=CompanyAnalysisFullResponse
+        "/{companyName}/analysis", response_model=CompanyAnalysisFullResponse
     )
-    async def get_company_analysis(self, companyId: str):
-        return await self.company_service.get_company_analysis(companyId)
+    async def get_company_analysis(self, companyName: str):
+        return await self.company_service.get_company_analysis(companyName)

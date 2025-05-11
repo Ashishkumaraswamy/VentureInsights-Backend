@@ -1,32 +1,33 @@
 from datetime import datetime
 
-from backend.models.response.companies import CompanyBaseInfo
 from backend.settings import MongoConnectionDetails
+from backend.models.response.companies import (
+    CompanyBaseInfo,
+    CompanyAnalysisFullResponse,
+    CompanyAnalysisCompanyInfo,
+    CompanyAnalysis,
+    DocumentProcessing,
+    DocumentInfo,
+    TeamAnalysis,
+    TeamMember,
+    MarketIntelligence,
+    Competitor,
+    CompetitiveLandscape,
+    FinancialAnalysis,
+    RiskAssessment,
+    RiskItem,
+)
 
 
 class CompaniesService:
-    async def get_company_analysis(self, company_id: str):
-        from backend.models.response.companies import (
-            CompanyAnalysisFullResponse,
-            CompanyAnalysisCompanyInfo,
-            CompanyAnalysis,
-            DocumentProcessing,
-            DocumentInfo,
-            TeamAnalysis,
-            TeamMember,
-            MarketIntelligence,
-            Competitor,
-            CompetitiveLandscape,
-            FinancialAnalysis,
-            RiskAssessment,
-            RiskItem,
-        )
+    def __init__(self, mongo_config: MongoConnectionDetails):
+        self.mongo_config = mongo_config
 
+    async def get_company_analysis(self, company_name: str):
         # Mock data for demonstration
         return CompanyAnalysisFullResponse(
             company=CompanyAnalysisCompanyInfo(
-                id=company_id,
-                name="VentureInsights",
+                name=company_name,
                 description="A platform for venture analysis.",
                 industry="Technology",
                 foundingYear=2015,
@@ -100,9 +101,6 @@ class CompaniesService:
                 ),
             ),
         )
-
-    def __init__(self, mongo_config: MongoConnectionDetails):
-        self.mongo_config = mongo_config
 
     async def get_companies(self, limit: int = None) -> list[CompanyBaseInfo]:
         return [
