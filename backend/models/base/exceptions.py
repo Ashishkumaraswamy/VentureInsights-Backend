@@ -2,8 +2,8 @@ from enum import StrEnum, auto
 
 
 class Status(StrEnum):
-    SUCCESS=auto()
-    CREATED=auto()
+    SUCCESS = auto()
+    CREATED = auto()
     BAD_REQUEST = auto()
     ENTITY_NOT_FOUND = auto()
     MISSING_PARAMS = auto()

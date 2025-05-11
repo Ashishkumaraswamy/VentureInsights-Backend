@@ -9,6 +9,7 @@ from backend.services.auth import AuthService
 
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
 
+
 @cbv(auth_router)
 class AuthorizationApi:
     auth_service: AuthService = Depends(get_auth_service_settings)

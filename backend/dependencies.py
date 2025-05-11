@@ -12,18 +12,18 @@ def get_user(request: Request):
 
     return None
 
-def get_news_service(
-    app_settings: AppSettings = Depends(get_app_settings)):
+
+def get_news_service(app_settings: AppSettings = Depends(get_app_settings)):
     return NewsService(app_settings.db_config)
+
 
 def get_auth_service_settings(
     app_settings: AppSettings = Depends(get_app_settings),
 ):
     return AuthService(app_settings.db_config, app_settings.jwt_config)
 
-def get_company_service(
-    app_settings: AppSettings = Depends(get_app_settings)
-):
+
+def get_company_service(app_settings: AppSettings = Depends(get_app_settings)):
     return CompaniesService(app_settings.db_config)
 
 

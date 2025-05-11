@@ -15,6 +15,7 @@ if TYPE_CHECKING:
 
 LOG = get_logger()
 
+
 class MongoIndexSpec(BaseModel):
     keys: list[tuple[str, int]] = Field(
         ..., description="List of (field, direction) tuples."
@@ -26,6 +27,7 @@ class MongoIndexSpec(BaseModel):
     background: Optional[bool] = Field(
         False, description="Whether to build the index in the background."
     )
+
 
 class MongoDBConnector:
     def __init__(
@@ -202,5 +204,5 @@ class MongoDBConnector:
         collection_obj = await self.aget_collection(collection_name)
         try:
             await collection_obj.delete(query)
-        except:
+        except Exception:
             LOG.info(f"Failed to delete records from {collection_name} due to {query}")

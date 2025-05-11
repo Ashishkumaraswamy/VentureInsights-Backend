@@ -10,14 +10,11 @@ from backend.utils.exceptions import ServiceException
 
 class AuthMiddleWare(BaseHTTPMiddleware):
     def __init__(
-        self,
-        app,
-        jwt_config: JWTConfig,
-        unprotected_routes: list[str] = None
+        self, app, jwt_config: JWTConfig, unprotected_routes: list[str] = None
     ):
         super().__init__(app)
         self.unprotected_routes = unprotected_routes
-        self.jwt_config=jwt_config
+        self.jwt_config = jwt_config
 
     async def dispatch(self, request: Request, call_next):
         # Bypass authentication for excluded routes
@@ -27,7 +24,9 @@ class AuthMiddleWare(BaseHTTPMiddleware):
         # Extract the Authorization header
         auth_header = request.headers.get("Authorization")
         if not auth_header:
-            raise ServiceException(Status.UNAUTHORIZED, message="Missing Authorization Header")
+            raise ServiceException(
+                Status.UNAUTHORIZED, message="Missing Authorization Header"
+            )
 
         # Example: Expecting a Bearer token
         if not auth_header.startswith("Bearer "):
@@ -37,16 +36,25 @@ class AuthMiddleWare(BaseHTTPMiddleware):
 
         # Simple token validation (Replace with your actual token verification)
         try:
-            payload = jwt.decode(token, self.jwt_config.secret_key, algorithms=[self.jwt_config.algorithm])
-            request.state.user = payload  # Attach user info to request for use in routes
+            payload = jwt.decode(
+                token,
+                self.jwt_config.secret_key,
+                algorithms=[self.jwt_config.algorithm],
+            )
+            request.state.user = (
+                payload  # Attach user info to request for use in routes
+            )
         except jwt.ExpiredSignatureError:
-            raise ServiceException(reason=Status.UNAUTHORIZED, message="Token has expired")
+            raise ServiceException(
+                reason=Status.UNAUTHORIZED, message="Token has expired"
+            )
         except jwt.InvalidTokenError:
             raise ServiceException(reason=Status.UNAUTHORIZED, message="Invalid Token")
 
         # If token is valid, proceed to the next request
         response = await call_next(request)
         return response
+
 
 def get_auth_middleware(app: FastAPI, unprotected_routes: list[str] = None):
     app_settings = get_app_settings()  # Manually calling the dependency

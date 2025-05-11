@@ -6,7 +6,6 @@ from backend.api.auth import auth_router
 from backend.api.companies import companies_router
 from backend.api.news import news_router
 from backend.dependencies import get_user
-from backend.middlewares.auth import get_auth_middleware
 from fastapi.middleware.cors import CORSMiddleware
 from backend.models.base.users import User
 from backend.settings import get_app_settings
@@ -38,15 +37,17 @@ if app_settings.local:
     """
     In local mode, we don't need to authenticate the routes
     """
+
     def get_user_override():
         return User(
             user_id=app_settings.local_user_email,
         )
+
     app.dependency_overrides[get_user] = get_user_override
 
 _unprotected_routes = register_routers(
-        app, protected_routers=routers, unprotected_routers=unprotected_routers
-    )
+    app, protected_routers=routers, unprotected_routers=unprotected_routers
+)
 
 # app.add_middleware(middleware_class=get_auth_middleware(app, _unprotected_routes+["/docs"]))
 app.add_exception_handler(ServiceException, exception_handler)
@@ -58,12 +59,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
 @app.get("/docs", include_in_schema=True)
 async def scalar_html():
     return get_scalar_api_reference(
         openapi_url=app.openapi_url,
         title=app.title,
     )
+
 
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8080)

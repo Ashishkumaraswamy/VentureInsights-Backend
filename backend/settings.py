@@ -6,6 +6,7 @@ import yaml
 from pydantic import BaseModel, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
+
 class MongoConnectionDetails(BaseModel):
     host: str = Field(..., description="Host name for the database")
     user: str = Field(..., description="Username to use for connecting")
@@ -19,19 +20,26 @@ class MongoConnectionDetails(BaseModel):
     def __str__(self):
         return self.get_connection_string()
 
+
 class LLMConfig(BaseModel):
     api_key: str = Field(..., description="API key for the LLM service")
     api_base: str = Field(..., description="Base URL for the LLM service")
     api_version: str = Field(..., description="API version for the LLM service")
-    llm_deployment_name: str = Field(..., description="LLM deployment name for the LLM service")
+    llm_deployment_name: str = Field(
+        ..., description="LLM deployment name for the LLM service"
+    )
+
 
 class JWTConfig(BaseModel):
     secret_key: str = Field(..., description="Secret key for JWT")
     algorithm: str = Field(..., description="Algorithm for JWT")
     expire_after: int = Field(..., description="Validity for the JWT token in minutes")
 
+
 class AppSettings(BaseSettings):
-    db_config: MongoConnectionDetails = Field(..., description="MongoDB connection details")
+    db_config: MongoConnectionDetails = Field(
+        ..., description="MongoDB connection details"
+    )
     llm_config: LLMConfig = Field(..., description="LLM configuration details")
     jwt_config: JWTConfig = Field(..., description="JWT configuration details")
     local_user_email: Optional[str] = Field(None, description="Local user mail id")
@@ -52,7 +60,6 @@ class AppSettings(BaseSettings):
 
     @classmethod
     def get_from_env(cls):
-
         return cls(
             db_config=MongoConnectionDetails(
                 host=os.environ.get("DB__HOST"),
@@ -62,19 +69,20 @@ class AppSettings(BaseSettings):
                 password=os.environ.get("DB__PASSWORD"),
             ),
             llm_config=LLMConfig(
-                api_key = os.environ.get("AZURE_OPENAI_API_KEY"),
-                api_base = os.environ.get("AZURE_OPENAI_API_BASE"),
-                api_version = os.environ.get("AZURE_OPENAI_API_VERSION"),
-                llm_deployment_name = os.environ.get("OPENAI_LLM_DEPLOYMENT_NAME")
+                api_key=os.environ.get("AZURE_OPENAI_API_KEY"),
+                api_base=os.environ.get("AZURE_OPENAI_API_BASE"),
+                api_version=os.environ.get("AZURE_OPENAI_API_VERSION"),
+                llm_deployment_name=os.environ.get("OPENAI_LLM_DEPLOYMENT_NAME"),
             ),
             jwt_config=JWTConfig(
                 secret_key=os.environ.get("JWT_SECRET_KEY"),
                 algorithm=os.environ.get("JWT_ALGORITHM"),
-                expire_after=os.environ.get("JWT_TOKEN_EXPIRY_MINUTES")
+                expire_after=os.environ.get("JWT_TOKEN_EXPIRY_MINUTES"),
             ),
-            local_user = os.environ.get("LOCAL_USER"),
-            local = os.environ.get("LOCAL"),
+            local_user=os.environ.get("LOCAL_USER"),
+            local=os.environ.get("LOCAL"),
         )
+
 
 @lru_cache
 def get_app_settings():

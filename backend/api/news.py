@@ -8,6 +8,7 @@ from backend.services.news import NewsService
 
 news_router = APIRouter(prefix="/news", tags=["news"])
 
+
 @cbv(news_router)
 class NewsAPI:
     news_service: NewsService = Depends(get_news_service)

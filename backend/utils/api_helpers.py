@@ -7,6 +7,7 @@ from backend.utils.logger import get_logger
 
 LOG = get_logger()
 
+
 def fix_cbv_class_name_bug(route: APIRoute):
     """
     As of fastapi-utils v0.8.0.
@@ -19,6 +20,7 @@ def fix_cbv_class_name_bug(route: APIRoute):
         route.tags = list(set(route.tags))
     except IndexError:
         pass
+
 
 def register_routers(
     app: FastAPI,

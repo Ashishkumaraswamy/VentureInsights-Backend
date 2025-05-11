@@ -7,6 +7,7 @@ class SignUpRequest(BaseModel):
     email: str = Field(..., description="Email address of the user")
     password: SecretStr = Field(..., description="Password of the user")
 
+
 class LoginRequest(BaseModel):
     email: str = Field(..., description="Email address of the user")
     password: SecretStr = Field(..., description="Password of the user")
