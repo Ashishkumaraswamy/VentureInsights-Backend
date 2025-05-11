@@ -49,8 +49,6 @@ def show_time_taken(
     Example
     ---
 
-    >>> import time
-    >>> from dgcore.helpers import get_logger
     >>> s = datetime.now()
     >>> LOG = get_logger()
     >>> time.sleep(1)

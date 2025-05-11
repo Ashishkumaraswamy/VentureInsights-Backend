@@ -3,8 +3,11 @@ from fastapi import FastAPI
 from scalar_fastapi import get_scalar_api_reference
 
 from backend.api.auth import auth_router
+from backend.api.companies import companies_router
+from backend.api.news import news_router
 from backend.dependencies import get_user
 from backend.middlewares.auth import get_auth_middleware
+from fastapi.middleware.cors import CORSMiddleware
 from backend.models.base.users import User
 from backend.settings import get_app_settings
 from backend.utils.api_helpers import register_routers
@@ -24,7 +27,7 @@ app = FastAPI(
     docs_url="/swagger",
 )
 
-routers = []
+routers = [companies_router, news_router]
 
 unprotected_routers = [auth_router]
 
@@ -47,6 +50,13 @@ _unprotected_routes = register_routers(
 
 # app.add_middleware(middleware_class=get_auth_middleware(app, _unprotected_routes+["/docs"]))
 app.add_exception_handler(ServiceException, exception_handler)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Or specify ["http://localhost:5173"] for more security
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/docs", include_in_schema=True)
 async def scalar_html():
