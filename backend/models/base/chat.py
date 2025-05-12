@@ -8,6 +8,7 @@ class ChatThreadBase(BaseModel):
     title: str
     created_at: datetime
     updated_at: datetime
+    created_by: Optional[str] = None  # User ID or name of thread creator
 
 
 class ChatMessageBase(BaseModel):
@@ -15,6 +16,8 @@ class ChatMessageBase(BaseModel):
     content: str
     sender: Literal["user", "assistant", "tool"]
     timestamp: datetime
+    user_id: Optional[str] = None  # User ID associated with the message
+    user_name: Optional[str] = None  # User name/display name
 
 
 class Attachment(BaseModel):

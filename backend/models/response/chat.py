@@ -8,6 +8,8 @@ class LastMessage(BaseModel):
     content: str
     sender: Literal["user", "assistant"]
     timestamp: datetime
+    user_id: Optional[str] = None
+    user_name: Optional[str] = None
 
 
 class ChatThread(ChatThreadBase):

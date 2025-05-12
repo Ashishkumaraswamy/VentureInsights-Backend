@@ -27,7 +27,12 @@ The chat system implements a thread-based conversation architecture with the fol
   - Backend: Data persistence, context management, AI response generation
 - **Simplified API Contract**: Frontend only needs to send the new message content
 - **Context Management**: Backend maintains the full conversation history
-- **Persistence**: Currently using in-memory storage, will be migrated to database
+- **Persistence**: Chat history is stored in MongoDB for persistent storage
+
+## Database Structure
+The chat system uses MongoDB to store chat data in two collections:
+- **venture_chat_threads**: Stores thread metadata including title, creation time, and last message
+- **venture_chat_history**: Stores individual chat messages with references to their threads
 
 ## Development
-Currently, the conversation history is stored in memory. In a future update, this will be migrated to a database for persistent storage.
+The conversation history is now stored in MongoDB, which is the same database used for authentication.

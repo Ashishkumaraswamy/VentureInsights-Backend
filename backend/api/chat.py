@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, Path, Query
 from fastapi_utils.cbv import cbv
 
-from backend.dependencies import get_chat_service
+from backend.dependencies import get_chat_service, get_user
+from backend.models.base.users import User
 from backend.models.requests.chat import (
     CreateThreadRequest,
     UpdateThreadRequest,
@@ -22,21 +23,30 @@ LOG = get_logger()
 @cbv(chat_router)
 class ChatAPI:
     chat_service: ChatService = Depends(get_chat_service)
+    user: User = Depends(get_user)
 
     @chat_router.get("/threads", response_model=ChatThreadList)
     async def get_threads(
-        self, limit: int = Query(10, ge=1, le=100), offset: int = Query(0, ge=0)
+        self, 
+        limit: int = Query(10, ge=1, le=100), 
+        offset: int = Query(0, ge=0),
+        user_threads_only: bool = Query(False)
     ) -> ChatThreadList:
         """Get all chat threads with pagination"""
-        threads, total = await self.chat_service.get_threads(limit, offset)
+        user_id = self.user.email if user_threads_only and self.user else None
+        threads, total = await self.chat_service.get_threads(limit, offset, user_id)
         return ChatThreadList(threads=threads, total=total)
 
     @chat_router.post("/threads", response_model=ChatThread)
     async def create_thread(self, request: CreateThreadRequest) -> ChatThread:
         """Create a new chat thread"""
         LOG.info(f'thread payload is {request}')
-
-        return await self.chat_service.create_thread(request.title)
+        
+        # Add user info if not provided in request
+        if not request.created_by and self.user:
+            request.created_by = self.user.email
+            
+        return await self.chat_service.create_thread(request)
 
     @chat_router.get("/threads/{thread_id}", response_model=ChatThreadWithMessages)
     async def get_thread(self, thread_id: str = Path(...)) -> ChatThreadWithMessages:
@@ -71,5 +81,10 @@ class ChatAPI:
         3. Return the AI response
         """
         LOG.info(f'thread payload is {request}')
+        
+        # Add user info if not provided in request
+        if not request.user_id and self.user:
+            request.user_id = self.user.email
+            request.user_name = f"{self.user.first_name} {self.user.last_name}".strip()
 
         return await self.chat_service.add_message(thread_id, request) 
