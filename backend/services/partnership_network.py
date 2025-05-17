@@ -1,13 +1,14 @@
 from datetime import datetime
+from typing import Optional
 
 
 class PartnershipNetworkService:
     def __init__(self):
         pass
 
-    async def get_partner_list(self):
+    async def get_partner_list(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None):
         return {
-            "company_name": "TechNova Inc.",
+            "company_name": company_name,
             "partners": [
                 {
                     "name": "CloudX",
@@ -32,9 +33,9 @@ class PartnershipNetworkService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_strategic_alliances(self):
+    async def get_strategic_alliances(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None):
         return {
-            "company_name": "TechNova Inc.",
+            "company_name": company_name,
             "alliances": [
                 {
                     "partner": "CloudX",
@@ -59,9 +60,9 @@ class PartnershipNetworkService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_network_strength(self):
+    async def get_network_strength(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None):
         return {
-            "company_name": "TechNova Inc.",
+            "company_name": company_name,
             "network_metrics": [
                 {
                     "metric": "Partner Count",
@@ -81,9 +82,9 @@ class PartnershipNetworkService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_partnership_trends(self):
+    async def get_partnership_trends(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None, start_date: Optional[str] = None, end_date: Optional[str] = None):
         return {
-            "company_name": "TechNova Inc.",
+            "company_name": company_name,
             "partnership_trends_timeseries": [
                 {
                     "period_start": "2022-01-01",

@@ -1,15 +1,16 @@
 from datetime import datetime
+from typing import Optional
 
 
 class RiskAnalysisService:
     def __init__(self):
         pass
 
-    async def get_regulatory_risks(self):
+    async def get_regulatory_risks(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None):
         return {
-            "company_name": "TechNova Inc.",
-            "industry": "Cloud Computing",
-            "region": "Global",
+            "company_name": company_name,
+            "industry": industry or "Cloud Computing",
+            "region": region or "Global",
             "risks": [
                 {
                     "risk": "GDPR Non-compliance",
@@ -31,11 +32,11 @@ class RiskAnalysisService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_market_risks(self):
+    async def get_market_risks(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None):
         return {
-            "company_name": "TechNova Inc.",
-            "industry": "Cloud Computing",
-            "region": "Global",
+            "company_name": company_name,
+            "industry": industry or "Cloud Computing",
+            "region": region or "Global",
             "risks": [
                 {
                     "risk": "Market Saturation",
@@ -60,11 +61,11 @@ class RiskAnalysisService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_operational_risks(self):
+    async def get_operational_risks(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None):
         return {
-            "company_name": "TechNova Inc.",
-            "industry": "Cloud Computing",
-            "region": "Global",
+            "company_name": company_name,
+            "industry": industry or "Cloud Computing",
+            "region": region or "Global",
             "risks": [
                 {
                     "risk": "Talent Retention",
@@ -89,11 +90,11 @@ class RiskAnalysisService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_legal_risks(self):
+    async def get_legal_risks(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None):
         return {
-            "company_name": "TechNova Inc.",
-            "industry": "Cloud Computing",
-            "region": "Global",
+            "company_name": company_name,
+            "industry": industry or "Cloud Computing",
+            "region": region or "Global",
             "risks": [
                 {
                     "risk": "Patent Infringement Lawsuit",

@@ -1,15 +1,16 @@
 from datetime import datetime
+from typing import Optional
 
 
 class CustomerSentimentService:
     def __init__(self):
         pass
 
-    async def get_sentiment_summary(self):
+    async def get_sentiment_summary(self, company_name: str, domain: Optional[str] = None, product: Optional[str] = None, region: Optional[str] = None, start_date: Optional[str] = None, end_date: Optional[str] = None):
         return {
-            "company_name": "TechNova Inc.",
-            "product": "NovaCloud",
-            "region": "Global",
+            "company_name": company_name,
+            "product": product or "NovaCloud",
+            "region": region or "Global",
             "sentiment_score": 0.72,
             "sentiment_breakdown": {"positive": 120, "negative": 30, "neutral": 50},
             "sentiment_timeseries": [
@@ -39,11 +40,11 @@ class CustomerSentimentService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_customer_feedback(self):
+    async def get_customer_feedback(self, company_name: str, domain: Optional[str] = None, product: Optional[str] = None, region: Optional[str] = None, start_date: Optional[str] = None, end_date: Optional[str] = None):
         return {
-            "company_name": "TechNova Inc.",
-            "product": "NovaCloud",
-            "region": "Global",
+            "company_name": company_name,
+            "product": product or "NovaCloud",
+            "region": region or "Global",
             "feedback_items": [
                 {
                     "date": "2023-06-01",
@@ -79,10 +80,10 @@ class CustomerSentimentService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_brand_reputation(self):
+    async def get_brand_reputation(self, company_name: str, domain: Optional[str] = None, region: Optional[str] = None, start_date: Optional[str] = None, end_date: Optional[str] = None):
         return {
-            "company_name": "TechNova Inc.",
-            "region": "Global",
+            "company_name": company_name,
+            "region": region or "Global",
             "reputation_score": 0.81,
             "reputation_timeseries": [
                 {

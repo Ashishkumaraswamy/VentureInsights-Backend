@@ -25,18 +25,38 @@ class RiskAnalysisCBV:
         "/regulatory-risks", response_model=RegulatoryRisksResponse
     )
     async def get_regulatory_risks(self, req: RegulatoryRisksRequest):
-        return await self.risk_analysis_service.get_regulatory_risks()
+        return await self.risk_analysis_service.get_regulatory_risks(
+            company_name=req.company_name,
+            domain=req.domain,
+            industry=req.industry,
+            region=req.region
+        )
 
     @risk_analysis_router.post("/market-risks", response_model=MarketRisksResponse)
     async def get_market_risks(self, req: MarketRisksRequest):
-        return await self.risk_analysis_service.get_market_risks()
+        return await self.risk_analysis_service.get_market_risks(
+            company_name=req.company_name,
+            domain=req.domain,
+            industry=req.industry,
+            region=req.region
+        )
 
     @risk_analysis_router.post(
         "/operational-risks", response_model=OperationalRisksResponse
     )
     async def get_operational_risks(self, req: OperationalRisksRequest):
-        return await self.risk_analysis_service.get_operational_risks()
+        return await self.risk_analysis_service.get_operational_risks(
+            company_name=req.company_name,
+            domain=req.domain,
+            industry=req.industry,
+            region=req.region
+        )
 
     @risk_analysis_router.post("/legal-risks", response_model=LegalRisksResponse)
     async def get_legal_risks(self, req: LegalRisksRequest):
-        return await self.risk_analysis_service.get_legal_risks()
+        return await self.risk_analysis_service.get_legal_risks(
+            company_name=req.company_name,
+            domain=req.domain,
+            industry=req.industry,
+            region=req.region
+        )

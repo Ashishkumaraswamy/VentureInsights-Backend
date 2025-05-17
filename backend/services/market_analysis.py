@@ -1,14 +1,15 @@
 from datetime import datetime
+from typing import Optional, List
 
 
 class MarketAnalysisService:
     def __init__(self):
         pass
 
-    async def get_market_trends(self):
+    async def get_market_trends(self, industry: str, region: Optional[str] = None, start_date: Optional[str] = None, end_date: Optional[str] = None):
         return {
-            "industry": "Cloud Computing",
-            "region": "Global",
+            "industry": industry,
+            "region": region or "Global",
             "trends_timeseries": [
                 {
                     "period_start": "2022-01-01",
@@ -32,11 +33,11 @@ class MarketAnalysisService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_competitive_analysis(self):
+    async def get_competitive_analysis(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None):
         return {
-            "company_name": "TechNova Inc.",
-            "industry": "Cloud Computing",
-            "region": "Global",
+            "company_name": company_name,
+            "industry": industry or "Cloud Computing",
+            "region": region or "Global",
             "top_competitors": [
                 {
                     "name": "CloudX",
@@ -67,10 +68,10 @@ class MarketAnalysisService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_growth_projections(self):
+    async def get_growth_projections(self, industry: str, region: Optional[str] = None, start_date: Optional[str] = None, end_date: Optional[str] = None):
         return {
-            "industry": "Cloud Computing",
-            "region": "Global",
+            "industry": industry,
+            "region": region or "Global",
             "projections_timeseries": [
                 {
                     "period_start": "2024-01-01",
@@ -97,9 +98,9 @@ class MarketAnalysisService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_regional_trends(self):
+    async def get_regional_trends(self, industry: str, regions: Optional[List[str]] = None, start_date: Optional[str] = None, end_date: Optional[str] = None):
         return {
-            "industry": "Cloud Computing",
+            "industry": industry,
             "regional_trends": [
                 {
                     "region": "North America",

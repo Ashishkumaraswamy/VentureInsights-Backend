@@ -1,13 +1,14 @@
 from datetime import datetime
+from typing import Optional
 
 
 class LinkedInTeamService:
     def __init__(self):
         pass
 
-    async def get_team_overview(self):
+    async def get_team_overview(self, company_name: str, domain: Optional[str] = None):
         return {
-            "company_name": "TechNova Inc.",
+            "company_name": company_name,
             "total_employees": 120,
             "roles_breakdown": [
                 {
@@ -46,10 +47,10 @@ class LinkedInTeamService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_individual_performance(self):
+    async def get_individual_performance(self, company_name: str, domain: Optional[str] = None, individual_name: Optional[str] = None):
         return {
-            "company_name": "TechNova Inc.",
-            "individual_name": "Jane Doe",
+            "company_name": company_name,
+            "individual_name": individual_name or "Jane Doe",
             "title": "VP of Engineering",
             "tenure_years": 3.5,
             "performance_metrics": [
@@ -76,9 +77,9 @@ class LinkedInTeamService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_org_structure(self):
+    async def get_org_structure(self, company_name: str, domain: Optional[str] = None):
         return {
-            "company_name": "TechNova Inc.",
+            "company_name": company_name,
             "org_chart": [
                 {
                     "name": "Jane Doe",
@@ -113,9 +114,9 @@ class LinkedInTeamService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_team_growth(self):
+    async def get_team_growth(self, company_name: str, domain: Optional[str] = None, start_date: Optional[str] = None, end_date: Optional[str] = None):
         return {
-            "company_name": "TechNova Inc.",
+            "company_name": company_name,
             "team_growth_timeseries": [
                 {
                     "period_start": "2023-01-01",

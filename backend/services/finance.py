@@ -1,17 +1,33 @@
 from backend.settings import LLMConfig
-from datetime import datetime
+from datetime import datetime, date
+from typing import Optional
 
 
 class FinanceService:
-    def __init__(
-        self,
-        llm_config: LLMConfig,
-    ):
+    def __init__(self, llm_config: LLMConfig):
         self.llm_config = llm_config
 
-    async def get_revenue_analysis(self):
+    async def get_revenue_analysis(
+        self,
+        company_name: str,
+        domain: Optional[str] = None,
+        start_date: Optional[date] = None,
+        end_date: Optional[date] = None,
+        granularity: str = "year"
+    ):
+        """
+        Retrieve revenue analysis data for a company.
+        Args:
+            company_name (str): Name of the company (required)
+            domain (str, optional): Domain of the company
+            start_date (date, optional): Start date for analysis
+            end_date (date, optional): End date for analysis
+            granularity (str, optional): Granularity of data (year, quarter, or month)
+        Returns:
+            dict: Contains company name, currency, revenue timeseries, total revenue, and last updated timestamp.
+        """
         return {
-            "company_name": "TechNova Inc.",
+            "company_name": company_name,
             "currency": "USD",
             "revenue_timeseries": [
                 {
@@ -36,10 +52,26 @@ class FinanceService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_expense_analysis(self):
+    async def get_expense_analysis(
+        self,
+        company_name: str,
+        domain: Optional[str] = None,
+        year: Optional[int] = None,
+        category: Optional[str] = None
+    ):
+        """
+        Retrieve expense analysis data for a company.
+        Args:
+            company_name (str): Name of the company (required)
+            domain (str, optional): Domain of the company
+            year (int, optional): Year for analysis
+            category (str, optional): Expense category
+        Returns:
+            dict: Contains company name, year, expenses by category, expense timeseries, total expense, currency, and last updated timestamp.
+        """
         return {
-            "company_name": "TechNova Inc.",
-            "year": 2023,
+            "company_name": company_name,
+            "year": year or 2023,
             "expenses": [
                 {
                     "category": "R&D",
@@ -79,10 +111,24 @@ class FinanceService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_profit_margins(self):
+    async def get_profit_margins(
+        self,
+        company_name: str,
+        domain: Optional[str] = None,
+        year: Optional[int] = None
+    ):
+        """
+        Retrieve profit margin data for a company.
+        Args:
+            company_name (str): Name of the company (required)
+            domain (str, optional): Domain of the company
+            year (int, optional): Year for analysis
+        Returns:
+            dict: Contains company name, year, gross/operating/net margins, margin timeseries, currency, sources, and last updated timestamp.
+        """
         return {
-            "company_name": "TechNova Inc.",
-            "year": 2023,
+            "company_name": company_name,
+            "year": year or 2023,
             "gross_margin": 0.55,
             "operating_margin": 0.32,
             "net_margin": 0.21,
@@ -111,12 +157,26 @@ class FinanceService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_valuation_estimation(self):
+    async def get_valuation_estimation(
+        self,
+        company_name: str,
+        domain: Optional[str] = None,
+        as_of_date: Optional[date] = None
+    ):
+        """
+        Retrieve valuation estimation data for a company.
+        Args:
+            company_name (str): Name of the company (required)
+            domain (str, optional): Domain of the company
+            as_of_date (date, optional): Date for valuation
+        Returns:
+            dict: Contains company name, valuation, currency, as-of date, valuation timeseries, sources, confidence, and last updated timestamp.
+        """
         return {
-            "company_name": "TechNova Inc.",
+            "company_name": company_name,
             "valuation": 15000000.0,
             "currency": "USD",
-            "as_of_date": "2024-05-01",
+            "as_of_date": str(as_of_date) if as_of_date else "2024-05-01",
             "valuation_timeseries": [
                 {
                     "as_of_date": "2023-06-01",
@@ -142,9 +202,21 @@ class FinanceService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_funding_history(self):
+    async def get_funding_history(
+        self,
+        company_name: str,
+        domain: Optional[str] = None
+    ):
+        """
+        Retrieve funding history data for a company.
+        Args:
+            company_name (str): Name of the company (required)
+            domain (str, optional): Domain of the company
+        Returns:
+            dict: Contains company name, funding rounds, cumulative funding timeseries, total funding, currency, and last updated timestamp.
+        """
         return {
-            "company_name": "TechNova Inc.",
+            "company_name": company_name,
             "funding_rounds": [
                 {
                     "round_type": "Seed",

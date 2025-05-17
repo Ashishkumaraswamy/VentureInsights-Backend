@@ -23,22 +23,42 @@ class MarketAnalysisCBV:
 
     @market_analysis_router.post("/market-trends", response_model=MarketTrendsResponse)
     async def get_market_trends(self, req: MarketTrendsRequest):
-        return await self.market_analysis_service.get_market_trends()
+        return await self.market_analysis_service.get_market_trends(
+            industry=req.industry,
+            region=req.region,
+            start_date=req.start_date,
+            end_date=req.end_date
+        )
 
     @market_analysis_router.post(
         "/competitive-analysis", response_model=CompetitiveAnalysisResponse
     )
     async def get_competitive_analysis(self, req: CompetitiveAnalysisRequest):
-        return await self.market_analysis_service.get_competitive_analysis()
+        return await self.market_analysis_service.get_competitive_analysis(
+            company_name=req.company_name,
+            domain=req.domain,
+            industry=req.industry,
+            region=req.region
+        )
 
     @market_analysis_router.post(
         "/growth-projections", response_model=GrowthProjectionsResponse
     )
     async def get_growth_projections(self, req: GrowthProjectionsRequest):
-        return await self.market_analysis_service.get_growth_projections()
+        return await self.market_analysis_service.get_growth_projections(
+            industry=req.industry,
+            region=req.region,
+            start_date=req.start_date,
+            end_date=req.end_date
+        )
 
     @market_analysis_router.post(
         "/regional-trends", response_model=RegionalTrendsResponse
     )
     async def get_regional_trends(self, req: RegionalTrendsRequest):
-        return await self.market_analysis_service.get_regional_trends()
+        return await self.market_analysis_service.get_regional_trends(
+            industry=req.industry,
+            regions=req.regions,
+            start_date=req.start_date,
+            end_date=req.end_date
+        )

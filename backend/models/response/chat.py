@@ -40,8 +40,8 @@ class MessageResponse(ChatMessageBase):
 
 class AnalysisResponse(BaseModel):
     summary: str
-    confidence: float
-    sources: List[Dict[str, str]]
+    data: Dict[str, Any]
+    sources: List[str]
 
 
 class AssistantMessageResponse(ChatMessageBase):

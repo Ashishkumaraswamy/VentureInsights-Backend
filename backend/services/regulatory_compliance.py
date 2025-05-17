@@ -1,15 +1,16 @@
 from datetime import datetime
+from typing import Optional, List
 
 
 class RegulatoryComplianceService:
     def __init__(self):
         pass
 
-    async def get_compliance_overview(self):
+    async def get_compliance_overview(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None):
         return {
-            "company_name": "TechNova Inc.",
-            "industry": "Cloud Computing",
-            "region": "Global",
+            "company_name": company_name,
+            "industry": industry or "Cloud Computing",
+            "region": region or "Global",
             "regulations": [
                 {
                     "regulation": "GDPR",
@@ -35,11 +36,11 @@ class RegulatoryComplianceService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_violation_history(self):
+    async def get_violation_history(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None, start_date: Optional[str] = None, end_date: Optional[str] = None):
         return {
-            "company_name": "TechNova Inc.",
-            "industry": "Cloud Computing",
-            "region": "Global",
+            "company_name": company_name,
+            "industry": industry or "Cloud Computing",
+            "region": region or "Global",
             "violations": [
                 {
                     "violation": "Data Breach",
@@ -68,11 +69,11 @@ class RegulatoryComplianceService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_compliance_risk(self):
+    async def get_compliance_risk(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None):
         return {
-            "company_name": "TechNova Inc.",
-            "industry": "Cloud Computing",
-            "region": "Global",
+            "company_name": company_name,
+            "industry": industry or "Cloud Computing",
+            "region": region or "Global",
             "risks": [
                 {
                     "risk": "GDPR Fines",
@@ -94,10 +95,10 @@ class RegulatoryComplianceService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_regional_compliance(self):
+    async def get_regional_compliance(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, regions: Optional[List[str]] = None):
         return {
-            "company_name": "TechNova Inc.",
-            "industry": "Cloud Computing",
+            "company_name": company_name,
+            "industry": industry or "Cloud Computing",
             "regional_compliance": [
                 {
                     "region": "EU",
