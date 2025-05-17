@@ -33,7 +33,7 @@ class RegulatoryComplianceCBV:
             company_name=req.company_name,
             domain=req.domain,
             industry=req.industry,
-            region=req.region
+            region=req.region,
         )
 
     @regulatory_compliance_router.post(
@@ -46,7 +46,7 @@ class RegulatoryComplianceCBV:
             industry=req.industry,
             region=req.region,
             start_date=req.start_date,
-            end_date=req.end_date
+            end_date=req.end_date,
         )
 
     @regulatory_compliance_router.post(
@@ -57,7 +57,7 @@ class RegulatoryComplianceCBV:
             company_name=req.company_name,
             domain=req.domain,
             industry=req.industry,
-            region=req.region
+            region=req.region,
         )
 
     @regulatory_compliance_router.post(
@@ -68,5 +68,5 @@ class RegulatoryComplianceCBV:
             company_name=req.company_name,
             domain=req.domain,
             industry=req.industry,
-            regions=req.regions
+            regions=req.regions,
         )

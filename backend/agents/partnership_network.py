@@ -9,17 +9,20 @@ import asyncio
 from typing import Optional
 import json
 
+
 # Helper to wrap async methods for sync tool interface
 def syncify(async_fn):
     def wrapper(*args, **kwargs):
         return asyncio.run(async_fn(*args, **kwargs))
+
     return wrapper
+
 
 class PartnershipNetworkAgent(BaseAgent):
     def __init__(
         self,
         partnership_network_service: PartnershipNetworkService,
-        llm_config: LLMConfig
+        llm_config: LLMConfig,
     ):
         super().__init__(llm_config)
         self.partnership_network_service = partnership_network_service
@@ -29,13 +32,13 @@ class PartnershipNetworkAgent(BaseAgent):
             company_name: str,
             domain: Optional[str] = None,
             industry: Optional[str] = None,
-            region: Optional[str] = None
+            region: Optional[str] = None,
         ):
             result = syncify(self.partnership_network_service.get_partner_list)(
                 company_name=company_name,
                 domain=domain,
                 industry=industry,
-                region=region
+                region=region,
             )
             return json.dumps(result)
 
@@ -44,13 +47,13 @@ class PartnershipNetworkAgent(BaseAgent):
             company_name: str,
             domain: Optional[str] = None,
             industry: Optional[str] = None,
-            region: Optional[str] = None
+            region: Optional[str] = None,
         ):
             result = syncify(self.partnership_network_service.get_strategic_alliances)(
                 company_name=company_name,
                 domain=domain,
                 industry=industry,
-                region=region
+                region=region,
             )
             return json.dumps(result)
 
@@ -59,13 +62,13 @@ class PartnershipNetworkAgent(BaseAgent):
             company_name: str,
             domain: Optional[str] = None,
             industry: Optional[str] = None,
-            region: Optional[str] = None
+            region: Optional[str] = None,
         ):
             result = syncify(self.partnership_network_service.get_network_strength)(
                 company_name=company_name,
                 domain=domain,
                 industry=industry,
-                region=region
+                region=region,
             )
             return json.dumps(result)
 
@@ -76,7 +79,7 @@ class PartnershipNetworkAgent(BaseAgent):
             industry: Optional[str] = None,
             region: Optional[str] = None,
             start_date: Optional[str] = None,
-            end_date: Optional[str] = None
+            end_date: Optional[str] = None,
         ):
             result = syncify(self.partnership_network_service.get_partnership_trends)(
                 company_name=company_name,
@@ -84,7 +87,7 @@ class PartnershipNetworkAgent(BaseAgent):
                 industry=industry,
                 region=region,
                 start_date=start_date,
-                end_date=end_date
+                end_date=end_date,
             )
             return json.dumps(result)
 
@@ -101,7 +104,7 @@ class PartnershipNetworkAgent(BaseAgent):
             tools=self.tools,
             system_prompt=self.system_prompt(),
             show_tool_calls=True,
-            response_model=AnalysisResponse
+            response_model=AnalysisResponse,
         )
 
     @staticmethod
@@ -119,4 +122,4 @@ class PartnershipNetworkAgent(BaseAgent):
 
     def run(self, user_message: str) -> AnalysisResponse:
         result = self.agent.run(user_message)
-        return result.content 
+        return result.content

@@ -9,17 +9,18 @@ import asyncio
 from typing import Optional
 import json
 
+
 # Helper to wrap async methods for sync tool interface
 def syncify(async_fn):
     def wrapper(*args, **kwargs):
         return asyncio.run(async_fn(*args, **kwargs))
+
     return wrapper
+
 
 class RiskAnalysisAgent(BaseAgent):
     def __init__(
-        self,
-        risk_analysis_service: RiskAnalysisService,
-        llm_config: LLMConfig
+        self, risk_analysis_service: RiskAnalysisService, llm_config: LLMConfig
     ):
         super().__init__(llm_config)
         self.risk_analysis_service = risk_analysis_service
@@ -29,13 +30,13 @@ class RiskAnalysisAgent(BaseAgent):
             company_name: str,
             domain: Optional[str] = None,
             industry: Optional[str] = None,
-            region: Optional[str] = None
+            region: Optional[str] = None,
         ):
             result = syncify(self.risk_analysis_service.get_regulatory_risks)(
                 company_name=company_name,
                 domain=domain,
                 industry=industry,
-                region=region
+                region=region,
             )
             return json.dumps(result)
 
@@ -44,13 +45,13 @@ class RiskAnalysisAgent(BaseAgent):
             company_name: str,
             domain: Optional[str] = None,
             industry: Optional[str] = None,
-            region: Optional[str] = None
+            region: Optional[str] = None,
         ):
             result = syncify(self.risk_analysis_service.get_market_risks)(
                 company_name=company_name,
                 domain=domain,
                 industry=industry,
-                region=region
+                region=region,
             )
             return json.dumps(result)
 
@@ -59,13 +60,13 @@ class RiskAnalysisAgent(BaseAgent):
             company_name: str,
             domain: Optional[str] = None,
             industry: Optional[str] = None,
-            region: Optional[str] = None
+            region: Optional[str] = None,
         ):
             result = syncify(self.risk_analysis_service.get_operational_risks)(
                 company_name=company_name,
                 domain=domain,
                 industry=industry,
-                region=region
+                region=region,
             )
             return json.dumps(result)
 
@@ -74,13 +75,13 @@ class RiskAnalysisAgent(BaseAgent):
             company_name: str,
             domain: Optional[str] = None,
             industry: Optional[str] = None,
-            region: Optional[str] = None
+            region: Optional[str] = None,
         ):
             result = syncify(self.risk_analysis_service.get_legal_risks)(
                 company_name=company_name,
                 domain=domain,
                 industry=industry,
-                region=region
+                region=region,
             )
             return json.dumps(result)
 
@@ -97,7 +98,7 @@ class RiskAnalysisAgent(BaseAgent):
             tools=self.tools,
             system_prompt=self.system_prompt(),
             show_tool_calls=True,
-            response_model=AnalysisResponse
+            response_model=AnalysisResponse,
         )
 
     @staticmethod
@@ -115,4 +116,4 @@ class RiskAnalysisAgent(BaseAgent):
 
     def run(self, user_message: str) -> AnalysisResponse:
         result = self.agent.run(user_message)
-        return result.content 
+        return result.content

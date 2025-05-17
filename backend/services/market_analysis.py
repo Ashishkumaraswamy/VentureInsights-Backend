@@ -6,7 +6,13 @@ class MarketAnalysisService:
     def __init__(self):
         pass
 
-    async def get_market_trends(self, industry: str, region: Optional[str] = None, start_date: Optional[str] = None, end_date: Optional[str] = None):
+    async def get_market_trends(
+        self,
+        industry: str,
+        region: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ):
         return {
             "industry": industry,
             "region": region or "Global",
@@ -33,7 +39,13 @@ class MarketAnalysisService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_competitive_analysis(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None):
+    async def get_competitive_analysis(
+        self,
+        company_name: str,
+        domain: Optional[str] = None,
+        industry: Optional[str] = None,
+        region: Optional[str] = None,
+    ):
         return {
             "company_name": company_name,
             "industry": industry or "Cloud Computing",
@@ -68,7 +80,13 @@ class MarketAnalysisService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_growth_projections(self, industry: str, region: Optional[str] = None, start_date: Optional[str] = None, end_date: Optional[str] = None):
+    async def get_growth_projections(
+        self,
+        industry: str,
+        region: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ):
         return {
             "industry": industry,
             "region": region or "Global",
@@ -98,7 +116,13 @@ class MarketAnalysisService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_regional_trends(self, industry: str, regions: Optional[List[str]] = None, start_date: Optional[str] = None, end_date: Optional[str] = None):
+    async def get_regional_trends(
+        self,
+        industry: str,
+        regions: Optional[List[str]] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ):
         return {
             "industry": industry,
             "regional_trends": [

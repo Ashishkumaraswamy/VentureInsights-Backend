@@ -9,17 +9,20 @@ import asyncio
 from typing import Optional, List
 import json
 
+
 # Helper to wrap async methods for sync tool interface
 def syncify(async_fn):
     def wrapper(*args, **kwargs):
         return asyncio.run(async_fn(*args, **kwargs))
+
     return wrapper
+
 
 class RegulatoryComplianceAgent(BaseAgent):
     def __init__(
         self,
         regulatory_compliance_service: RegulatoryComplianceService,
-        llm_config: LLMConfig
+        llm_config: LLMConfig,
     ):
         super().__init__(llm_config)
         self.regulatory_compliance_service = regulatory_compliance_service
@@ -29,13 +32,15 @@ class RegulatoryComplianceAgent(BaseAgent):
             company_name: str,
             domain: Optional[str] = None,
             industry: Optional[str] = None,
-            region: Optional[str] = None
+            region: Optional[str] = None,
         ):
-            result = syncify(self.regulatory_compliance_service.get_compliance_overview)(
+            result = syncify(
+                self.regulatory_compliance_service.get_compliance_overview
+            )(
                 company_name=company_name,
                 domain=domain,
                 industry=industry,
-                region=region
+                region=region,
             )
             return json.dumps(result)
 
@@ -46,7 +51,7 @@ class RegulatoryComplianceAgent(BaseAgent):
             industry: Optional[str] = None,
             region: Optional[str] = None,
             start_date: Optional[str] = None,
-            end_date: Optional[str] = None
+            end_date: Optional[str] = None,
         ):
             result = syncify(self.regulatory_compliance_service.get_violation_history)(
                 company_name=company_name,
@@ -54,7 +59,7 @@ class RegulatoryComplianceAgent(BaseAgent):
                 industry=industry,
                 region=region,
                 start_date=start_date,
-                end_date=end_date
+                end_date=end_date,
             )
             return json.dumps(result)
 
@@ -63,13 +68,13 @@ class RegulatoryComplianceAgent(BaseAgent):
             company_name: str,
             domain: Optional[str] = None,
             industry: Optional[str] = None,
-            region: Optional[str] = None
+            region: Optional[str] = None,
         ):
             result = syncify(self.regulatory_compliance_service.get_compliance_risk)(
                 company_name=company_name,
                 domain=domain,
                 industry=industry,
-                region=region
+                region=region,
             )
             return json.dumps(result)
 
@@ -78,13 +83,15 @@ class RegulatoryComplianceAgent(BaseAgent):
             company_name: str,
             domain: Optional[str] = None,
             industry: Optional[str] = None,
-            regions: Optional[List[str]] = None
+            regions: Optional[List[str]] = None,
         ):
-            result = syncify(self.regulatory_compliance_service.get_regional_compliance)(
+            result = syncify(
+                self.regulatory_compliance_service.get_regional_compliance
+            )(
                 company_name=company_name,
                 domain=domain,
                 industry=industry,
-                regions=regions
+                regions=regions,
             )
             return json.dumps(result)
 
@@ -101,7 +108,7 @@ class RegulatoryComplianceAgent(BaseAgent):
             tools=self.tools,
             system_prompt=self.system_prompt(),
             show_tool_calls=True,
-            response_model=AnalysisResponse
+            response_model=AnalysisResponse,
         )
 
     @staticmethod
@@ -119,4 +126,4 @@ class RegulatoryComplianceAgent(BaseAgent):
 
     def run(self, user_message: str) -> AnalysisResponse:
         result = self.agent.run(user_message)
-        return result.content 
+        return result.content

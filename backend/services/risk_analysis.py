@@ -6,7 +6,13 @@ class RiskAnalysisService:
     def __init__(self):
         pass
 
-    async def get_regulatory_risks(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None):
+    async def get_regulatory_risks(
+        self,
+        company_name: str,
+        domain: Optional[str] = None,
+        industry: Optional[str] = None,
+        region: Optional[str] = None,
+    ):
         return {
             "company_name": company_name,
             "industry": industry or "Cloud Computing",
@@ -32,7 +38,13 @@ class RiskAnalysisService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_market_risks(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None):
+    async def get_market_risks(
+        self,
+        company_name: str,
+        domain: Optional[str] = None,
+        industry: Optional[str] = None,
+        region: Optional[str] = None,
+    ):
         return {
             "company_name": company_name,
             "industry": industry or "Cloud Computing",
@@ -61,7 +73,13 @@ class RiskAnalysisService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_operational_risks(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None):
+    async def get_operational_risks(
+        self,
+        company_name: str,
+        domain: Optional[str] = None,
+        industry: Optional[str] = None,
+        region: Optional[str] = None,
+    ):
         return {
             "company_name": company_name,
             "industry": industry or "Cloud Computing",
@@ -90,7 +108,13 @@ class RiskAnalysisService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_legal_risks(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None):
+    async def get_legal_risks(
+        self,
+        company_name: str,
+        domain: Optional[str] = None,
+        industry: Optional[str] = None,
+        region: Optional[str] = None,
+    ):
         return {
             "company_name": company_name,
             "industry": industry or "Cloud Computing",

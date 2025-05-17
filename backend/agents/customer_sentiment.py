@@ -9,17 +9,20 @@ import asyncio
 from typing import Optional
 import json
 
+
 # Helper to wrap async methods for sync tool interface
 def syncify(async_fn):
     def wrapper(*args, **kwargs):
         return asyncio.run(async_fn(*args, **kwargs))
+
     return wrapper
+
 
 class CustomerSentimentAgent(BaseAgent):
     def __init__(
         self,
         customer_sentiment_service: CustomerSentimentService,
-        llm_config: LLMConfig
+        llm_config: LLMConfig,
     ):
         super().__init__(llm_config)
         self.customer_sentiment_service = customer_sentiment_service
@@ -31,7 +34,7 @@ class CustomerSentimentAgent(BaseAgent):
             product: Optional[str] = None,
             region: Optional[str] = None,
             start_date: Optional[str] = None,
-            end_date: Optional[str] = None
+            end_date: Optional[str] = None,
         ):
             result = syncify(self.customer_sentiment_service.get_sentiment_summary)(
                 company_name=company_name,
@@ -39,7 +42,7 @@ class CustomerSentimentAgent(BaseAgent):
                 product=product,
                 region=region,
                 start_date=start_date,
-                end_date=end_date
+                end_date=end_date,
             )
             return json.dumps(result)
 
@@ -50,7 +53,7 @@ class CustomerSentimentAgent(BaseAgent):
             product: Optional[str] = None,
             region: Optional[str] = None,
             start_date: Optional[str] = None,
-            end_date: Optional[str] = None
+            end_date: Optional[str] = None,
         ):
             result = syncify(self.customer_sentiment_service.get_customer_feedback)(
                 company_name=company_name,
@@ -58,7 +61,7 @@ class CustomerSentimentAgent(BaseAgent):
                 product=product,
                 region=region,
                 start_date=start_date,
-                end_date=end_date
+                end_date=end_date,
             )
             return json.dumps(result)
 
@@ -68,14 +71,14 @@ class CustomerSentimentAgent(BaseAgent):
             domain: Optional[str] = None,
             region: Optional[str] = None,
             start_date: Optional[str] = None,
-            end_date: Optional[str] = None
+            end_date: Optional[str] = None,
         ):
             result = syncify(self.customer_sentiment_service.get_brand_reputation)(
                 company_name=company_name,
                 domain=domain,
                 region=region,
                 start_date=start_date,
-                end_date=end_date
+                end_date=end_date,
             )
             return json.dumps(result)
 
@@ -91,7 +94,7 @@ class CustomerSentimentAgent(BaseAgent):
             tools=self.tools,
             system_prompt=self.system_prompt(),
             show_tool_calls=True,
-            response_model=AnalysisResponse
+            response_model=AnalysisResponse,
         )
 
     @staticmethod
@@ -108,4 +111,4 @@ class CustomerSentimentAgent(BaseAgent):
 
     def run(self, user_message: str) -> AnalysisResponse:
         result = self.agent.run(user_message)
-        return result.content 
+        return result.content
