@@ -21,6 +21,7 @@ class Status(StrEnum):
 
 class NotFoundException(Exception):
     """Simple exception for when an entity is not found."""
+
     def __init__(self, message: str):
         self.message = message
         self.status = Status.NOT_FOUND

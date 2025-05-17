@@ -3,7 +3,10 @@ from fastapi_utils.cbv import cbv
 from typing import Optional
 
 from backend.dependencies import get_files_service
-from backend.models.requests.files import FileUploadInitiateRequest, FileUploadCompleteRequest
+from backend.models.requests.files import (
+    FileUploadInitiateRequest,
+    FileUploadCompleteRequest,
+)
 from backend.models.response.files import (
     FileUploadInitiateResponse,
     FileResponse,
@@ -19,26 +22,24 @@ class FilesAPI:
     files_service: FilesService = Depends(get_files_service)
 
     @files_router.post("/upload/initiate", response_model=FileUploadInitiateResponse)
-    async def initiate_upload(self, request: FileUploadInitiateRequest) -> FileUploadInitiateResponse:
+    async def initiate_upload(
+        self, request: FileUploadInitiateRequest
+    ) -> FileUploadInitiateResponse:
         """Initiate a file upload process and get a temporary upload URL"""
         result = await self.files_service.initiate_upload(
-            request.filename,
-            request.content_type,
-            request.size,
-            request.thread_id
+            request.filename, request.content_type, request.size, request.thread_id
         )
         return FileUploadInitiateResponse(
             file_id=result["file_id"],
             upload_url=result["upload_url"],
-            expires=result["expires"]
+            expires=result["expires"],
         )
 
     @files_router.post("/upload/complete", response_model=FileResponse)
     async def complete_upload(self, request: FileUploadCompleteRequest) -> FileResponse:
         """Complete a file upload process"""
         result = await self.files_service.complete_upload(
-            request.file_id,
-            request.thread_id
+            request.file_id, request.thread_id
         )
         return FileResponse(**result)
 
@@ -52,10 +53,7 @@ class FilesAPI:
     ) -> FileListResponse:
         """List files with filtering and pagination"""
         result = await self.files_service.list_files(
-            thread_id=thread_id,
-            limit=limit,
-            offset=offset,
-            status=status
+            thread_id=thread_id, limit=limit, offset=offset, status=status
         )
         return FileListResponse(**result)
 
@@ -63,4 +61,4 @@ class FilesAPI:
     async def get_file(self, file_id: str = Path(...)) -> FileResponse:
         """Get file details, status, and analysis if available"""
         result = await self.files_service.get_file(file_id)
-        return FileResponse(**result) 
+        return FileResponse(**result)

@@ -11,4 +11,4 @@ class FileUploadInitiateRequest(BaseModel):
 
 class FileUploadCompleteRequest(BaseModel):
     file_id: str
-    thread_id: Optional[str] = None 
+    thread_id: Optional[str] = None

@@ -1,5 +1,3 @@
-from datetime import datetime
-
 from backend.settings import MongoConnectionDetails
 from backend.models.response.companies import (
     CompanyBaseInfo,
@@ -110,7 +108,7 @@ class CompaniesService:
                 "founder": "Ashish Verma",
                 "headquarters": "San Francisco, CA, USA",
                 "founding_date": "2020-01-01T00:00:00",
-                "members_count": 10
+                "members_count": 10,
             },
             {
                 "name": "Meta",
@@ -118,7 +116,7 @@ class CompaniesService:
                 "founder": "Mark Zuckerberg",
                 "headquarters": "Menlo Park, CA, USA",
                 "founding_date": "2015-01-01T00:00:00",
-                "members_count": 50
+                "members_count": 50,
             },
             {
                 "name": "CypherD",
@@ -126,7 +124,7 @@ class CompaniesService:
                 "founder": "John Doe",
                 "headquarters": "New York, NY, USA",
                 "founding_date": "2015-01-01T00:00:00",
-                "members_count": 50
+                "members_count": 50,
             },
             {
                 "name": "PayPal",
@@ -134,7 +132,7 @@ class CompaniesService:
                 "founder": "Elon Musk, Peter Thiel, Max Levchin",
                 "headquarters": "San Jose, CA, USA",
                 "founding_date": "2015-01-01T00:00:00",
-                "members_count": 50
-            }
+                "members_count": 50,
+            },
         ]
         return [CompanyBaseInfo(**company) for company in mock_companies]

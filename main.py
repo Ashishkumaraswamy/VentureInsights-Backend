@@ -1,7 +1,9 @@
 import uvicorn
 from fastapi import FastAPI
+
 try:
     from scalar_fastapi import get_scalar_api_reference
+
     HAS_SCALAR = True
 except ImportError:
     HAS_SCALAR = False
@@ -23,6 +25,13 @@ from backend.utils.logger import get_logger
 from dotenv import load_dotenv
 from fastapi.responses import JSONResponse
 from starlette import status
+from backend.api.finance import finance_router
+from backend.api.linkedin_team import linkedin_team_router
+from backend.api.market_analysis import market_analysis_router
+from backend.api.risk_analysis import risk_analysis_router
+from backend.api.customer_sentiment import customer_sentiment_router
+from backend.api.regulatory_compliance import regulatory_compliance_router
+from backend.api.partnership_network import partnership_network_router
 
 load_dotenv()
 
@@ -36,7 +45,19 @@ app = FastAPI(
     docs_url="/swagger" if not HAS_SCALAR else None,
 )
 
-routers = [companies_router, news_router, chat_router, files_router]
+routers = [
+    companies_router,
+    news_router,
+    chat_router,
+    files_router,
+    finance_router,
+    linkedin_team_router,
+    market_analysis_router,
+    risk_analysis_router,
+    customer_sentiment_router,
+    regulatory_compliance_router,
+    partnership_network_router,
+]
 
 unprotected_routers = [auth_router]
 
@@ -62,20 +83,16 @@ _unprotected_routes = register_routers(
 # app.add_middleware(middleware_class=get_auth_middleware(app, _unprotected_routes+["/docs"]))
 app.add_exception_handler(ServiceException, exception_handler)
 
+
 # Add handler for NotFoundException
 @app.exception_handler(NotFoundException)
 async def not_found_exception_handler(request, exc):
     LOG.error(f"{request.method} {request.url}: {exc}")
     return JSONResponse(
         status_code=status.HTTP_404_NOT_FOUND,
-        content={
-            "error": {
-                "code": "not_found",
-                "message": exc.message,
-                "details": {}
-            }
-        },
+        content={"error": {"code": "not_found", "message": exc.message, "details": {}}},
     )
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -86,6 +103,7 @@ app.add_middleware(
 )
 
 if HAS_SCALAR:
+
     @app.get("/docs", include_in_schema=True)
     async def scalar_html():
         return get_scalar_api_reference(

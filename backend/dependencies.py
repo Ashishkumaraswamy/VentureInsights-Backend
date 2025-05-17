@@ -6,6 +6,7 @@ from backend.services.chat import ChatService
 from backend.services.files import FilesService
 from backend.settings import get_app_settings, AppSettings
 from fastapi import Request, Depends
+from backend.services.finance import FinanceService
 
 
 def get_user(request: Request):
@@ -35,6 +36,10 @@ def get_chat_service(app_settings: AppSettings = Depends(get_app_settings)):
 
 def get_files_service(app_settings: AppSettings = Depends(get_app_settings)):
     return FilesService(app_settings.db_config)
+
+
+def get_finance_service(app_settings: AppSettings = Depends(get_app_settings)):
+    return FinanceService(app_settings.llm_config)
 
 
 class CommonDeps:

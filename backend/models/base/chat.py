@@ -45,4 +45,4 @@ class MessageMetadata(BaseModel):
     attachments: Optional[List[Attachment]] = None
     references: Optional[List[Reference]] = None
     associated_documents: Optional[List[AssociatedDocument]] = None
-    analysis: Optional[Dict[str, Any]] = None 
+    analysis: Optional[Dict[str, Any]] = None

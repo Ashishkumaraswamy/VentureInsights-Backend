@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any, Literal
 from datetime import datetime
-from backend.models.base.chat import ChatThreadBase, ChatMessageBase, Attachment, Reference, MessageMetadata
+from backend.models.base.chat import ChatThreadBase, ChatMessageBase, MessageMetadata
 
 
 class LastMessage(BaseModel):
@@ -45,10 +45,7 @@ class AnalysisResponse(BaseModel):
 
 
 class AssistantMessageResponse(ChatMessageBase):
-    metadata: MessageMetadata = MessageMetadata(
-        references=[],
-        analysis={}
-    )
+    metadata: MessageMetadata = MessageMetadata(references=[], analysis={})
 
 
 class FileUploadInitiateResponse(BaseModel):
@@ -66,4 +63,4 @@ class FileUploadCompleteResponse(BaseModel):
     url: str
     created_at: datetime
     thread_id: Optional[str] = None
-    processing_details: Dict[str, Any] 
+    processing_details: Dict[str, Any]

@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Optional, Dict, Any
+from typing import List, Optional
 
 
 class CreateThreadRequest(BaseModel):
@@ -23,4 +23,4 @@ class SendMessageRequest(BaseModel):
     content: str
     attachments: Optional[List[AttachmentRequest]] = None
     user_id: Optional[str] = None  # User ID associated with the message
-    user_name: Optional[str] = None  # User name/display name 
+    user_name: Optional[str] = None  # User name/display name
