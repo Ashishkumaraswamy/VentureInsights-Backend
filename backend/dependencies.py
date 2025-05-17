@@ -38,8 +38,8 @@ def get_files_service(app_settings: AppSettings = Depends(get_app_settings)):
     return FilesService(app_settings.db_config)
 
 
-def get_finance_service(app_settings: AppSettings = Depends(get_app_settings)):
-    return FinanceService(app_settings.llm_config)
+def get_finance_service():
+    return FinanceService()
 
 
 class CommonDeps:

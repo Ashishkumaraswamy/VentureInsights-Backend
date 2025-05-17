@@ -4,8 +4,8 @@ from typing import Optional
 
 
 class FinanceService:
-    def __init__(self, llm_config: LLMConfig):
-        self.llm_config = llm_config
+    def __init__(self):
+        pass
 
     async def get_revenue_analysis(
         self,
