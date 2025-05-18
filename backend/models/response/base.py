@@ -18,8 +18,7 @@ class CitationResponse(BaseModel):
             if title is None:
                 parsed_url = urlparse(url)
                 domain = parsed_url.netloc
-
-                # Ensure domain is a string before using .startswith
+                
                 if isinstance(domain, bytes):
                     domain = domain.decode("utf-8")
 

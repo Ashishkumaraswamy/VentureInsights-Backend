@@ -6,7 +6,7 @@ from agno.tools import tool
 from agno.agent import Agent
 from backend.utils.llm import get_model
 import asyncio
-from typing import Optional
+from typing import Optional, List
 import json
 
 
@@ -82,10 +82,32 @@ class CustomerSentimentAgent(BaseAgent):
             )
             return json.dumps(result)
 
+        @tool()
+        def get_sentiment_comparison(
+            company_name: str,
+            competitors: List[str],
+            domain: Optional[str] = None,
+            product: Optional[str] = None,
+            region: Optional[str] = None,
+            start_date: Optional[str] = None,
+            end_date: Optional[str] = None,
+        ):
+            result = syncify(self.customer_sentiment_service.get_sentiment_comparison)(
+                company_name=company_name,
+                competitors=competitors,
+                domain=domain,
+                product=product,
+                region=region,
+                start_date=start_date,
+                end_date=end_date,
+            )
+            return json.dumps(result)
+
         self.tools = [
             get_sentiment_summary,
             get_customer_feedback,
             get_brand_reputation,
+            get_sentiment_comparison,
         ]
 
         self.agent = Agent(
@@ -106,6 +128,7 @@ class CustomerSentimentAgent(BaseAgent):
             "- get_sentiment_summary: Returns sentiment score, breakdown, and timeseries. Accepts company name, domain, product, region, start date, and end date.\n"
             "- get_customer_feedback: Returns customer feedback items and summary. Accepts company name, domain, product, region, start date, and end date.\n"
             "- get_brand_reputation: Returns brand reputation score and timeseries. Accepts company name, domain, region, start date, and end date.\n"
+            "- get_sentiment_comparison: Compares sentiment between a target company and its competitors. Accepts company name, list of competitors, domain, product, region, start date, and end date.\n"
             "Use the most relevant tool(s) to answer the user's question, and always cite sources if available."
         )
 

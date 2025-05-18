@@ -9,6 +9,7 @@ from fastapi import Request, Depends
 from backend.services.finance import FinanceService
 from backend.services.market_analysis import MarketAnalysisService
 from backend.services.linkedin_team import LinkedInTeamService
+from backend.services.customer_sentiment import CustomerSentimentService
 
 
 def get_user(request: Request):
@@ -52,6 +53,12 @@ def get_market_analysis_service(app_settings: AppSettings = Depends(get_app_sett
 
 def get_linkedin_team_service(app_settings: AppSettings = Depends(get_app_settings)):
     return LinkedInTeamService(app_settings.llm_config, app_settings.sonar_config)
+
+
+def get_customer_sentiment_service(
+    app_settings: AppSettings = Depends(get_app_settings),
+):
+    return CustomerSentimentService(app_settings.llm_config, app_settings.sonar_config)
 
 
 class CommonDeps:
