@@ -15,7 +15,9 @@ app_settings = get_app_settings()
 
 # Instantiate services
 finance_service = FinanceService(app_settings.llm_config, app_settings.sonar_config)
-linkedin_team_service = LinkedInTeamService(app_settings.llm_config, app_settings.sonar_config)
+linkedin_team_service = LinkedInTeamService(
+    app_settings.llm_config, app_settings.sonar_config
+)
 market_analysis_service = MarketAnalysisService()
 risk_analysis_service = RiskAnalysisService()
 customer_sentiment_service = CustomerSentimentService()

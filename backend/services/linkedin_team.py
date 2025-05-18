@@ -56,16 +56,18 @@ class LinkedInTeamService:
 
         # Parse the LLM output into the response model
         response = self.llm_output_parser.parse(content.content, response_model)
-        
+
         # Ensure datetime fields are properly formatted as strings
         if hasattr(response, "last_updated") and response.last_updated is not None:
             if isinstance(response.last_updated, datetime):
                 response.last_updated = response.last_updated.isoformat()
-                
+
         # For TeamGrowthResponse, also convert period dates in timeseries
         if hasattr(response, "team_growth_timeseries"):
             for point in response.team_growth_timeseries:
-                if hasattr(point, "period_start") and isinstance(point.period_start, date):
+                if hasattr(point, "period_start") and isinstance(
+                    point.period_start, date
+                ):
                     point.period_start = point.period_start.isoformat()
                 if hasattr(point, "period_end") and isinstance(point.period_end, date):
                     point.period_end = point.period_end.isoformat()

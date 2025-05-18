@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, List, Any, Dict
+from typing import Optional, List
 
 
 # --- Team Overview ---
@@ -7,7 +7,9 @@ class TeamRoleBreakdown(BaseModel):
     role: str
     count: int
     percentage: Optional[float] = None  # Added field for distribution percentage
-    sources: Optional[List[int]] = None  # Changed to List[int] for indexing into outer sources
+    sources: Optional[List[int]] = (
+        None  # Changed to List[int] for indexing into outer sources
+    )
     confidence: Optional[float] = None
 
 
@@ -27,7 +29,9 @@ class TeamOverviewResponse(BaseModel):
 class IndividualPerformanceMetric(BaseModel):
     metric: str
     value: float
-    sources: Optional[List[int]] = None  # Changed to List[int] for indexing into outer sources
+    sources: Optional[List[int]] = (
+        None  # Changed to List[int] for indexing into outer sources
+    )
     confidence: Optional[float] = None
 
 
@@ -52,9 +56,13 @@ class IndividualPerformanceResponse(BaseModel):
     image_url: Optional[str] = None  # Added field for profile image
     tenure_years: Optional[float] = None
     performance_metrics: List[IndividualPerformanceMetric]
-    previous_companies: Optional[List[PreviousCompany]] = None  # Added field for work history
+    previous_companies: Optional[List[PreviousCompany]] = (
+        None  # Added field for work history
+    )
     key_strengths: Optional[List[str]] = None  # Added field for core capabilities
-    development_areas: Optional[List[str]] = None  # Added field for growth opportunities
+    development_areas: Optional[List[str]] = (
+        None  # Added field for growth opportunities
+    )
     education: Optional[List[Education]] = None  # Added field for background context
     sources: Optional[List[str]] = None
     last_updated: Optional[str] = None  # ISO format datetime string
@@ -68,7 +76,9 @@ class OrgNode(BaseModel):
     linkedin_url: Optional[str] = None  # Added field for direct profile access
     reports_to: Optional[str] = None
     direct_reports: Optional[List[str]] = None
-    sources: Optional[List[int]] = None  # Changed to List[int] for indexing into outer sources
+    sources: Optional[List[int]] = (
+        None  # Changed to List[int] for indexing into outer sources
+    )
 
 
 class Department(BaseModel):
@@ -89,8 +99,12 @@ class OrgStructureResponse(BaseModel):
     company_name: str
     org_chart: List[OrgNode]
     ceo: Optional[str] = None  # Added field to highlight top leadership
-    departments: Optional[List[Department]] = None  # Added field to show organizational divisions
-    leadership_team: Optional[List[LeadershipTeamMember]] = None  # Added field to highlight key executives
+    departments: Optional[List[Department]] = (
+        None  # Added field to show organizational divisions
+    )
+    leadership_team: Optional[List[LeadershipTeamMember]] = (
+        None  # Added field to highlight key executives
+    )
     sources: Optional[List[str]] = None
     last_updated: Optional[str] = None  # ISO format datetime string
 
@@ -98,12 +112,14 @@ class OrgStructureResponse(BaseModel):
 # --- Team Growth ---
 class TeamGrowthTimeSeriesPoint(BaseModel):
     period_start: str  # ISO format date string
-    period_end: str    # ISO format date string
+    period_end: str  # ISO format date string
     hires: int
     attrition: int
     net_growth: int
     growth_rate: Optional[float] = None  # Added field for growth rate at each point
-    sources: Optional[List[int]] = None  # Changed to List[int] for indexing into outer sources
+    sources: Optional[List[int]] = (
+        None  # Changed to List[int] for indexing into outer sources
+    )
     confidence: Optional[float] = None
 
 
@@ -115,6 +131,7 @@ class DepartmentAttrition(BaseModel):
 
 class HiringTrendSupportingData(BaseModel):
     """Supporting data for hiring trends with defined properties instead of Dict[str, Any]"""
+
     percentage: Optional[float] = None
     count: Optional[int] = None
     year_over_year_change: Optional[float] = None
@@ -135,9 +152,17 @@ class TeamGrowthResponse(BaseModel):
     total_hires: int
     total_attrition: int
     net_growth: int
-    growth_rate_annualized: Optional[float] = None  # Added field for year-over-year comparison
-    key_hiring_areas: Optional[List[str]] = None  # Added field to show focus of recent growth
-    attrition_by_department: Optional[List[DepartmentAttrition]] = None  # Added field for deeper analysis
-    hiring_trends: Optional[List[HiringTrend]] = None  # Added field to show directional changes
+    growth_rate_annualized: Optional[float] = (
+        None  # Added field for year-over-year comparison
+    )
+    key_hiring_areas: Optional[List[str]] = (
+        None  # Added field to show focus of recent growth
+    )
+    attrition_by_department: Optional[List[DepartmentAttrition]] = (
+        None  # Added field for deeper analysis
+    )
+    hiring_trends: Optional[List[HiringTrend]] = (
+        None  # Added field to show directional changes
+    )
     sources: Optional[List[str]] = None
     last_updated: Optional[str] = None  # ISO format datetime string
