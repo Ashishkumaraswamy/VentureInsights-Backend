@@ -13,13 +13,14 @@ from backend.models.response.linkedin_team import (
     OrgStructureResponse,
     TeamGrowthResponse,
 )
+from backend.dependencies import get_linkedin_team_service
 
 linkedin_team_router = APIRouter(prefix="/linkedin-team", tags=["linkedin-team"])
 
 
 @cbv(linkedin_team_router)
 class LinkedInTeamCBV:
-    linkedin_team_service: LinkedInTeamService = Depends(LinkedInTeamService)
+    linkedin_team_service: LinkedInTeamService = Depends(get_linkedin_team_service)
 
     @linkedin_team_router.post("/team-overview", response_model=TeamOverviewResponse)
     async def get_team_overview(self, req: TeamOverviewRequest):
