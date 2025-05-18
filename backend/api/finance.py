@@ -16,8 +16,11 @@ from backend.models.response.finance import (
     ValuationEstimationResponse,
     FundingHistoryResponse,
 )
+from backend.utils.logger import get_logger
 
 finance_router = APIRouter(prefix="/finance", tags=["finance"])
+
+LOG = get_logger("Finance API")
 
 
 @cbv(finance_router)
@@ -25,7 +28,8 @@ class FinanceCBV:
     finance_service: FinanceService = Depends(get_finance_service)
 
     @finance_router.post("/revenue-analysis", response_model=RevenueAnalysisResponse)
-    async def get_finance(self, req: RevenueAnalysisRequest):
+    async def get_revenue_analysis(self, req: RevenueAnalysisRequest):
+        LOG.info(f"Received Request for Revenue Analysis: {req}")
         return await self.finance_service.get_revenue_analysis(
             company_name=req.company_name,
             domain=req.domain,

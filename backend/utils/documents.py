@@ -1,15 +1,4 @@
-from PIL.PpmImagePlugin import PpmImageFile
 from dotenv import load_dotenv
-from pdf2image import convert_from_path
-import os
-from typing import List
-import base64
-from phi.agent import Agent
-from pptx import Presentation
-from PIL import Image
-from tempfile import TemporaryDirectory
-from phi.model.azure import AzureOpenAIChat
-import io
 from backend.settings import get_app_settings
 from backend.utils.llm import get_model
 from backend.agents.document_processing import DocumentProcessingEngine
@@ -51,6 +40,8 @@ if __name__ == "__main__":
     app_settings = get_app_settings()
     model = get_model(app_settings.llm_config)
     engine = DocumentProcessingEngine(model)
-    paragraphs = engine.extract_text("/Users/ashish_kumar/Downloads/LNRS - Auto Ratings Trevis Use Case (1).pdf")
+    paragraphs = engine.extract_text(
+        "/Users/ashish_kumar/Downloads/LNRS - Auto Ratings Trevis Use Case (1).pdf"
+    )
     for i, para in enumerate(paragraphs, 1):
         print(f"Paragraph {i}:\n{para}\n")

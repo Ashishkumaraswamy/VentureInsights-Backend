@@ -30,6 +30,11 @@ class LLMConfig(BaseModel):
     )
 
 
+class SonarConfig(BaseModel):
+    base_url: str = Field(..., description="Perplexity base URL")
+    api_key: str = Field(..., description="Sonar API Key")
+
+
 class JWTConfig(BaseModel):
     secret_key: str = Field(..., description="Secret key for JWT")
     algorithm: str = Field(..., description="Algorithm for JWT")
@@ -41,6 +46,7 @@ class AppSettings(BaseSettings):
         ..., description="MongoDB connection details"
     )
     llm_config: LLMConfig = Field(..., description="LLM configuration details")
+    sonar_config: SonarConfig = Field(..., description="Sonar configuration details")
     jwt_config: JWTConfig = Field(..., description="JWT configuration details")
     local_user_email: Optional[str] = Field(None, description="Local user mail id")
     local: bool = Field(False, description="Local mode")
@@ -73,6 +79,10 @@ class AppSettings(BaseSettings):
                 api_base=os.environ.get("AZURE_OPENAI_API_BASE"),
                 api_version=os.environ.get("AZURE_OPENAI_API_VERSION"),
                 llm_deployment_name=os.environ.get("OPENAI_LLM_DEPLOYMENT_NAME"),
+            ),
+            sonar_config=SonarConfig(
+                base_url=os.environ.get("SONAR_BASE_URL"),
+                api_key=os.environ.get("SONAR_API_KEY"),
             ),
             jwt_config=JWTConfig(
                 secret_key=os.environ.get("JWT_SECRET_KEY"),

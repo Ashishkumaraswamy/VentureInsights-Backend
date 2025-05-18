@@ -1,10 +1,21 @@
 from datetime import datetime, date
 from typing import Optional
 
+from agno.agent import Agent
+
+from backend.agents.output_parser import LLMOutputParserAgent
+from backend.settings import SonarConfig, LLMConfig
+from backend.utils.llm import get_model, get_sonar_model
+from backend.models.response.finance import RevenueAnalysisResponse
+
 
 class FinanceService:
-    def __init__(self):
-        pass
+    def __init__(self, llm_config: LLMConfig, sonar_config: SonarConfig):
+        self.llm_config = llm_config
+        self.sonar_config = sonar_config
+        self.llm_model = get_model(self.llm_config)
+        self.sonar_model = get_sonar_model(self.sonar_config)
+        self.llm_output_parser = LLMOutputParserAgent(self.llm_model)
 
     async def get_revenue_analysis(
         self,
@@ -25,31 +36,40 @@ class FinanceService:
         Returns:
             dict: Contains company name, currency, revenue timeseries, total revenue, and last updated timestamp.
         """
-        return {
-            "company_name": company_name,
-            "currency": "USD",
-            "revenue_timeseries": [
-                {
-                    "period_start": "2023-01-01",
-                    "period_end": "2023-03-31",
-                    "value": 1200000.0,
-                    "sources": [
-                        "https://crunchbase.com/tecnova",
-                        "https://news.ycombinator.com/item?id=123456",
-                    ],
-                    "confidence": 0.9,
-                },
-                {
-                    "period_start": "2023-04-01",
-                    "period_end": "2023-06-30",
-                    "value": 1350000.0,
-                    "sources": ["https://crunchbase.com/tecnova"],
-                    "confidence": 0.85,
-                },
-            ],
-            "total_revenue": 2550000.0,
-            "last_updated": datetime.now().isoformat(),
-        }
+
+        # Compose a detailed prompt for the LLM to generate all required fields
+        prompt = f"""
+        You are a financial analyst. Generate a detailed revenue analysis for the following company:
+        - Company Name: {company_name}
+        - Domain: {domain or "N/A"}
+        - Start Date: {start_date or "N/A"}
+        - End Date: {end_date or "N/A"}
+        - Granularity: {granularity}
+
+        Please provide the following fields in your response:
+        - company_name: The name of the company
+        - currency: The currency used for revenue (e.g., USD)
+        - revenue_timeseries: A list of objects, each with period_start, period_end, value, sources (list of strings), and confidence (float between 0 and 1)
+        - total_revenue: The total revenue for the period
+        - last_updated: The datetime of the latest data (ISO format)
+
+        Be as realistic and detailed as possible. Use plausible numbers and sources. Output should be a detailed textual description of all these fields and their values.
+        """
+        revenue_agent = Agent(
+            name="RevenueAgent",
+            model=self.sonar_model,
+            instructions=prompt,
+        )
+
+        # Use the LLM to generate the content
+        content = revenue_agent.run(prompt)
+        # Parse the LLM output into the response model
+        response = self.llm_output_parser.parse(
+            content.content, RevenueAnalysisResponse
+        )
+        if isinstance(response, RevenueAnalysisResponse):
+            response.citations = content.citations.urls
+        return response
 
     async def get_expense_analysis(
         self,

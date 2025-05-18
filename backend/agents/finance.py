@@ -2,8 +2,8 @@ from backend.services.finance import FinanceService
 from backend.agents.base import BaseAgent
 from backend.settings import LLMConfig
 from backend.models.response.chat import AnalysisResponse
-from phi.tools import tool
-from phi.agent import Agent
+from agno.tools import tool
+from agno.agent import Agent
 from backend.utils.llm import get_model
 import asyncio
 from dotenv import load_dotenv
@@ -94,9 +94,10 @@ class FinanceAgent(BaseAgent):
             name="FinanceAgent",
             model=get_model(llm_config),
             tools=self.tools,
-            system_prompt=self.system_prompt(),
+            instructions=self.system_prompt(),
             show_tool_calls=True,
             response_model=AnalysisResponse,
+            use_json_mode=True,
         )
 
     @staticmethod
@@ -121,6 +122,8 @@ class FinanceAgent(BaseAgent):
 if __name__ == "__main__":
     load_dotenv()
     app_settings = get_app_settings()
-    finance_service = FinanceService(llm_config=app_settings.llm_config)
+    finance_service = FinanceService()
     finance_agent = FinanceAgent(finance_service, app_settings.llm_config)
-    print(finance_agent.run("What is the revenue of DataGenie Inc. in Q1 2023?"))
+    data = finance_agent.run("What is the revenue of DataGenie Inc. in Q1 2023?")
+    print(data)
+    print(type(data))

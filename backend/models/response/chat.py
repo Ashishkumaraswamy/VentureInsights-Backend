@@ -1,7 +1,12 @@
 from pydantic import BaseModel
-from typing import List, Optional, Dict, Any, Literal
+from typing import List, Optional, Dict, Any, Literal, Union
 from datetime import datetime
 from backend.models.base.chat import ChatThreadBase, ChatMessageBase, MessageMetadata
+from backend.models.response.finance import (
+    RevenueAnalysisResponse,
+    ExpenseAnalysisResponse,
+    ProfitMarginsResponse,
+)
 
 
 class LastMessage(BaseModel):
@@ -38,9 +43,14 @@ class MessageResponse(ChatMessageBase):
     metadata: Optional[MessageMetadata] = None
 
 
+AgentResponse = Union[
+    RevenueAnalysisResponse, ExpenseAnalysisResponse, ProfitMarginsResponse
+]
+
+
 class AnalysisResponse(BaseModel):
     summary: str
-    data: Dict[str, Any]
+    data: dict
     sources: List[str]
 
 

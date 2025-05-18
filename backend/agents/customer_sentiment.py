@@ -2,8 +2,8 @@ from backend.services.customer_sentiment import CustomerSentimentService
 from backend.agents.base import BaseAgent
 from backend.settings import LLMConfig
 from backend.models.response.chat import AnalysisResponse
-from phi.tools import tool
-from phi.agent import Agent
+from agno.tools import tool
+from agno.agent import Agent
 from backend.utils.llm import get_model
 import asyncio
 from typing import Optional

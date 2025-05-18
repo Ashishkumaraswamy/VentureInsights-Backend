@@ -10,10 +10,12 @@ from pdf2image import convert_from_path
 from phi.agent import Agent
 from phi.model.azure import AzureOpenAIChat
 
+
 class DocumentProcessingEngine:
     """
     Engine to extract text from PDF or PPTX files using an LLM with vision (e.g., GPT-4o via phidata).
     """
+
     def __init__(self, model: AzureOpenAIChat):
         self.model = model
         self.agent = Agent(model=model, markdown=True)
@@ -30,11 +32,13 @@ class DocumentProcessingEngine:
                     width = prs.slide_width
                     height = prs.slide_height
                     img = Image.new("RGB", (width, height), "white")
-                    img_path = os.path.join(tmpdir, f"slide_{i+1}.png")
+                    img_path = os.path.join(tmpdir, f"slide_{i + 1}.png")
                     img.save(img_path)
                     images.append(Image.open(img_path))
             else:
-                raise ValueError("Unsupported file type. Only PDF and PPTX are supported.")
+                raise ValueError(
+                    "Unsupported file type. Only PDF and PPTX are supported."
+                )
 
             paragraphs = []
             for i, img in enumerate(images):
@@ -47,12 +51,14 @@ class DocumentProcessingEngine:
 
                 prompt = [
                     {"type": "text", "text": "Extract text from this slide."},
-                    {"type": "image_url", "image_url": {"url": img_data_url}}
+                    {"type": "image_url", "image_url": {"url": img_data_url}},
                 ]
                 response = self.agent.run(prompt)
-                text = response.content if hasattr(response, "content") else str(response)
+                text = (
+                    response.content if hasattr(response, "content") else str(response)
+                )
                 for para in text.split("\n\n"):
                     para = para.strip()
                     if para:
                         paragraphs.append(para)
-            return paragraphs 
+            return paragraphs

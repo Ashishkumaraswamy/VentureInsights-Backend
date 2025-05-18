@@ -2,22 +2,24 @@ from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime, date
 
+from backend.models.response.base import CitationResponse
+
 
 # --- Revenue Analysis ---
 class RevenueTimeSeriesPoint(BaseModel):
-    period_start: date
-    period_end: date
+    period_start: str
+    period_end: str
     value: float
     sources: Optional[List[str]] = None
     confidence: Optional[float] = None
 
 
-class RevenueAnalysisResponse(BaseModel):
+class RevenueAnalysisResponse(CitationResponse):
     company_name: str
     currency: str
     revenue_timeseries: List[RevenueTimeSeriesPoint]
     total_revenue: Optional[float] = None
-    last_updated: Optional[datetime] = None
+    last_updated: Optional[str] = None
 
 
 # --- Expense Analysis ---
@@ -38,7 +40,7 @@ class ExpenseCategoryBreakdown(BaseModel):
     confidence: Optional[float] = None
 
 
-class ExpenseAnalysisResponse(BaseModel):
+class ExpenseAnalysisResponse(CitationResponse):
     company_name: str
     year: Optional[int] = None
     expenses: List[ExpenseCategoryBreakdown]
@@ -59,7 +61,7 @@ class ProfitMarginTimeSeriesPoint(BaseModel):
     confidence: Optional[float] = None
 
 
-class ProfitMarginsResponse(BaseModel):
+class ProfitMarginsResponse(CitationResponse):
     company_name: str
     year: Optional[int] = None
     gross_margin: Optional[float] = None
@@ -79,7 +81,7 @@ class ValuationTimeSeriesPoint(BaseModel):
     confidence: Optional[float] = None
 
 
-class ValuationEstimationResponse(BaseModel):
+class ValuationEstimationResponse(CitationResponse):
     company_name: str
     valuation: float
     currency: str
@@ -106,7 +108,7 @@ class FundingCumulativeTimeSeriesPoint(BaseModel):
     sources: Optional[List[str]] = None
 
 
-class FundingHistoryResponse(BaseModel):
+class FundingHistoryResponse(CitationResponse):
     company_name: str
     funding_rounds: List[FundingRound]
     funding_cumulative_timeseries: List[FundingCumulativeTimeSeriesPoint]

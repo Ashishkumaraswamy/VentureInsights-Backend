@@ -2,8 +2,8 @@ from backend.services.market_analysis import MarketAnalysisService
 from backend.agents.base import BaseAgent
 from backend.settings import LLMConfig
 from backend.models.response.chat import AnalysisResponse
-from phi.tools import tool
-from phi.agent import Agent
+from agno.tools import tool
+from agno.agent import Agent
 from backend.utils.llm import get_model
 import asyncio
 from typing import Optional, List
@@ -96,9 +96,10 @@ class MarketAnalysisAgent(BaseAgent):
             name="MarketAnalysisAgent",
             model=get_model(llm_config),
             tools=self.tools,
-            system_prompt=self.system_prompt(),
+            instructions=self.system_prompt(),
             show_tool_calls=True,
             response_model=AnalysisResponse,
+            use_json_mode=True,
         )
 
     @staticmethod
