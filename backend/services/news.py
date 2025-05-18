@@ -1,90 +1,99 @@
 from datetime import datetime
 
-from backend.models.response.news import NewsItem
+from backend.models.response.news import NewsItem, NewsItemList
 from backend.settings import MongoConnectionDetails
+from backend.utils.llm import get_model, get_sonar_model
+from backend.agents.output_parser import LLMOutputParserAgent
+from backend.settings import LLMConfig, SonarConfig
+from agno.agent import Agent
+from pydantic import BaseModel
+from typing import Type
 
 
 class NewsService:
-    def __init__(self, mongo_config: MongoConnectionDetails):
+    def __init__(
+        self,
+        mongo_config: MongoConnectionDetails,
+        llm_config: LLMConfig,
+        sonar_config: SonarConfig,
+    ):
         self.mongo_config = mongo_config
+        self.llm_config = llm_config
+        self.sonar_config = sonar_config
+        self.llm_model = get_model(self.llm_config)
+        self.sonar_model = get_sonar_model(self.sonar_config)
+        self.llm_output_parser = LLMOutputParserAgent(self.llm_model)
 
-    async def get_news(self, limit: int = None) -> list[NewsItem]:
-        mock_tech_news = [
-            {
-                "id": "1",
-                "title": "OpenAI Releases GPT-5",
-                "content": "OpenAI has released GPT-5 with groundbreaking capabilities in reasoning and memory.",
-                "source": ["https://openai.com/blog/gpt-5"],
-                "publishedAt": datetime.now(),
-                "category": "technology",
-                "image": "https://developer-blogs.nvidia.com/wp-content/uploads/2020/07/OpenAI-GPT-3-featured-image.png",
-            },
-            {
-                "id": "2",
-                "title": "Apple Unveils New M4 Chip",
-                "content": "Apple's new M4 chip sets a new benchmark in energy-efficient performance for laptops.",
-                "source": [
-                    "https://www.apple.com/newsroom/2025/05/apple-unveils-m4-chip/"
-                ],
-                "publishedAt": datetime.now(),
-                "category": "technology",
-                "image": "https://developer-blogs.nvidia.com/wp-content/uploads/2020/07/OpenAI-GPT-3-featured-image.png",
-            },
-            {
-                "id": "3",
-                "title": "Google Introduces AI-Powered Search",
-                "content": "Google Search now features fully generative AI answers and contextual understanding.",
-                "source": ["https://blog.google/products/search/generative-ai/"],
-                "publishedAt": datetime.now(),
-                "category": "technology",
-                "image": "https://developer-blogs.nvidia.com/wp-content/uploads/2020/07/OpenAI-GPT-3-featured-image.png",
-            },
-            {
-                "id": "4",
-                "title": "Meta Launches New VR Headset",
-                "content": "Meta's Quest 4 headset pushes the boundaries of virtual reality with retinal resolution.",
-                "source": ["https://about.fb.com/news/2025/05/meta-quest-4-launch/"],
-                "publishedAt": datetime.now(),
-                "category": "technology",
-                "image": "https://m.economictimes.com/thumb/msid-111856636,width-1200,height-900,resizemode-4,imgsize-155652/a-microsoft-logo.jpg",
-            },
-            {
-                "id": "5",
-                "title": "NVIDIA Announces Next-Gen GPUs",
-                "content": "NVIDIA's H200 series GPUs promise faster AI training and inference at lower power.",
-                "source": ["https://nvidia.com/en-us/news/next-gen-gpus/"],
-                "publishedAt": datetime.now(),
-                "category": "technology",
-                "image": "https://m.economictimes.com/thumb/msid-111856636,width-1200,height-900,resizemode-4,imgsize-155652/a-microsoft-logo.jpg",
-            },
-            {
-                "id": "6",
-                "title": "Tesla Debuts Self-Driving Software v12",
-                "content": "Tesla’s Full Self-Driving (FSD) v12 enters wide release with significant improvements.",
-                "source": ["https://www.tesla.com/blog/fsd-v12-update"],
-                "publishedAt": datetime.now(),
-                "category": "technology",
-                "image": "https://m.economictimes.com/thumb/msid-111856636,width-1200,height-900,resizemode-4,imgsize-155652/a-microsoft-logo.jpg",
-            },
-            {
-                "id": "7",
-                "title": "Amazon Launches AI Shopping Assistant",
-                "content": "Amazon introduces an AI assistant that helps users make personalized purchase decisions.",
-                "source": ["https://amazon.com/news/ai-shopping-assistant"],
-                "publishedAt": datetime.now(),
-                "category": "technology",
-                "image": "https://ux-news.com/content/images/2025/01/Meta.png",
-            },
-            {
-                "id": "8",
-                "title": "Microsoft Rolls Out CoPilot for Office",
-                "content": "Microsoft integrates AI-powered CoPilot into Word, Excel, and PowerPoint for productivity boost.",
-                "source": [
-                    "https://blogs.microsoft.com/blog/2025/05/copilot-for-office/"
-                ],
-                "publishedAt": datetime.now(),
-                "category": "technology",
-                "image": "https://ux-news.com/content/images/2025/01/Meta.png",
-            },
-        ]
-        return [NewsItem(**news) for news in mock_tech_news]
+    async def _execute_llm_analysis(
+        self,
+        prompt: str,
+        response_model: Type[BaseModel],
+        agent_name: str = "NewsAgent",
+    ) -> list[NewsItem]:
+        """
+        Common method to execute LLM analysis and parse the response.
+
+        Args:
+            prompt: The prompt to send to the LLM
+            response_model: The Pydantic model to parse the response into
+            agent_name: Name of the agent for logging/identification
+
+        Returns:
+            Parsed response model instance with citations if available
+        """
+        analysis_agent = Agent(
+            name=agent_name,
+            model=self.sonar_model,
+            instructions=prompt,
+        )
+
+        # Use the LLM to generate the content
+        content = analysis_agent.run(prompt)
+
+        # Parse the LLM output into the response model
+        response = self.llm_output_parser.parse(content.content, response_model)
+
+        # 3) Extract actual list of NewsItem
+        news_items: list[NewsItem] = response.news_items
+
+        return news_items
+
+    async def get_news(
+        self, limit: int = None, company_name: str = None, domain: str = None
+    ) -> list[NewsItem]:
+        """
+        Retrieve news data for a company.
+        Args:
+            company_name (str): Name of the company (required)
+            domain (str, optional): Domain of the company
+            limit (int, optional): Number of news items to retrieve
+        Returns:
+            list[NewsItem]: List of news items.
+        """
+
+        # Compose a detailed prompt for the LLM to generate all required fields
+        prompt = f"""
+        The current date is {datetime.now().isoformat()}.
+        you are a news analyst. Generate a detailed news description for trending
+        - Company Name: {company_name or "N/A"} if company name is not provided, generate news for Trending companies
+        - Domain: {domain or "N/A"} if domain is not provided, generate news for Trending companies
+        - Limit: {limit}
+        
+        Please provide the following fields in your response:
+        - title: The title of the news item
+        - content: The content of the news item
+        - source: The source of the news item
+        - published_at: The published date of the news item
+        - category: The category of the news item
+        - image_url: a url to the image of the news item
+        - citations: The citations of the news item
+
+        Be as realistic and detailed as possible. Use plausible numbers and sources. 
+        Output should be a detailed textual description of all these fields and their values.
+        """
+
+        return await self._execute_llm_analysis(
+            prompt=prompt,
+            response_model=NewsItemList,
+            agent_name="NewsAgent",
+        )

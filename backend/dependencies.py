@@ -17,7 +17,9 @@ def get_user(request: Request):
 
 
 def get_news_service(app_settings: AppSettings = Depends(get_app_settings)):
-    return NewsService(app_settings.db_config)
+    return NewsService(
+        app_settings.db_config, app_settings.llm_config, app_settings.sonar_config
+    )
 
 
 def get_auth_service_settings(
