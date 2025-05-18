@@ -1,43 +1,111 @@
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional
+from backend.settings import LLMConfig, SonarConfig
+from backend.utils.llm import get_model, get_sonar_model
+from backend.agents.output_parser import LLMOutputParserAgent
+from backend.models.response.market_analysis import (
+    MarketTrendsResponse,
+    CompetitiveAnalysisResponse,
+    GrowthProjectionsResponse,
+    RegionalTrendsResponse,
+)
+from agno.agent import Agent
+from pydantic import BaseModel
+from typing import Type, Union
 
 
 class MarketAnalysisService:
-    def __init__(self):
-        pass
+    def __init__(self, llm_config: LLMConfig, sonar_config: SonarConfig):
+        self.llm_config = llm_config
+        self.sonar_config = sonar_config
+        self.llm_model = get_model(self.llm_config)
+        self.sonar_model = get_sonar_model(self.sonar_config)
+        self.llm_output_parser = LLMOutputParserAgent(self.llm_model)
+
+    async def _execute_llm_analysis(
+        self,
+        prompt: str,
+        response_model: Type[BaseModel],
+        agent_name: str = "AnalysisAgent",
+    ) -> Union[
+        MarketTrendsResponse,
+        CompetitiveAnalysisResponse,
+        GrowthProjectionsResponse,
+        RegionalTrendsResponse,
+    ]:
+        """
+        Common method to execute LLM analysis and parse the response.
+
+        Args:
+            prompt: The prompt to send to the LLM
+            response_model: The Pydantic model to parse the response into
+            agent_name: Name of the agent for logging/identification
+
+        Returns:
+            Parsed response model instance with citations if available
+        """
+        analysis_agent = Agent(
+            name=agent_name,
+            model=self.sonar_model,
+            instructions=prompt,
+        )
+
+        # Use the LLM to generate the content
+        content = analysis_agent.run(prompt)
+
+        # Parse the LLM output into the response model
+        response = self.llm_output_parser.parse(content.content, response_model)
+
+        # Attach citations if response is a Pydantic model and has citations
+        if hasattr(response, "citations") and hasattr(content, "citations"):
+            response.citations = (
+                content.citations.urls if hasattr(content.citations, "urls") else []
+            )
+
+        return response
 
     async def get_market_trends(
         self,
-        industry: str,
+        company_name: str,
+        industry: Optional[str] = None,
         region: Optional[str] = None,
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
     ):
-        return {
-            "industry": industry,
-            "region": region or "Global",
-            "trends_timeseries": [
-                {
-                    "period_start": "2022-01-01",
-                    "period_end": "2022-12-31",
-                    "value": 350.0,
-                    "metric": "Market Size (B USD)",
-                    "sources": ["https://gartner.com/report1"],
-                    "confidence": 0.9,
-                },
-                {
-                    "period_start": "2023-01-01",
-                    "period_end": "2023-12-31",
-                    "value": 400.0,
-                    "metric": "Market Size (B USD)",
-                    "sources": ["https://gartner.com/report2"],
-                    "confidence": 0.92,
-                },
-            ],
-            "summary": "Cloud computing market is growing rapidly with a CAGR of 15%.",
-            "sources": ["https://gartner.com/report1", "https://gartner.com/report2"],
-            "last_updated": datetime.now().isoformat(),
-        }
+        """
+        Retrieve market trends data for a company.
+        Args:
+            company_name (str): Name of the company (required)
+            industry (str): Name of the industry (required)
+            region (str, optional): Region of the company
+            start_date (date, optional): Start date for analysis
+            end_date (date, optional): End date for analysis
+        Returns:
+            MarketTrendsResponse: Contains industry, market size, market trend summary, and last updated timestamp.
+        """
+
+        prompt = f"""
+        The current date is {datetime.now().isoformat()}. 
+        You are a financial analyst with access to reputable market research sources. Generate a detailed market size trends analysis for the following company:
+        - Company Name: {company_name}
+        - Industry: {industry or "N/A"}
+        - Region: {region or "N/A"}
+        - Start Date: {start_date or "N/A"}
+        - End Date: {end_date or "N/A"}
+
+        Please provide the following fields in your response:
+        - market_size: A list of objects, each with industry , percentage. the different objects represent different industries and their market sizes. (as Pie Chart Data)
+        - market_trend_summary: A summary of the market trend whether it is growing, shrinking or stable
+        - last_updated: The datetime of the latest data (ISO format)
+
+        Be as realistic and detailed as possible. Use plausible numbers and sources. 
+        Output should be a detailed textual description of all these fields and their values.
+        """
+        return await self._execute_llm_analysis(
+            prompt=prompt,
+            response_model=MarketTrendsResponse,
+            agent_name="MarketTrendsAgent",
+        )
 
     async def get_competitive_analysis(
         self,
@@ -45,107 +113,89 @@ class MarketAnalysisService:
         domain: Optional[str] = None,
         industry: Optional[str] = None,
         region: Optional[str] = None,
+        companies_to_compare: Optional[list[str]] = None,
     ):
-        return {
-            "company_name": company_name,
-            "industry": industry or "Cloud Computing",
-            "region": region or "Global",
-            "top_competitors": [
-                {
-                    "name": "CloudX",
-                    "domain": "cloudx.com",
-                    "market_share": 0.25,
-                    "revenue": 100000000.0,
-                    "growth_rate": 0.18,
-                    "strengths": ["Brand", "Scale"],
-                    "weaknesses": ["Legacy tech"],
-                    "sources": ["https://cbinsights.com/cloudx"],
-                },
-                {
-                    "name": "SkyNet",
-                    "domain": "skynet.com",
-                    "market_share": 0.20,
-                    "revenue": 80000000.0,
-                    "growth_rate": 0.15,
-                    "strengths": ["AI capabilities"],
-                    "weaknesses": ["Limited regions"],
-                    "sources": ["https://cbinsights.com/skynet"],
-                },
-            ],
-            "summary": "TechNova faces strong competition from CloudX and SkyNet.",
-            "sources": [
-                "https://cbinsights.com/cloudx",
-                "https://cbinsights.com/skynet",
-            ],
-            "last_updated": datetime.now().isoformat(),
-        }
+        prompt = f"""
+        The current date is {datetime.now().isoformat()}. 
+        You are a financial analyst with access to reputable market research sources. Generate a detailed competitive analysis for the following company:
+        - Company Name: {company_name}
+        - Domain: {domain or "N/A"}
+        - Industry: {industry or "N/A"}
+        - Region: {region or "N/A"}
+        - Companies to Compare: {companies_to_compare or "N/A"}
+
+        Please provide the following fields in your response:
+        - top_competitors: A list of objects, each with company_name, industry, market_share, revenue, growth_rate, strengths, weaknesses, differentiating_factors, sources, and confidence
+        - summary: A summary of the competitive analysis
+        - last_updated: The datetime of the latest data (ISO format)
+        
+        Be as realistic and detailed as possible. Use plausible numbers and sources. 
+        Output should be a detailed textual description of all these fields and their values.
+        """
+        return await self._execute_llm_analysis(
+            prompt=prompt,
+            response_model=CompetitiveAnalysisResponse,
+            agent_name="CompetitiveAnalysisAgent",
+        )
 
     async def get_growth_projections(
         self,
-        industry: str,
+        company_name: str,
+        industry: Optional[str] = None,
         region: Optional[str] = None,
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
     ):
-        return {
-            "industry": industry,
-            "region": region or "Global",
-            "projections_timeseries": [
-                {
-                    "period_start": "2024-01-01",
-                    "period_end": "2024-12-31",
-                    "projected_value": 460.0,
-                    "metric": "Market Size (B USD)",
-                    "sources": ["https://forrester.com/projection2024"],
-                    "confidence": 0.93,
-                },
-                {
-                    "period_start": "2025-01-01",
-                    "period_end": "2025-12-31",
-                    "projected_value": 530.0,
-                    "metric": "Market Size (B USD)",
-                    "sources": ["https://forrester.com/projection2025"],
-                    "confidence": 0.94,
-                },
-            ],
-            "summary": "Market size is projected to reach $530B by 2025.",
-            "sources": [
-                "https://forrester.com/projection2024",
-                "https://forrester.com/projection2025",
-            ],
-            "last_updated": datetime.now().isoformat(),
-        }
+        prompt = f"""
+        The current date is {datetime.now().isoformat()}. 
+        You are a financial analyst with access to reputable market research sources. Generate a detailed growth projections analysis for the following company:
+        - Company Name: {company_name}
+        - Industry: {industry or "N/A"}
+        - Region: {region or "N/A"}
+        - Start Date: {start_date or "N/A"}
+        - End Date: {end_date or "N/A"}
+
+        Please provide the following fields in your response:
+        - projections_timeseries: A list of objects, each with period_start, period_end, projected_value, metric, sources, and confidence
+        - summary: A summary of the growth projections
+        - last_updated: The datetime of the latest data (ISO format)
+        
+        Be as realistic and detailed as possible. Use plausible numbers and sources. 
+        Output should be a detailed textual description of all these fields and their values.
+        """
+        return await self._execute_llm_analysis(
+            prompt=prompt,
+            response_model=GrowthProjectionsResponse,
+            agent_name="GrowthProjectionsAgent",
+        )
 
     async def get_regional_trends(
         self,
-        industry: str,
-        regions: Optional[List[str]] = None,
+        company_name: str,
+        industry: Optional[str] = None,
+        regions_of_interest: Optional[list[str]] = None,
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
     ):
-        return {
-            "industry": industry,
-            "regional_trends": [
-                {
-                    "region": "North America",
-                    "period_start": "2023-01-01",
-                    "period_end": "2023-12-31",
-                    "value": 180.0,
-                    "metric": "Market Size (B USD)",
-                    "sources": ["https://statista.com/na2023"],
-                    "confidence": 0.91,
-                },
-                {
-                    "region": "Europe",
-                    "period_start": "2023-01-01",
-                    "period_end": "2023-12-31",
-                    "value": 120.0,
-                    "metric": "Market Size (B USD)",
-                    "sources": ["https://statista.com/eu2023"],
-                    "confidence": 0.89,
-                },
-            ],
-            "summary": "North America leads in market size, followed by Europe.",
-            "sources": ["https://statista.com/na2023", "https://statista.com/eu2023"],
-            "last_updated": datetime.now().isoformat(),
-        }
+        prompt = f"""
+        The current date is {datetime.now().isoformat()}. 
+        You are a financial analyst with access to reputable market research sources. Generate a detailed regional trends analysis for the following company:
+        - Company Name: {company_name}
+        - Industry: {industry or "N/A"}
+        - Regions of Interest: {regions_of_interest or "N/A"}
+        - Start Date: {start_date or "N/A"}
+        - End Date: {end_date or "N/A"}
+
+        Please provide the following fields in your response:
+        - regional_trends: A list of objects, each with region, period_start, period_end, value, metric, sources, and confidence
+        - summary: A summary of the regional trends
+        - last_updated: The datetime of the latest data (ISO format)
+        
+        Be as realistic and detailed as possible. Use plausible numbers and sources. 
+        Output should be a detailed textual description of all these fields and their values.
+        """
+        return await self._execute_llm_analysis(
+            prompt=prompt,
+            response_model=RegionalTrendsResponse,
+            agent_name="RegionalTrendsAgent",
+        )

@@ -19,6 +19,10 @@ class CitationResponse(BaseModel):
                 parsed_url = urlparse(url)
                 domain = parsed_url.netloc
 
+                # Ensure domain is a string before using .startswith
+                if isinstance(domain, bytes):
+                    domain = domain.decode("utf-8")
+
                 # Remove 'www.' prefix if present
                 if domain.startswith("www."):
                     domain = domain[4:]

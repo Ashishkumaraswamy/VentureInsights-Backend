@@ -1,82 +1,130 @@
 from pydantic import BaseModel
 from typing import Optional, List
-from datetime import datetime, date
+from pydantic import Field
+from backend.models.response.base import CitationResponse
 
 
 # --- Market Trends ---
-class MarketTrendTimeSeriesPoint(BaseModel):
-    period_start: date
-    period_end: date
-    value: float
-    metric: str
-    sources: Optional[List[str]] = None
-    confidence: Optional[float] = None
+class MarketSize(BaseModel):
+    percentage: float = Field(
+        ..., description="The market size in the primary currency"
+    )
+    industry: str = Field(..., description="The industry the market size belongs to")
+    sources: Optional[list[str]] = Field(
+        None, description="List of sources or references for this revenue data point"
+    )
+    confidence: Optional[float] = Field(
+        None,
+        description="Confidence score between 0 and 1 for the accuracy of this data point",
+    )
 
 
-class MarketTrendsResponse(BaseModel):
-    industry: str
-    region: Optional[str] = None
-    trends_timeseries: List[MarketTrendTimeSeriesPoint]
-    summary: Optional[str] = None
-    sources: Optional[List[str]] = None
-    last_updated: Optional[datetime] = None
+class MarketTrendsResponse(CitationResponse):
+    market_size: List[MarketSize] = Field(
+        ...,
+        description="List of market size data points showing market size over different periods",
+    )
+    summary: str = Field(..., description="Summary of the market trend")
+    last_updated: Optional[str] = Field(
+        None,
+        description="ISO 8601 timestamp indicating when this analysis was last updated",
+    )
 
 
 # --- Competitive Analysis ---
 class CompetitorProfile(BaseModel):
-    name: str
-    domain: Optional[str] = None
-    market_share: Optional[float] = None
-    revenue: Optional[float] = None
-    growth_rate: Optional[float] = None
-    strengths: Optional[List[str]] = None
-    weaknesses: Optional[List[str]] = None
-    sources: Optional[List[str]] = None
+    company_name: str = Field(..., description="The name of the company")
+    industry: Optional[str] = Field(None, description="The industry of the company")
+    market_share: Optional[float] = Field(
+        None, description="The market share of the company"
+    )
+    revenue: Optional[float] = Field(None, description="The revenue of the company")
+    growth_rate: Optional[float] = Field(
+        None, description="The growth rate of the company"
+    )
+    strengths: Optional[list[str]] = Field(
+        None, description="The strengths of the company"
+    )
+    weaknesses: Optional[list[str]] = Field(
+        None, description="The weaknesses of the company"
+    )
+    differentiating_factors: Optional[list[str]] = Field(
+        None, description="The differentiating factors of the company"
+    )
+    sources: Optional[list[str]] = Field(
+        None, description="List of sources or references for this revenue data point"
+    )
+    confidence: Optional[float] = Field(
+        None,
+        description="Confidence score between 0 and 1 for the accuracy of this data point",
+    )
 
 
-class CompetitiveAnalysisResponse(BaseModel):
-    company_name: str
-    industry: Optional[str] = None
-    region: Optional[str] = None
-    top_competitors: List[CompetitorProfile]
-    summary: Optional[str] = None
-    sources: Optional[List[str]] = None
-    last_updated: Optional[datetime] = None
+class CompetitiveAnalysisResponse(CitationResponse):
+    top_competitors: list[CompetitorProfile] = Field(
+        ...,
+        description="List of top competitors for the company",
+    )
+    summary: Optional[str] = Field(
+        None,
+        description="Summary of the competitive analysis",
+    )
+    last_updated: Optional[str] = Field(
+        None,
+        description="ISO 8601 timestamp indicating when this analysis was last updated",
+    )
 
 
 # --- Growth Projections ---
 class GrowthProjectionTimeSeriesPoint(BaseModel):
-    period_start: date
-    period_end: date
-    projected_value: float
-    metric: str
-    sources: Optional[List[str]] = None
-    confidence: Optional[float] = None
+    period_start: str = Field(..., description="The start date of the period")
+    period_end: str = Field(..., description="The end date of the period")
+    projected_value: float = Field(
+        ..., description="The projected value for the period"
+    )
+    metric: str = Field(..., description="The metric being projected")
+    sources: Optional[list[str]] = Field(
+        None, description="List of sources or references for this revenue data point"
+    )
+    confidence: Optional[float] = Field(
+        None,
+        description="Confidence score between 0 and 1 for the accuracy of this data point",
+    )
 
 
-class GrowthProjectionsResponse(BaseModel):
-    industry: str
-    region: Optional[str] = None
-    projections_timeseries: List[GrowthProjectionTimeSeriesPoint]
-    summary: Optional[str] = None
-    sources: Optional[List[str]] = None
-    last_updated: Optional[datetime] = None
+class GrowthProjectionsResponse(CitationResponse):
+    projections_timeseries: List[GrowthProjectionTimeSeriesPoint] = Field(
+        ..., description="List of projected values for the company"
+    )
+    summary: Optional[str] = Field(
+        None, description="Summary of the growth projections"
+    )
+    sources: Optional[list[str]] = Field(
+        None, description="List of sources or references for this revenue data point"
+    )
+    last_updated: Optional[str] = None
 
 
 # --- Regional Trends ---
 class RegionalTrendPoint(BaseModel):
-    region: str
-    period_start: date
-    period_end: date
-    value: float
-    metric: str
-    sources: Optional[List[str]] = None
-    confidence: Optional[float] = None
+    industry: str = Field(..., description="The industry the trend belongs to")
+    region: str = Field(..., description="The region the trend belongs to")
+    period_start: str = Field(..., description="The start date of the period")
+    period_end: str = Field(..., description="The end date of the period")
+    value: float = Field(..., description="The value of the trend")
+    metric: str = Field(..., description="The metric being projected")
+    sources: Optional[list[str]] = Field(
+        None, description="List of sources or references for this revenue data point"
+    )
+    confidence: Optional[float] = Field(
+        None,
+        description="Confidence score between 0 and 1 for the accuracy of this data point",
+    )
 
 
-class RegionalTrendsResponse(BaseModel):
-    industry: str
-    regional_trends: List[RegionalTrendPoint]
-    summary: Optional[str] = None
-    sources: Optional[List[str]] = None
-    last_updated: Optional[datetime] = None
+class RegionalTrendsResponse(CitationResponse):
+    regional_trends: list[RegionalTrendPoint] = Field(
+        ..., description="List of regional trends"
+    )
+    summary: Optional[str] = Field(None, description="Summary of the regional trends")
+    last_updated: Optional[str] = Field(None, description="Last updated timestamp")

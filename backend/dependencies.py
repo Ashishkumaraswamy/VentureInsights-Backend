@@ -7,6 +7,7 @@ from backend.services.files import FilesService
 from backend.settings import get_app_settings, AppSettings
 from fastapi import Request, Depends
 from backend.services.finance import FinanceService
+from backend.services.market_analysis import MarketAnalysisService
 from backend.services.linkedin_team import LinkedInTeamService
 
 
@@ -43,6 +44,10 @@ def get_files_service(app_settings: AppSettings = Depends(get_app_settings)):
 
 def get_finance_service(app_settings: AppSettings = Depends(get_app_settings)):
     return FinanceService(app_settings.llm_config, app_settings.sonar_config)
+
+
+def get_market_analysis_service(app_settings: AppSettings = Depends(get_app_settings)):
+    return MarketAnalysisService(app_settings.llm_config, app_settings.sonar_config)
 
 
 def get_linkedin_team_service(app_settings: AppSettings = Depends(get_app_settings)):
