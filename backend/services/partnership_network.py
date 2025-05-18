@@ -6,7 +6,13 @@ class PartnershipNetworkService:
     def __init__(self):
         pass
 
-    async def get_partner_list(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None):
+    async def get_partner_list(
+        self,
+        company_name: str,
+        domain: Optional[str] = None,
+        industry: Optional[str] = None,
+        region: Optional[str] = None,
+    ):
         return {
             "company_name": company_name,
             "partners": [
@@ -33,7 +39,13 @@ class PartnershipNetworkService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_strategic_alliances(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None):
+    async def get_strategic_alliances(
+        self,
+        company_name: str,
+        domain: Optional[str] = None,
+        industry: Optional[str] = None,
+        region: Optional[str] = None,
+    ):
         return {
             "company_name": company_name,
             "alliances": [
@@ -60,7 +72,13 @@ class PartnershipNetworkService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_network_strength(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None):
+    async def get_network_strength(
+        self,
+        company_name: str,
+        domain: Optional[str] = None,
+        industry: Optional[str] = None,
+        region: Optional[str] = None,
+    ):
         return {
             "company_name": company_name,
             "network_metrics": [
@@ -82,7 +100,15 @@ class PartnershipNetworkService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_partnership_trends(self, company_name: str, domain: Optional[str] = None, industry: Optional[str] = None, region: Optional[str] = None, start_date: Optional[str] = None, end_date: Optional[str] = None):
+    async def get_partnership_trends(
+        self,
+        company_name: str,
+        domain: Optional[str] = None,
+        industry: Optional[str] = None,
+        region: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ):
         return {
             "company_name": company_name,
             "partnership_trends_timeseries": [

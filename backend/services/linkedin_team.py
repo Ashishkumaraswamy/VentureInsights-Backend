@@ -47,7 +47,12 @@ class LinkedInTeamService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_individual_performance(self, company_name: str, domain: Optional[str] = None, individual_name: Optional[str] = None):
+    async def get_individual_performance(
+        self,
+        company_name: str,
+        domain: Optional[str] = None,
+        individual_name: Optional[str] = None,
+    ):
         return {
             "company_name": company_name,
             "individual_name": individual_name or "Jane Doe",
@@ -114,7 +119,13 @@ class LinkedInTeamService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_team_growth(self, company_name: str, domain: Optional[str] = None, start_date: Optional[str] = None, end_date: Optional[str] = None):
+    async def get_team_growth(
+        self,
+        company_name: str,
+        domain: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ):
         return {
             "company_name": company_name,
             "team_growth_timeseries": [

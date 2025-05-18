@@ -33,7 +33,7 @@ class PartnershipNetworkCBV:
             company_name=req.company_name,
             domain=req.domain,
             industry=req.industry,
-            region=req.region
+            region=req.region,
         )
 
     @partnership_network_router.post(
@@ -44,7 +44,7 @@ class PartnershipNetworkCBV:
             company_name=req.company_name,
             domain=req.domain,
             industry=req.industry,
-            region=req.region
+            region=req.region,
         )
 
     @partnership_network_router.post(
@@ -55,7 +55,7 @@ class PartnershipNetworkCBV:
             company_name=req.company_name,
             domain=req.domain,
             industry=req.industry,
-            region=req.region
+            region=req.region,
         )
 
     @partnership_network_router.post(
@@ -68,5 +68,5 @@ class PartnershipNetworkCBV:
             industry=req.industry,
             region=req.region,
             start_date=req.start_date,
-            end_date=req.end_date
+            end_date=req.end_date,
         )

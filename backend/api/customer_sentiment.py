@@ -33,7 +33,7 @@ class CustomerSentimentCBV:
             product=req.product,
             region=req.region,
             start_date=req.start_date,
-            end_date=req.end_date
+            end_date=req.end_date,
         )
 
     @customer_sentiment_router.post(
@@ -46,7 +46,7 @@ class CustomerSentimentCBV:
             product=req.product,
             region=req.region,
             start_date=req.start_date,
-            end_date=req.end_date
+            end_date=req.end_date,
         )
 
     @customer_sentiment_router.post(
@@ -58,5 +58,5 @@ class CustomerSentimentCBV:
             domain=req.domain,
             region=req.region,
             start_date=req.start_date,
-            end_date=req.end_date
+            end_date=req.end_date,
         )

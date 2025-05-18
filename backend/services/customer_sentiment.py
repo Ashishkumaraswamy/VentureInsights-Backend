@@ -6,7 +6,15 @@ class CustomerSentimentService:
     def __init__(self):
         pass
 
-    async def get_sentiment_summary(self, company_name: str, domain: Optional[str] = None, product: Optional[str] = None, region: Optional[str] = None, start_date: Optional[str] = None, end_date: Optional[str] = None):
+    async def get_sentiment_summary(
+        self,
+        company_name: str,
+        domain: Optional[str] = None,
+        product: Optional[str] = None,
+        region: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ):
         return {
             "company_name": company_name,
             "product": product or "NovaCloud",
@@ -40,7 +48,15 @@ class CustomerSentimentService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_customer_feedback(self, company_name: str, domain: Optional[str] = None, product: Optional[str] = None, region: Optional[str] = None, start_date: Optional[str] = None, end_date: Optional[str] = None):
+    async def get_customer_feedback(
+        self,
+        company_name: str,
+        domain: Optional[str] = None,
+        product: Optional[str] = None,
+        region: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ):
         return {
             "company_name": company_name,
             "product": product or "NovaCloud",
@@ -80,7 +96,14 @@ class CustomerSentimentService:
             "last_updated": datetime.now().isoformat(),
         }
 
-    async def get_brand_reputation(self, company_name: str, domain: Optional[str] = None, region: Optional[str] = None, start_date: Optional[str] = None, end_date: Optional[str] = None):
+    async def get_brand_reputation(
+        self,
+        company_name: str,
+        domain: Optional[str] = None,
+        region: Optional[str] = None,
+        start_date: Optional[str] = None,
+        end_date: Optional[str] = None,
+    ):
         return {
             "company_name": company_name,
             "region": region or "Global",

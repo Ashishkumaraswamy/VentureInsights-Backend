@@ -11,18 +11,17 @@ from backend.settings import get_app_settings
 from typing import Optional
 import json
 
+
 # Helper to wrap async methods for sync tool interface
 def syncify(async_fn):
     def wrapper(*args, **kwargs):
         return asyncio.run(async_fn(*args, **kwargs))
+
     return wrapper
 
+
 class FinanceAgent(BaseAgent):
-    def __init__(
-        self,
-        finance_service: FinanceService,
-        llm_config: LLMConfig
-    ):
+    def __init__(self, finance_service: FinanceService, llm_config: LLMConfig):
         super().__init__(llm_config)
         self.finance_service = finance_service
 
@@ -33,14 +32,14 @@ class FinanceAgent(BaseAgent):
             domain: Optional[str] = None,
             start_date: Optional[str] = None,
             end_date: Optional[str] = None,
-            granularity: str = "year"
+            granularity: str = "year",
         ):
             result = syncify(self.finance_service.get_revenue_analysis)(
                 company_name=company_name,
                 domain=domain,
                 start_date=start_date,
                 end_date=end_date,
-                granularity=granularity
+                granularity=granularity,
             )
             return json.dumps(result)
 
@@ -49,26 +48,19 @@ class FinanceAgent(BaseAgent):
             company_name: str,
             domain: Optional[str] = None,
             year: Optional[int] = None,
-            category: Optional[str] = None
+            category: Optional[str] = None,
         ):
             result = syncify(self.finance_service.get_expense_analysis)(
-                company_name=company_name,
-                domain=domain,
-                year=year,
-                category=category
+                company_name=company_name, domain=domain, year=year, category=category
             )
             return json.dumps(result)
 
         @tool()
         def get_profit_margins(
-            company_name: str,
-            domain: Optional[str] = None,
-            year: Optional[int] = None
+            company_name: str, domain: Optional[str] = None, year: Optional[int] = None
         ):
             result = syncify(self.finance_service.get_profit_margins)(
-                company_name=company_name,
-                domain=domain,
-                year=year
+                company_name=company_name, domain=domain, year=year
             )
             return json.dumps(result)
 
@@ -76,23 +68,17 @@ class FinanceAgent(BaseAgent):
         def get_valuation_estimation(
             company_name: str,
             domain: Optional[str] = None,
-            as_of_date: Optional[str] = None
+            as_of_date: Optional[str] = None,
         ):
             result = syncify(self.finance_service.get_valuation_estimation)(
-                company_name=company_name,
-                domain=domain,
-                as_of_date=as_of_date
+                company_name=company_name, domain=domain, as_of_date=as_of_date
             )
             return json.dumps(result)
 
         @tool()
-        def get_funding_history(
-            company_name: str,
-            domain: Optional[str] = None
-        ):
+        def get_funding_history(company_name: str, domain: Optional[str] = None):
             result = syncify(self.finance_service.get_funding_history)(
-                company_name=company_name,
-                domain=domain
+                company_name=company_name, domain=domain
             )
             return json.dumps(result)
 
@@ -110,7 +96,7 @@ class FinanceAgent(BaseAgent):
             tools=self.tools,
             system_prompt=self.system_prompt(),
             show_tool_calls=True,
-            response_model=AnalysisResponse
+            response_model=AnalysisResponse,
         )
 
     @staticmethod
@@ -130,6 +116,7 @@ class FinanceAgent(BaseAgent):
     def run(self, user_message: str) -> AnalysisResponse:
         result = self.agent.run(user_message)
         return result.content
+
 
 if __name__ == "__main__":
     load_dotenv()

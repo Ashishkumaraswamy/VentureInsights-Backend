@@ -9,17 +9,18 @@ import asyncio
 from typing import Optional, List
 import json
 
+
 # Helper to wrap async methods for sync tool interface
 def syncify(async_fn):
     def wrapper(*args, **kwargs):
         return asyncio.run(async_fn(*args, **kwargs))
+
     return wrapper
+
 
 class MarketAnalysisAgent(BaseAgent):
     def __init__(
-        self,
-        market_analysis_service: MarketAnalysisService,
-        llm_config: LLMConfig
+        self, market_analysis_service: MarketAnalysisService, llm_config: LLMConfig
     ):
         super().__init__(llm_config)
         self.market_analysis_service = market_analysis_service
@@ -29,13 +30,13 @@ class MarketAnalysisAgent(BaseAgent):
             industry: str,
             region: Optional[str] = None,
             start_date: Optional[str] = None,
-            end_date: Optional[str] = None
+            end_date: Optional[str] = None,
         ):
             result = syncify(self.market_analysis_service.get_market_trends)(
                 industry=industry,
                 region=region,
                 start_date=start_date,
-                end_date=end_date
+                end_date=end_date,
             )
             return json.dumps(result)
 
@@ -44,13 +45,13 @@ class MarketAnalysisAgent(BaseAgent):
             company_name: str,
             domain: Optional[str] = None,
             industry: Optional[str] = None,
-            region: Optional[str] = None
+            region: Optional[str] = None,
         ):
             result = syncify(self.market_analysis_service.get_competitive_analysis)(
                 company_name=company_name,
                 domain=domain,
                 industry=industry,
-                region=region
+                region=region,
             )
             return json.dumps(result)
 
@@ -59,13 +60,13 @@ class MarketAnalysisAgent(BaseAgent):
             industry: str,
             region: Optional[str] = None,
             start_date: Optional[str] = None,
-            end_date: Optional[str] = None
+            end_date: Optional[str] = None,
         ):
             result = syncify(self.market_analysis_service.get_growth_projections)(
                 industry=industry,
                 region=region,
                 start_date=start_date,
-                end_date=end_date
+                end_date=end_date,
             )
             return json.dumps(result)
 
@@ -74,13 +75,13 @@ class MarketAnalysisAgent(BaseAgent):
             industry: str,
             regions: Optional[List[str]] = None,
             start_date: Optional[str] = None,
-            end_date: Optional[str] = None
+            end_date: Optional[str] = None,
         ):
             result = syncify(self.market_analysis_service.get_regional_trends)(
                 industry=industry,
                 regions=regions,
                 start_date=start_date,
-                end_date=end_date
+                end_date=end_date,
             )
             return json.dumps(result)
 
@@ -97,7 +98,7 @@ class MarketAnalysisAgent(BaseAgent):
             tools=self.tools,
             system_prompt=self.system_prompt(),
             show_tool_calls=True,
-            response_model=AnalysisResponse
+            response_model=AnalysisResponse,
         )
 
     @staticmethod
@@ -115,4 +116,4 @@ class MarketAnalysisAgent(BaseAgent):
 
     def run(self, user_message: str) -> AnalysisResponse:
         result = self.agent.run(user_message)
-        return result.content 
+        return result.content

@@ -29,7 +29,7 @@ class RiskAnalysisCBV:
             company_name=req.company_name,
             domain=req.domain,
             industry=req.industry,
-            region=req.region
+            region=req.region,
         )
 
     @risk_analysis_router.post("/market-risks", response_model=MarketRisksResponse)
@@ -38,7 +38,7 @@ class RiskAnalysisCBV:
             company_name=req.company_name,
             domain=req.domain,
             industry=req.industry,
-            region=req.region
+            region=req.region,
         )
 
     @risk_analysis_router.post(
@@ -49,7 +49,7 @@ class RiskAnalysisCBV:
             company_name=req.company_name,
             domain=req.domain,
             industry=req.industry,
-            region=req.region
+            region=req.region,
         )
 
     @risk_analysis_router.post("/legal-risks", response_model=LegalRisksResponse)
@@ -58,5 +58,5 @@ class RiskAnalysisCBV:
             company_name=req.company_name,
             domain=req.domain,
             industry=req.industry,
-            region=req.region
+            region=req.region,
         )

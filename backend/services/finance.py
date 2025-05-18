@@ -1,4 +1,3 @@
-from backend.settings import LLMConfig
 from datetime import datetime, date
 from typing import Optional
 
@@ -13,7 +12,7 @@ class FinanceService:
         domain: Optional[str] = None,
         start_date: Optional[date] = None,
         end_date: Optional[date] = None,
-        granularity: str = "year"
+        granularity: str = "year",
     ):
         """
         Retrieve revenue analysis data for a company.
@@ -57,7 +56,7 @@ class FinanceService:
         company_name: str,
         domain: Optional[str] = None,
         year: Optional[int] = None,
-        category: Optional[str] = None
+        category: Optional[str] = None,
     ):
         """
         Retrieve expense analysis data for a company.
@@ -115,7 +114,7 @@ class FinanceService:
         self,
         company_name: str,
         domain: Optional[str] = None,
-        year: Optional[int] = None
+        year: Optional[int] = None,
     ):
         """
         Retrieve profit margin data for a company.
@@ -161,7 +160,7 @@ class FinanceService:
         self,
         company_name: str,
         domain: Optional[str] = None,
-        as_of_date: Optional[date] = None
+        as_of_date: Optional[date] = None,
     ):
         """
         Retrieve valuation estimation data for a company.
@@ -203,9 +202,7 @@ class FinanceService:
         }
 
     async def get_funding_history(
-        self,
-        company_name: str,
-        domain: Optional[str] = None
+        self, company_name: str, domain: Optional[str] = None
     ):
         """
         Retrieve funding history data for a company.

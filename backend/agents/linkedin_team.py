@@ -9,29 +9,26 @@ import asyncio
 from typing import Optional
 import json
 
+
 # Helper to wrap async methods for sync tool interface
 def syncify(async_fn):
     def wrapper(*args, **kwargs):
         return asyncio.run(async_fn(*args, **kwargs))
+
     return wrapper
+
 
 class LinkedInTeamAgent(BaseAgent):
     def __init__(
-        self,
-        linkedin_team_service: LinkedInTeamService,
-        llm_config: LLMConfig
+        self, linkedin_team_service: LinkedInTeamService, llm_config: LLMConfig
     ):
         super().__init__(llm_config)
         self.linkedin_team_service = linkedin_team_service
 
         @tool()
-        def get_team_overview(
-            company_name: str,
-            domain: Optional[str] = None
-        ):
+        def get_team_overview(company_name: str, domain: Optional[str] = None):
             result = syncify(self.linkedin_team_service.get_team_overview)(
-                company_name=company_name,
-                domain=domain
+                company_name=company_name, domain=domain
             )
             return json.dumps(result)
 
@@ -39,23 +36,19 @@ class LinkedInTeamAgent(BaseAgent):
         def get_individual_performance(
             company_name: str,
             domain: Optional[str] = None,
-            individual_name: Optional[str] = None
+            individual_name: Optional[str] = None,
         ):
             result = syncify(self.linkedin_team_service.get_individual_performance)(
                 company_name=company_name,
                 domain=domain,
-                individual_name=individual_name
+                individual_name=individual_name,
             )
             return json.dumps(result)
 
         @tool()
-        def get_org_structure(
-            company_name: str,
-            domain: Optional[str] = None
-        ):
+        def get_org_structure(company_name: str, domain: Optional[str] = None):
             result = syncify(self.linkedin_team_service.get_org_structure)(
-                company_name=company_name,
-                domain=domain
+                company_name=company_name, domain=domain
             )
             return json.dumps(result)
 
@@ -64,13 +57,13 @@ class LinkedInTeamAgent(BaseAgent):
             company_name: str,
             domain: Optional[str] = None,
             start_date: Optional[str] = None,
-            end_date: Optional[str] = None
+            end_date: Optional[str] = None,
         ):
             result = syncify(self.linkedin_team_service.get_team_growth)(
                 company_name=company_name,
                 domain=domain,
                 start_date=start_date,
-                end_date=end_date
+                end_date=end_date,
             )
             return json.dumps(result)
 
@@ -87,7 +80,7 @@ class LinkedInTeamAgent(BaseAgent):
             tools=self.tools,
             system_prompt=self.system_prompt(),
             show_tool_calls=True,
-            response_model=AnalysisResponse
+            response_model=AnalysisResponse,
         )
 
     @staticmethod
@@ -105,4 +98,4 @@ class LinkedInTeamAgent(BaseAgent):
 
     def run(self, user_message: str) -> AnalysisResponse:
         result = self.agent.run(user_message)
-        return result.content 
+        return result.content

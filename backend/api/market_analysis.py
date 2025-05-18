@@ -27,7 +27,7 @@ class MarketAnalysisCBV:
             industry=req.industry,
             region=req.region,
             start_date=req.start_date,
-            end_date=req.end_date
+            end_date=req.end_date,
         )
 
     @market_analysis_router.post(
@@ -38,7 +38,7 @@ class MarketAnalysisCBV:
             company_name=req.company_name,
             domain=req.domain,
             industry=req.industry,
-            region=req.region
+            region=req.region,
         )
 
     @market_analysis_router.post(
@@ -49,7 +49,7 @@ class MarketAnalysisCBV:
             industry=req.industry,
             region=req.region,
             start_date=req.start_date,
-            end_date=req.end_date
+            end_date=req.end_date,
         )
 
     @market_analysis_router.post(
@@ -60,5 +60,5 @@ class MarketAnalysisCBV:
             industry=req.industry,
             regions=req.regions,
             start_date=req.start_date,
-            end_date=req.end_date
+            end_date=req.end_date,
         )
