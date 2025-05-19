@@ -1,13 +1,6 @@
 import uvicorn
 from fastapi import FastAPI
-
-try:
-    from scalar_fastapi import get_scalar_api_reference
-
-    HAS_SCALAR = True
-except ImportError:
-    HAS_SCALAR = False
-    print("Warning: scalar_fastapi not found. /docs endpoint will not be available.")
+from scalar_fastapi import get_scalar_api_reference
 
 from backend.api.auth import auth_router
 from backend.api.companies import companies_router
@@ -33,6 +26,7 @@ from backend.api.customer_sentiment import customer_sentiment_router
 from backend.api.regulatory_compliance import regulatory_compliance_router
 from backend.api.partnership_network import partnership_network_router
 
+
 load_dotenv()
 
 LOG = get_logger()
@@ -42,7 +36,7 @@ app = FastAPI(
     title="Virtual Insights Backend APIs",
     version="2.0.0",
     description="APIs for Virtual Insights Backend",
-    docs_url="/swagger" if not HAS_SCALAR else None,
+    docs_url="/swagger",
 )
 
 routers = [
@@ -102,14 +96,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-if HAS_SCALAR:
 
-    @app.get("/docs", include_in_schema=True)
-    async def scalar_html():
-        return get_scalar_api_reference(
-            openapi_url=app.openapi_url,
-            title=app.title,
-        )
+@app.get("/docs", include_in_schema=True)
+async def scalar_html():
+    return get_scalar_api_reference(
+        openapi_url=app.openapi_url,
+        title=app.title,
+    )
 
 
 if __name__ == "__main__":

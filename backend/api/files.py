@@ -1,18 +1,9 @@
-from fastapi import APIRouter, Depends, Query, Path
-from fastapi_utils.cbv import cbv
-from typing import Optional
-
-from backend.dependencies import get_files_service
-from backend.models.requests.files import (
-    FileUploadInitiateRequest,
-    FileUploadCompleteRequest,
-)
-from backend.models.response.files import (
-    FileUploadInitiateResponse,
-    FileResponse,
-    FileListResponse,
-)
+from fastapi import APIRouter, UploadFile, HTTPException, Query, Depends
 from backend.services.files import FilesService
+from fastapi.responses import FileResponse
+from backend.dependencies import get_files_service
+from fastapi_utils.cbv import cbv
+import os
 
 files_router = APIRouter(prefix="/files", tags=["files"])
 
@@ -21,44 +12,18 @@ files_router = APIRouter(prefix="/files", tags=["files"])
 class FilesAPI:
     files_service: FilesService = Depends(get_files_service)
 
-    @files_router.post("/upload/initiate", response_model=FileUploadInitiateResponse)
-    async def initiate_upload(
-        self, request: FileUploadInitiateRequest
-    ) -> FileUploadInitiateResponse:
-        """Initiate a file upload process and get a temporary upload URL"""
-        result = await self.files_service.initiate_upload(
-            request.filename, request.content_type, request.size, request.thread_id
-        )
-        return FileUploadInitiateResponse(
-            file_id=result["file_id"],
-            upload_url=result["upload_url"],
-            expires=result["expires"],
-        )
+    @files_router.post("/upload/{company_name}")
+    async def upload_file(self, company_name: str, file: UploadFile):
+        return await self.files_service.upload_file(file, company_name)
 
-    @files_router.post("/upload/complete", response_model=FileResponse)
-    async def complete_upload(self, request: FileUploadCompleteRequest) -> FileResponse:
-        """Complete a file upload process"""
-        result = await self.files_service.complete_upload(
-            request.file_id, request.thread_id
-        )
-        return FileResponse(**result)
+    @files_router.get("/get-files/{company_name}")
+    async def get_company_docs(self, company_name: str):
+        try:
+            return await self.files_service.get_company_docs(company_name)
+        except Exception as e:
+            raise HTTPException(status_code=404, detail=str(e))
 
-    @files_router.get("/", response_model=FileListResponse)
-    async def list_files(
-        self,
-        thread_id: Optional[str] = Query(None),
-        limit: int = Query(10, ge=1, le=100),
-        offset: int = Query(0, ge=0),
-        status: Optional[str] = Query(None),
-    ) -> FileListResponse:
-        """List files with filtering and pagination"""
-        result = await self.files_service.list_files(
-            thread_id=thread_id, limit=limit, offset=offset, status=status
-        )
-        return FileListResponse(**result)
-
-    @files_router.get("/{file_id}", response_model=FileResponse)
-    async def get_file(self, file_id: str = Path(...)) -> FileResponse:
-        """Get file details, status, and analysis if available"""
-        result = await self.files_service.get_file(file_id)
-        return FileResponse(**result)
+    @files_router.get("/download")
+    async def download_file(self, cloud_url: str = Query(...)):
+        temp_path = await self.files_service.download_file(cloud_url)
+        return FileResponse(temp_path, filename=os.path.basename(temp_path))

@@ -21,6 +21,12 @@ class MongoConnectionDetails(BaseModel):
         return self.get_connection_string()
 
 
+class StorageConfig(BaseModel):
+    cloud_name: str = Field(..., description="Cloudinary cloud name")
+    api_key: str = Field(..., description="Cloudinary API key")
+    api_secret: str = Field(..., description="Cloudinary API secret")
+
+
 class LLMConfig(BaseModel):
     api_key: str = Field(..., description="API key for the LLM service")
     api_base: str = Field(..., description="Base URL for the LLM service")
@@ -28,6 +34,13 @@ class LLMConfig(BaseModel):
     llm_deployment_name: str = Field(
         ..., description="LLM deployment name for the LLM service"
     )
+
+
+class VectorStoreConfig(BaseModel):
+    mongo_collection: str = Field(..., description="MongoDB collection name")
+    embedding_model: str = Field(..., description="Embedding model to use")
+    base_url: str = Field(..., description="Base URL for the embedding model")
+    api_key: str = Field(..., description="API key for the embedding model")
 
 
 class SonarConfig(BaseModel):
@@ -48,6 +61,12 @@ class AppSettings(BaseSettings):
     llm_config: LLMConfig = Field(..., description="LLM configuration details")
     sonar_config: SonarConfig = Field(..., description="Sonar configuration details")
     jwt_config: JWTConfig = Field(..., description="JWT configuration details")
+    storage_config: StorageConfig = Field(
+        ..., description="Storage configuration details"
+    )
+    vector_store_config: VectorStoreConfig = Field(
+        ..., description="Vector store configuration details"
+    )
     local_user_email: Optional[str] = Field(None, description="Local user mail id")
     local: bool = Field(False, description="Local mode")
 
@@ -83,6 +102,17 @@ class AppSettings(BaseSettings):
             sonar_config=SonarConfig(
                 base_url=os.environ.get("SONAR_BASE_URL"),
                 api_key=os.environ.get("SONAR_API_KEY"),
+            ),
+            storage_config=StorageConfig(
+                cloud_name=os.environ.get("CLOUDINARY_CLOUD_NAME"),
+                api_key=os.environ.get("CLOUDINARY_API_KEY"),
+                api_secret=os.environ.get("CLOUDINARY_API_SECRET"),
+            ),
+            vector_store_config=VectorStoreConfig(
+                mongo_collection=os.environ.get("VECTOR_MONGO_COLLECTION"),
+                embedding_model=os.environ.get("EMBEDDING_MODEL"),
+                base_url=os.environ.get("AZURE_OPENAI_API_BASE"),
+                api_key=os.environ.get("AZURE_OPENAI_API_KEY"),
             ),
             jwt_config=JWTConfig(
                 secret_key=os.environ.get("JWT_SECRET_KEY"),

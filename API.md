@@ -160,4 +160,70 @@ class FundingHistoryResponse(BaseModel):
 
 ---
 
+## Files API
+
+### /files/upload (POST)
+**Request:**
+- Multipart/form-data with fields:
+  - file: The file to upload (PDF, PPTX, etc.)
+  - company_name: str (form field)
+
+**Sample Request (form-data):**
+- file: (binary file)
+- company_name: "Acme Corp"
+
+**Response:**
+```python
+{
+  "cloud_url": "https://res.cloudinary.com/yourcloud/abc123.pdf",
+  "company": {
+    "name": "Acme Corp"
+  }
+}
+```
+
+---
+
+### /files/get-files/{company_name} (GET)
+**Request:**
+- Path parameter: company_name (str)
+
+**Sample Request:**
+```
+GET /files/get-files/Acme%20Corp
+```
+
+**Response Model:**
+```python
+class CompanyDocumentsResponse(BaseModel):
+    company_name: str
+    document_urls: List[str]
+```
+**Sample Response:**
+```json
+{
+  "company_name": "Acme Corp",
+  "document_urls": [
+    "https://res.cloudinary.com/yourcloud/abc123.pdf",
+    "https://res.cloudinary.com/yourcloud/xyz456.pdf"
+  ]
+}
+```
+
+---
+
+### /files/download (GET)
+**Request:**
+- Query parameter: cloud_url (str)
+
+**Sample Request:**
+```
+GET /files/download?cloud_url=https://res.cloudinary.com/yourcloud/abc123.pdf
+```
+
+**Response:**
+- Returns the file as an attachment (binary response)
+
+---
+
 # (The rest of the agents and endpoints will follow the same format. This file will be continued to include all request/response models and sample POST request JSONs for each endpoint.) 

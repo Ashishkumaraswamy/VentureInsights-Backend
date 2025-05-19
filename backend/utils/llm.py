@@ -8,6 +8,8 @@ from backend.settings import LLMConfig, SonarConfig, get_app_settings
 
 from agno.models.azure import AzureOpenAI
 from agno.models.perplexity import Perplexity
+from agno.embedder.azure_openai import AzureOpenAIEmbedder
+from backend.settings import VectorStoreConfig
 
 
 def get_model(llm_config: LLMConfig) -> AzureOpenAI:
@@ -24,6 +26,15 @@ def get_sonar_model(sonar_config: SonarConfig) -> Perplexity:
         id="sonar-pro",
         base_url=sonar_config.base_url,
         api_key=sonar_config.api_key,
+    )
+
+
+def get_embedding_model(vector_store_config: VectorStoreConfig) -> AzureOpenAIEmbedder:
+    return AzureOpenAIEmbedder(
+        id="text-embedding-ada-002",
+        api_key=vector_store_config.api_key,
+        azure_endpoint=vector_store_config.base_url,
+        azure_deployment=vector_store_config.embedding_model,
     )
 
 

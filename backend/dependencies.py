@@ -1,3 +1,5 @@
+from backend.agents.document_processing import DocumentProcessingEngine
+from backend.agents.vector_store import VectorStore
 from backend.models.base.users import User
 from backend.services.auth import AuthService
 from backend.services.companies import CompaniesService
@@ -10,6 +12,7 @@ from backend.services.finance import FinanceService
 from backend.services.market_analysis import MarketAnalysisService
 from backend.services.linkedin_team import LinkedInTeamService
 from backend.services.customer_sentiment import CustomerSentimentService
+from backend.utils.llm import get_model
 
 
 def get_user(request: Request):
@@ -39,8 +42,28 @@ def get_chat_service(app_settings: AppSettings = Depends(get_app_settings)):
     return ChatService(app_settings.db_config)
 
 
-def get_files_service(app_settings: AppSettings = Depends(get_app_settings)):
-    return FilesService(app_settings.db_config)
+def get_document_processing_engine(
+    app_settings: AppSettings = Depends(get_app_settings),
+):
+    return DocumentProcessingEngine(
+        get_model(app_settings.llm_config), app_settings.storage_config
+    )
+
+
+def get_vector_store(app_settings: AppSettings = Depends(get_app_settings)):
+    return VectorStore(app_settings.db_config, app_settings.vector_store_config)
+
+
+def get_files_service(
+    doc_engine=Depends(get_document_processing_engine),
+    vector_store=Depends(get_vector_store),
+    app_settings: AppSettings = Depends(get_app_settings),
+):
+    return FilesService(
+        doc_engine=doc_engine,
+        vector_store=vector_store,
+        mongo_config=app_settings.db_config,
+    )
 
 
 def get_finance_service(app_settings: AppSettings = Depends(get_app_settings)):

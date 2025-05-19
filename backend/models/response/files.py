@@ -72,3 +72,8 @@ class FileResponse(BaseModel):
 class FileListResponse(BaseModel):
     files: List[FileResponse]
     total: int
+
+
+class CompanyDocumentsResponse(BaseModel):
+    company_name: str
+    document_urls: List[str]

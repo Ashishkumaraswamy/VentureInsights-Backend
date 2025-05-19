@@ -3,12 +3,24 @@ import os
 import base64
 import io
 from tempfile import TemporaryDirectory
+import requests
+
+from dotenv import load_dotenv
 from pptx import Presentation
 from PIL import Image
 from PIL.PpmImagePlugin import PpmImageFile
 from pdf2image import convert_from_path
-from phi.agent import Agent
-from phi.model.azure import AzureOpenAIChat
+from agno.agent import Agent
+from agno.models.azure import AzureOpenAI
+import cloudinary
+import cloudinary.uploader
+from backend.settings import StorageConfig, get_app_settings
+from backend.utils.llm import get_model
+from agno.document import Document
+
+from backend.utils.logger import get_logger
+
+LOG = get_logger("DocProcessingEngine")
 
 
 class DocumentProcessingEngine:
@@ -16,13 +28,24 @@ class DocumentProcessingEngine:
     Engine to extract text from PDF or PPTX files using an LLM with vision (e.g., GPT-4o via phidata).
     """
 
-    def __init__(self, model: AzureOpenAIChat):
+    def __init__(self, model: AzureOpenAI, storage_config: StorageConfig):
         self.model = model
         self.agent = Agent(model=model, markdown=True)
+        self.storage_config = storage_config
+        # Set Cloudinary config for upload/download
+        cloudinary.config(
+            cloud_name=self.storage_config.cloud_name,
+            api_key=self.storage_config.api_key,
+            api_secret=self.storage_config.api_secret,
+        )
 
-    def extract_text(self, file_path: str) -> List[str]:
+    def extract_text(
+        self, file_path: str, file_name: str = None, company_name: str = None
+    ) -> List[Document]:
         file_ext = os.path.splitext(file_path)[1].lower()
         images = []
+        if not file_name:
+            file_name = os.path.basename(file_path)
         with TemporaryDirectory() as tmpdir:
             if file_ext == ".pdf":
                 images = convert_from_path(file_path, dpi=300, output_folder=tmpdir)
@@ -40,7 +63,7 @@ class DocumentProcessingEngine:
                     "Unsupported file type. Only PDF and PPTX are supported."
                 )
 
-            paragraphs = []
+            documents = []
             for i, img in enumerate(images):
                 if isinstance(img, PpmImageFile):
                     img = img.convert("RGB")
@@ -57,8 +80,52 @@ class DocumentProcessingEngine:
                 text = (
                     response.content if hasattr(response, "content") else str(response)
                 )
-                for para in text.split("\n\n"):
-                    para = para.strip()
-                    if para:
-                        paragraphs.append(para)
-            return paragraphs
+                LOG.info(f"Parsed page {i + 1} text")
+                text = text.strip()
+                if text:
+                    doc = Document(
+                        content=text,
+                        name=file_name,
+                        meta_data={
+                            "company": company_name,
+                            "file_name": file_name,
+                            "page_number": i + 1,
+                        },
+                    )
+                    documents.append(doc)
+            return documents
+
+    @staticmethod
+    def upload_to_cloudinary(file_path: str) -> str:
+        """
+        Uploads a file to Cloudinary and returns the public URL.
+        """
+        result = cloudinary.uploader.upload(file_path, resource_type="raw")
+        return result["secure_url"]
+
+    @staticmethod
+    def download_from_cloudinary(url: str, save_path: str) -> None:
+        """
+        Downloads a file from a Cloudinary public URL and saves it to the specified local path.
+        """
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
+        with open(save_path, "wb") as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+
+
+if __name__ == "__main__":
+    load_dotenv()
+    app_settings = get_app_settings()
+    model = get_model(app_settings.llm_config)
+    document_processing_engine = DocumentProcessingEngine(
+        model, app_settings.storage_config
+    )
+    print(app_settings.storage_config)
+    result = document_processing_engine.extract_text(
+        "/Users/ashish_kumar/Downloads/OIX Lab 2 Hackathon Slides.pdf",
+        "OIX Lab 2 Hackathon Slides.pdf",
+    )
+    print(result)
