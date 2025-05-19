@@ -26,7 +26,9 @@ class VentureInsightsAgent:
 
     async def process_query(self, user_message: str) -> str:
         """Process a user query using the MCP tools."""
-        async with MCPTools(server_params=self.server_params) as mcp_tools:
+        async with MCPTools(
+            server_params=self.server_params, timeout_seconds=300
+        ) as mcp_tools:
             agent = Agent(
                 model=get_model(self.llm_config),
                 tools=[mcp_tools],
@@ -38,7 +40,9 @@ class VentureInsightsAgent:
 
     async def run_interactive(self, user_message: str) -> None:
         """Run the agent with streamed response."""
-        async with MCPTools(server_params=self.server_params) as mcp_tools:
+        async with MCPTools(
+            server_params=self.server_params, timeout_seconds=300
+        ) as mcp_tools:
             agent = Agent(
                 model=get_model(self.llm_config),
                 tools=[mcp_tools],
@@ -50,17 +54,12 @@ class VentureInsightsAgent:
 
 if __name__ == "__main__":
     from dotenv import load_dotenv
-    import os
+    from backend.settings import get_app_settings
 
     async def main():
         load_dotenv()
 
-        llm_config = LLMConfig(
-            api_key=os.getenv("AZURE_OPENAI_API_KEY"),
-            api_base=os.getenv("AZURE_OPENAI_API_BASE"),
-            llm_deployment_name=os.getenv("AZURE_OPENAI_DEPLOYMENT_NAME"),
-            api_version=os.getenv("AZURE_OPENAI_API_VERSION"),
-        )
+        app_settings = get_app_settings()
 
         server_params = StdioServerParameters(
             command="/Users/mathanamathav/Library/Caches/pypoetry/virtualenvs/backend-MOHDKJyA-py3.11/bin/python",
@@ -69,11 +68,13 @@ if __name__ == "__main__":
             ],
         )
 
-        agent = VentureInsightsAgent(llm_config=llm_config, server_params=server_params)
+        agent = VentureInsightsAgent(
+            llm_config=app_settings.llm_config, server_params=server_params
+        )
 
         # Example usage
         await agent.run_interactive(
-            "What is the valuation estimation for TechNova Inc?"
+            "What is the valuation estimation for Datagenie AI Start up also Known as code z?"
         )
 
     asyncio.run(main())

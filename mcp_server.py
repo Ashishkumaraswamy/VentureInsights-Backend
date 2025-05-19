@@ -7,7 +7,9 @@ from backend.services.customer_sentiment import CustomerSentimentService
 from backend.services.regulatory_compliance import RegulatoryComplianceService
 from backend.services.partnership_network import PartnershipNetworkService
 from backend.settings import get_app_settings
+from dotenv import load_dotenv
 
+load_dotenv()
 mcp = FastMCP("Venture Insights MCP Server")
 
 # Get app settings
@@ -18,9 +20,15 @@ finance_service = FinanceService(app_settings.llm_config, app_settings.sonar_con
 linkedin_team_service = LinkedInTeamService(
     app_settings.llm_config, app_settings.sonar_config
 )
-market_analysis_service = MarketAnalysisService()
+market_analysis_service = MarketAnalysisService(
+    llm_config=app_settings.llm_config,
+    sonar_config=app_settings.sonar_config,
+)
 risk_analysis_service = RiskAnalysisService()
-customer_sentiment_service = CustomerSentimentService()
+customer_sentiment_service = CustomerSentimentService(
+    llm_config=app_settings.llm_config,
+    sonar_config=app_settings.sonar_config,
+)
 regulatory_compliance_service = RegulatoryComplianceService()
 partnership_network_service = PartnershipNetworkService()
 
