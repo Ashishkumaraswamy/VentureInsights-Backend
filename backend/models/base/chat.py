@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from typing import List, Optional, Dict, Any, Literal
 from datetime import datetime
+from agno.models.message import Citations
+from pydantic import Field
 
 
 class ChatThreadBase(BaseModel):
@@ -15,7 +17,7 @@ class ChatMessageBase(BaseModel):
     id: str
     content: str
     sender: Literal["user", "assistant", "tool"]
-    timestamp: datetime
+    timestamp: datetime = Field(default_factory=datetime.now)
     user_id: Optional[str] = None  # User ID associated with the message
     user_name: Optional[str] = None  # User name/display name
 
@@ -41,8 +43,14 @@ class AssociatedDocument(BaseModel):
     extracted_data: Dict[str, Any]
 
 
+class AgnoMessage(BaseModel):
+    role: Optional[str] = None
+    content: Optional[str] = None
+
+
 class MessageMetadata(BaseModel):
-    attachments: Optional[List[Attachment]] = None
-    references: Optional[List[Reference]] = None
-    associated_documents: Optional[List[AssociatedDocument]] = None
-    analysis: Optional[Dict[str, Any]] = None
+    tools: Optional[List[Dict[str, Any]]] = None
+    formatted_tool_calls: Optional[List[str]] = None
+    citations: Optional[Citations] = None
+    messages: Optional[List[AgnoMessage]] = None
+    model: Optional[str] = None

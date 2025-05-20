@@ -69,7 +69,10 @@ class ChatAPI:
 
     @chat_router.post("/threads/{thread_id}/messages", response_model=MessageResponse)
     async def send_message(
-        self, request: SendMessageRequest, thread_id: str = Path(...)
+        self,
+        request: SendMessageRequest,
+        thread_id: str = Path(...),
+        stream: bool = False,
     ) -> MessageResponse:
         """
         Send a new message to a chat thread
@@ -79,11 +82,11 @@ class ChatAPI:
         2. Generate an AI response using the full thread context
         3. Return the AI response
         """
-        LOG.info(f"thread payload is {request}")
+        LOG.info(f"Request payload is {request}")
 
         # Add user info if not provided in request
         if not request.user_id and self.user:
             request.user_id = self.user.email
             request.user_name = f"{self.user.first_name} {self.user.last_name}".strip()
 
-        return await self.chat_service.add_message(thread_id, request)
+        return await self.chat_service.add_message(thread_id, request, stream)
