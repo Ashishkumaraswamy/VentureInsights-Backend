@@ -1,58 +1,78 @@
 from agno.agent import Agent
 from agno.tools.mcp import MCPTools
-from backend.settings import LLMConfig
+from backend.settings import LLMConfig, MongoConnectionDetails
 from backend.utils.llm import get_model
-from backend.settings import MongoConnectionDetails
-import asyncio
-from typing import List, Optional, Union
-
-from backend.models.requests.chat import SendMessageRequest
-from backend.models.response.chat import (
-    ChatThreadWithMessages,
-    MessageResponse,
-)
 from backend.utils.logger import get_logger
 from agno.storage.mongodb import MongoDbStorage
 from backend.database.mongo import MongoDBConnector
-from agno.run.response import RunResponse
-import uuid
+from backend.models.requests.chat import SendMessageRequest
+from backend.models.response.chat import ChatThreadWithMessages, MessageResponse
 from backend.models.base.chat import MessageMetadata, AgnoMessage
+from agno.run.response import RunResponse
 from fastapi.responses import StreamingResponse
+from typing import List, Optional, Union, AsyncGenerator
+import uuid
 import json
-from typing import AsyncGenerator
+from textwrap import dedent
+import asyncio
 
 LOG = get_logger("Chat Service")
 
 
 class ChatService:
     def __init__(
-        self, llm_config: LLMConfig, db_config: MongoConnectionDetails, mcp_url: str
+        self,
+        llm_config: LLMConfig,
+        db_config: MongoConnectionDetails,
+        mcp_url: str,
+        history_runs: int = 3,
+        timeout: int = 300,
     ):
         self.llm_config = llm_config
         self.db_config = db_config
         self.mcp_url = mcp_url
-        self.storage_agent = MongoDbStorage(
+        self.history_runs = history_runs
+        self.timeout = timeout
+
+        self.storage = MongoDbStorage(
             collection_name="chat_agent",
             db_name=db_config.dbname,
             db_url=db_config.get_connection_string(),
         )
-        self.db_config = db_config
-        self.mongo_connector = MongoDBConnector(db_config)
+        self.mongo = MongoDBConnector(db_config)
 
     @staticmethod
-    def system_agent_prompt():
-        return "You are a helpful AI assistant that uses Venture Insights tools to analyze companies and markets."
+    def system_agent_prompt() -> str:
+        return dedent(
+            """You are a helpful AI assistant that uses Venture Insights tools to analyze companies and markets."""
+        )
 
     @staticmethod
-    def system_prompt():
-        return (
-            "Guidelines for using these tools:"
-            "1. Always use company_name for company-specific analyses"
-            "2. Include domain, region, or industry parameters when they would help narrow the analysis"
-            "3. When analyzing trends over time, provide start_date and end_date parameters"
-            "4. For specific categories or products, include those parameters when available"
-            "5. Begin your analysis by identifying which tool will provide the most relevant information"
-            "6. Use multiple tools when necessary to provide comprehensive insights"
+    def system_instructions() -> str:
+        return dedent("""
+            Guidelines for using these tools:
+            1. Use company_name for company-specific analyses;
+            2. Include domain, region, or industry parameters to narrow analysis;
+            3. Provide start_date and end_date for trend analyses;
+            4. Include categories or products parameters when available;
+            5. Identify which tool suits the query best;
+            6. Combine tools for comprehensive insights.
+        """)
+
+    async def _create_agent(
+        self, user_id: str, session_id: str, mcp_tools, markdown: bool = False
+    ) -> Agent:
+        return Agent(
+            session_id=session_id,
+            user_id=user_id,
+            model=get_model(self.llm_config),
+            tools=[mcp_tools],
+            markdown=markdown,
+            description=self.system_agent_prompt(),
+            instructions=self.system_instructions(),
+            storage=self.storage,
+            add_history_to_messages=True,
+            num_history_runs=self.history_runs,
         )
 
     async def process_query(
@@ -64,24 +84,16 @@ class ChatService:
         markdown: bool = False,
     ) -> RunResponse:
         """Process a user query using the MCP tools."""
-
         async with MCPTools(
-            url=self.mcp_url, transport="streamable-http", timeout_seconds=300
+            url=self.mcp_url, transport="streamable-http", timeout_seconds=self.timeout
         ) as mcp_tools:
-            agent = Agent(
-                session_id=thread_id,
+            agent = await self._create_agent(
                 user_id=user_id,
-                model=get_model(self.llm_config),
-                tools=[mcp_tools],
+                session_id=thread_id,
                 markdown=markdown,
-                description=self.system_agent_prompt(),
-                instructions=self.system_prompt(),
-                storage=self.storage_agent,
-                add_history_to_messages=True,
-                num_history_runs=3,
+                mcp_tools=mcp_tools,
             )
-            response = await agent.arun(user_message, stream=stream)
-            return response
+            return await agent.arun(user_message, stream=stream)
 
     async def run_interactive(
         self,
@@ -91,175 +103,115 @@ class ChatService:
         stream: bool = True,
         markdown: bool = False,
     ) -> None:
-        """Run the agent with streamed response."""
-
+        """Run the agent with a streamed response."""
         async with MCPTools(
-            url=self.mcp_url, transport="streamable-http", timeout_seconds=300
+            url=self.mcp_url, transport="streamable-http", timeout_seconds=self.timeout
         ) as mcp_tools:
-            agent = Agent(
-                session_id=thread_id,
+            agent = await self._create_agent(
                 user_id=user_id,
-                model=get_model(self.llm_config),
-                tools=[mcp_tools],
+                session_id=thread_id,
                 markdown=markdown,
-                description=self.system_agent_prompt(),
-                instructions=self.system_prompt(),
-                storage=self.storage_agent,
-                add_history_to_messages=True,
-                num_history_runs=3,
+                mcp_tools=mcp_tools,
             )
             await agent.aprint_response(user_message, stream=stream)
 
-    async def get_threads(
-        self, limit: int = 10, offset: int = 0, user_id: Optional[str] = None
-    ) -> List[ChatThreadWithMessages]:
-        query = {"user_id": user_id}
-        threads = await self.mongo_connector.aquery("chat_agent", query)
-
-        response_chats = []
-
-        for thread in threads:
-            messages = thread.get("memory", []).get("runs", [])[-1].get("messages", [])
-            user_id = thread.get("user_id")
-            updated_at = thread.get("updated_at")
-            thread_id = thread.get("session_id")
-
-            response_chats.append(
-                ChatThreadWithMessages(
-                    id=thread_id,
-                    updated_at=updated_at,
-                    created_by=user_id,
-                    messages=[
-                        MessageResponse(
-                            content=message.get("content"),
-                            sender=message.get("role"),
-                            timestamp=message.get("created_at"),
-                            user_id=user_id,
-                        )
-                        for message in messages
-                        if (
-                            message.get("role") != "system"
-                            and message.get("role") != "tool"
-                        )
-                        and message.get("content") is not None
-                    ],
-                )
-            )
-
-        return response_chats
-
-    async def delete_thread(self, thread_id: str) -> bool:
-        await self.mongo_connector.adelete_records(
-            "chat_agent", {"session_id": thread_id}
-        )
-        return True
-
-    async def get_thread(self, thread_id: str) -> ChatThreadWithMessages:
-        thread = await self.mongo_connector.aquery(
-            "chat_agent", {"session_id": thread_id}
-        )
-        thread = thread[0]
-
-        messages = thread.get("memory", []).get("runs", [])[-1].get("messages", [])
-        user_id = thread.get("user_id")
-        updated_at = thread.get("updated_at")
-
+    async def _format_thread(self, thread: dict) -> ChatThreadWithMessages:
+        runs = thread.get("memory", {}).get("runs", [])
+        last_run = runs[-1] if runs else {}
+        messages = [
+            m
+            for m in last_run.get("messages", [])
+            if m.get("role") not in ("system", "tool") and m.get("content")
+        ]
         return ChatThreadWithMessages(
-            id=thread_id,
-            updated_at=updated_at,
-            created_by=user_id,
+            id=thread["session_id"],
+            updated_at=thread.get("updated_at"),
+            created_by=thread.get("user_id"),
             messages=[
                 MessageResponse(
-                    content=message.get("content"),
-                    sender=message.get("role"),
-                    timestamp=message.get("created_at"),
-                    user_id=user_id,
+                    content=m["content"],
+                    sender=m["role"],
+                    timestamp=m.get("created_at"),
+                    user_id=thread.get("user_id"),
                 )
-                for message in messages
-                if (message.get("role") != "system" and message.get("role") != "tool")
-                and message.get("content") is not None
+                for m in messages
             ],
         )
 
+    async def get_threads(
+        self,
+        limit: int = 10,
+        offset: int = 0,
+        user_id: Optional[str] = None,
+    ) -> List[ChatThreadWithMessages]:
+        query = {"user_id": user_id} if user_id else {}
+        threads = await self.mongo.aquery("chat_agent", query)
+        return [await self._format_thread(t) for t in threads]
+
+    async def get_thread(self, thread_id: str) -> ChatThreadWithMessages:
+        threads = await self.mongo.aquery("chat_agent", {"session_id": thread_id})
+        return await self._format_thread(threads[0])
+
+    async def delete_thread(self, thread_id: str) -> bool:
+        await self.mongo.adelete_records("chat_agent", {"session_id": thread_id})
+        return True
+
     async def add_message(
-        self, thread_id: str, message: SendMessageRequest, stream: bool
+        self,
+        thread_id: str,
+        message: SendMessageRequest,
+        stream: bool = False,
     ) -> Union[MessageResponse, StreamingResponse]:
+        """Add a message to a chat thread, streaming if required."""
         if not stream:
-            # Non-streaming implementation (what you already have)
-            agent_response = await self.process_query(
+            run = await self.process_query(
                 user_message=message.content,
                 thread_id=thread_id,
                 user_id=message.user_id,
-                stream=stream,
+                stream=False,
             )
-
             return MessageResponse(
                 id=str(uuid.uuid4()),
-                content=agent_response.content,
+                content=run.content,
                 sender="assistant",
                 metadata=MessageMetadata(
-                    tools=agent_response.tools,
-                    formatted_tool_calls=agent_response.formatted_tool_calls,
-                    citations=agent_response.citations,
+                    tools=run.tools,
+                    formatted_tool_calls=run.formatted_tool_calls,
+                    citations=run.citations,
                     messages=[
-                        AgnoMessage(role=message.role, content=message.content)
-                        for message in agent_response.messages
+                        AgnoMessage(role=m.role, content=m.content)
+                        for m in run.messages
                     ],
-                    model=agent_response.model,
+                    model=run.model,
                 ),
                 user_id=message.user_id,
                 user_name=message.user_name,
             )
-        else:
 
-            async def response_generator() -> AsyncGenerator[str, None]:
-                # Start the streaming process
-                agent_response_stream = await self.process_query(
-                    user_message=message.content,
-                    thread_id=thread_id,
-                    user_id=message.user_id,
-                    stream=True,
+        async def stream_gen() -> AsyncGenerator[str, None]:
+            async with MCPTools(
+                url=self.mcp_url,
+                transport="streamable-http",
+                timeout_seconds=self.timeout,
+            ) as mcp_tools:
+                agent = await self._create_agent(
+                    user_id=message.user_id, session_id=thread_id, mcp_tools=mcp_tools
                 )
-
-                # Initialize variables to collect information during streaming
-                full_content = ""
-
-                # Process the stream
-                async for chunk in agent_response_stream:
-                    # Accumulate the full content
-                    if isinstance(chunk, str):
-                        full_content += chunk
-                        # Format each chunk as SSE data
-                        yield f"data: {json.dumps({'content': chunk})}\n\n"
-                    else:
-                        # If chunk is an object with attributes
-                        if hasattr(chunk, "content"):
-                            if chunk.content:
-                                full_content += chunk.content
-                                yield f"data: {json.dumps({'content': chunk.content})}\n\n"
-
-                # After streaming is complete, send the final message with complete metadata
-                # Use whatever metadata we've collected or provide defaults
-                final_message = MessageResponse(
-                    id=str(uuid.uuid4()),
-                    content=full_content,
-                    sender="assistant",
-                    user_id=message.user_id,
-                    user_name=message.user_name,
-                )
-
-                yield f"data: {json.dumps(final_message.model_dump_json())}\n\n"
+                stream_resp = await agent.arun(message.content, stream=True)
+                async for chunk in stream_resp:
+                    text = getattr(chunk, "content", str(chunk))
+                    yield f"data: {json.dumps({'content': text})}\n\n"
                 yield "data: [DONE]\n\n"
 
-            return StreamingResponse(
-                response_generator(),
-                media_type="text/event-stream",
-                headers={
-                    "Cache-Control": "no-cache",
-                    "Connection": "keep-alive",
-                    "Content-Type": "text/event-stream",
-                },
-            )
+        return StreamingResponse(
+            stream_gen(),
+            media_type="text/event-stream",
+            headers={
+                "Cache-Control": "no-cache",
+                "Connection": "keep-alive",
+                "Content-Type": "text/event-stream",
+            },
+        )
 
 
 if __name__ == "__main__":
