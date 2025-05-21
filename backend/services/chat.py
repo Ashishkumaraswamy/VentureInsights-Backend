@@ -6,14 +6,14 @@ from backend.settings import MongoConnectionDetails
 import asyncio
 from typing import List, Optional, Union
 
-from backend.models.requests.chat import SendMessageRequest, CreateThreadRequest
+from backend.models.requests.chat import SendMessageRequest
 from backend.models.response.chat import (
-    ChatThread,
     ChatThreadWithMessages,
     MessageResponse,
 )
 from backend.utils.logger import get_logger
 from agno.storage.mongodb import MongoDbStorage
+from backend.database.mongo import MongoDBConnector
 from agno.run.response import RunResponse
 import uuid
 from backend.models.base.chat import MessageMetadata, AgnoMessage
@@ -36,6 +36,8 @@ class ChatService:
             db_name=db_config.dbname,
             db_url=db_config.get_connection_string(),
         )
+        self.db_config = db_config
+        self.mongo_connector = MongoDBConnector(db_config)
 
     @staticmethod
     def system_agent_prompt():
@@ -110,14 +112,74 @@ class ChatService:
 
     async def get_threads(
         self, limit: int = 10, offset: int = 0, user_id: Optional[str] = None
-    ) -> tuple[List[ChatThread], int]:
-        pass
+    ) -> List[ChatThreadWithMessages]:
+        query = {"user_id": user_id}
+        threads = await self.mongo_connector.aquery("chat_agent", query)
 
-    async def create_thread(self, request: CreateThreadRequest) -> ChatThread:
-        pass
+        response_chats = []
+
+        for thread in threads:
+            messages = thread.get("memory", []).get("runs", [])[-1].get("messages", [])
+            user_id = thread.get("user_id")
+            updated_at = thread.get("updated_at")
+            thread_id = thread.get("session_id")
+
+            response_chats.append(
+                ChatThreadWithMessages(
+                    id=thread_id,
+                    updated_at=updated_at,
+                    created_by=user_id,
+                    messages=[
+                        MessageResponse(
+                            content=message.get("content"),
+                            sender=message.get("role"),
+                            timestamp=message.get("created_at"),
+                            user_id=user_id,
+                        )
+                        for message in messages
+                        if (
+                            message.get("role") != "system"
+                            and message.get("role") != "tool"
+                        )
+                        and message.get("content") is not None
+                    ],
+                )
+            )
+
+        return response_chats
+
+    async def delete_thread(self, thread_id: str) -> bool:
+        await self.mongo_connector.adelete_records(
+            "chat_agent", {"session_id": thread_id}
+        )
+        return True
 
     async def get_thread(self, thread_id: str) -> ChatThreadWithMessages:
-        pass
+        thread = await self.mongo_connector.aquery(
+            "chat_agent", {"session_id": thread_id}
+        )
+        thread = thread[0]
+
+        messages = thread.get("memory", []).get("runs", [])[-1].get("messages", [])
+        user_id = thread.get("user_id")
+        updated_at = thread.get("updated_at")
+
+        return ChatThreadWithMessages(
+            id=thread_id,
+            updated_at=updated_at,
+            created_by=user_id,
+            messages=[
+                MessageResponse(
+                    content=message.get("content"),
+                    sender=message.get("role"),
+                    timestamp=message.get("created_at"),
+                    user_id=user_id,
+                )
+                for message in messages
+                if (message.get("role") != "system" and message.get("role") != "tool")
+                and message.get("content") is not None
+            ],
+        )
 
     async def add_message(
         self, thread_id: str, message: SendMessageRequest, stream: bool

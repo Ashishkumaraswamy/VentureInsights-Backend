@@ -7,15 +7,15 @@ from pydantic import Field
 
 class ChatThreadBase(BaseModel):
     id: str
-    title: str
-    created_at: datetime
-    updated_at: datetime
+    title: Optional[str] = None
+    created_at: Optional[datetime] = None
+    updated_at: Optional[datetime] = None
     created_by: Optional[str] = None  # User ID or name of thread creator
 
 
 class ChatMessageBase(BaseModel):
-    id: str
-    content: str
+    id: Optional[str] = None
+    content: Optional[str] = None
     sender: Literal["user", "assistant", "tool"]
     timestamp: datetime = Field(default_factory=datetime.now)
     user_id: Optional[str] = None  # User ID associated with the message

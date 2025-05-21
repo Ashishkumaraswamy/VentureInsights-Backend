@@ -4,21 +4,18 @@ from fastapi_utils.cbv import cbv
 from backend.dependencies import get_chat_service, get_user
 from backend.models.base.users import User
 from backend.models.requests.chat import (
-    CreateThreadRequest,
-    UpdateThreadRequest,
     SendMessageRequest,
 )
 from backend.models.response.chat import (
-    ChatThreadList,
-    ChatThread,
     ChatThreadWithMessages,
     MessageResponse,
 )
 from backend.services.chat import ChatService
 from backend.utils.logger import get_logger
+import uuid
 
 chat_router = APIRouter(prefix="/chat", tags=["chat"])
-LOG = get_logger()
+LOG = get_logger("Chat API")
 
 
 @cbv(chat_router)
@@ -26,46 +23,35 @@ class ChatAPI:
     chat_service: ChatService = Depends(get_chat_service)
     user: User = Depends(get_user)
 
-    @chat_router.get("/threads", response_model=ChatThreadList)
+    @chat_router.get("/threads", response_model=list[ChatThreadWithMessages])
     async def get_threads(
         self,
         limit: int = Query(10, ge=1, le=100),
         offset: int = Query(0, ge=0),
-        user_threads_only: bool = Query(False),
-    ) -> ChatThreadList:
-        """Get all chat threads with pagination"""
-        user_id = self.user.email if user_threads_only and self.user else None
-        threads, total = await self.chat_service.get_threads(limit, offset, user_id)
-        return ChatThreadList(threads=threads, total=total)
+        user_id: str = Query(None, description="User ID"),
+    ) -> list[ChatThreadWithMessages]:
+        LOG.debug(f"Getting threads for user {user_id}")
 
-    @chat_router.post("/threads", response_model=ChatThread)
-    async def create_thread(self, request: CreateThreadRequest) -> ChatThread:
-        """Create a new chat thread"""
-        LOG.info(f"thread payload is {request}")
+        if not user_id and self.user:
+            user_id = self.user.email
 
-        # Add user info if not provided in request
-        if not request.created_by and self.user:
-            request.created_by = self.user.email
+        return await self.chat_service.get_threads(limit, offset, user_id)
 
-        return await self.chat_service.create_thread(request)
+    @chat_router.post("/threads", response_model=dict)
+    async def create_thread(self) -> dict:
+        LOG.debug("Creating a new thread")
+        return {"thread_id": str(uuid.uuid4())}
 
     @chat_router.get("/threads/{thread_id}", response_model=ChatThreadWithMessages)
     async def get_thread(self, thread_id: str = Path(...)) -> ChatThreadWithMessages:
-        """Get a chat thread with all its messages"""
+        LOG.debug(f"Getting thread {thread_id}")
         return await self.chat_service.get_thread(thread_id)
 
     @chat_router.delete("/threads/{thread_id}")
     async def delete_thread(self, thread_id: str = Path(...)) -> dict:
-        """Delete a chat thread"""
+        LOG.debug(f"Deleting thread {thread_id}")
         success = await self.chat_service.delete_thread(thread_id)
         return {"success": success}
-
-    @chat_router.patch("/threads/{thread_id}", response_model=ChatThread)
-    async def update_thread(
-        self, request: UpdateThreadRequest, thread_id: str = Path(...)
-    ) -> ChatThread:
-        """Update a chat thread title"""
-        return await self.chat_service.update_thread(thread_id, request.title)
 
     @chat_router.post("/threads/{thread_id}/messages", response_model=MessageResponse)
     async def send_message(
@@ -74,15 +60,7 @@ class ChatAPI:
         thread_id: str = Path(...),
         stream: bool = False,
     ) -> MessageResponse:
-        """
-        Send a new message to a chat thread
-
-        The backend will:
-        1. Add the user message to the thread
-        2. Generate an AI response using the full thread context
-        3. Return the AI response
-        """
-        LOG.info(f"Request payload is {request}")
+        LOG.debug(f"Sending message to thread {thread_id} and payload is {request}")
 
         # Add user info if not provided in request
         if not request.user_id and self.user:

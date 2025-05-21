@@ -35,12 +35,12 @@ class ChatMessage(ChatMessageBase):
     metadata: Optional[MessageMetadata] = None
 
 
-class ChatThreadWithMessages(ChatThreadBase):
-    messages: List[ChatMessage]
-
-
 class MessageResponse(ChatMessageBase):
     metadata: Optional[MessageMetadata] = None
+
+
+class ChatThreadWithMessages(ChatThreadBase):
+    messages: list[MessageResponse]
 
 
 AgentResponse = Union[
