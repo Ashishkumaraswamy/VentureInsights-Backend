@@ -180,7 +180,7 @@ class ChatService:
                     citations=run.citations,
                     messages=[
                         AgnoMessage(role=m.role, content=m.content)
-                        for m in run.messages
+                        for m in run.messages if m.role not in ("system")
                     ],
                     model=run.model,
                 ),
