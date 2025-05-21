@@ -442,9 +442,32 @@ async def partnership_trends(
     )
 
 
-@mcp.tool()
-async def hi(name: str, age: int | None = None):
-    return "Hi"
+# Add a resource for documentation overview
+@mcp.resource("docs://overview")
+async def get_overview() -> str:
+    """
+    Get an overview of the Venture Insights MCP Server.
+
+    This resource provides a high-level description of the available
+    tools and capabilities of this server.
+    """
+    return """
+    # Venture Insights MCP Server
+    
+    This MCP server provides tools for analyzing companies, markets, and industries.
+    
+    ## Available Tool Categories:
+    
+    - **Finance**: Revenue analysis, expense analysis, profit margins, valuation estimation
+    - **Team**: Team overview, individual performance, org structure, team growth
+    - **Market**: Market trends, competitive analysis, growth projections, regional trends
+    - **Risk**: Regulatory risks, market risks, operational risks, legal risks
+    - **Customer**: Sentiment summary, customer feedback, brand reputation
+    - **Compliance**: Compliance overview, violation history, compliance risk, regional compliance
+    - **Partnerships**: Partner list, strategic alliances, network strength, partnership trends
+    
+    For detailed documentation on each tool, explore the available tools in the MCP Inspector.
+    """
 
 
 @mcp.resource("docs://mcp/full")

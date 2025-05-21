@@ -8,11 +8,11 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `revenue_analysis`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `start_date` (str, optional, format: YYYY-MM-DD)
-- `end_date` (str, optional, format: YYYY-MM-DD)
-- `granularity` (str, optional, default: "year")
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `start_date` (str, optional, format: YYYY-MM-DD): Start date for the analysis period
+- `end_date` (str, optional, format: YYYY-MM-DD): End date for the analysis period
+- `granularity` (str, optional, default: "year"): Time period granularity (e.g., 'year', 'quarter', 'month')
 
 **Sample MCP Request:**
 ```json
@@ -32,10 +32,10 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `expense_analysis`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `year` (int, optional)
-- `category` (str, optional)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `year` (int, optional): Specific year for expense analysis
+- `category` (str, optional): Expense category to filter by (e.g., 'R&D', 'Marketing')
 
 **Sample MCP Request:**
 ```json
@@ -54,9 +54,9 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `profit_margins`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `year` (int, optional)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `year` (int, optional): Specific year for profit margin analysis
 
 **Sample MCP Request:**
 ```json
@@ -74,9 +74,9 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `valuation_estimation`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `as_of_date` (str, optional, format: YYYY-MM-DD)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `as_of_date` (str, optional, format: YYYY-MM-DD): Specific date for valuation estimation
 
 **Sample MCP Request:**
 ```json
@@ -94,8 +94,8 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `funding_history`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
 
 **Sample MCP Request:**
 ```json
@@ -116,8 +116,8 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `team_overview`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
 
 **Sample MCP Request:**
 ```json
@@ -134,9 +134,9 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `individual_performance`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `individual_name` (str, required)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `individual_name` (str, optional): Name of the individual to analyze (if not provided, analyzes all individuals)
 
 **Sample MCP Request:**
 ```json
@@ -154,8 +154,8 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `org_structure`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
 
 **Sample MCP Request:**
 ```json
@@ -172,10 +172,10 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `team_growth`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `start_date` (str, optional, format: YYYY-MM-DD)
-- `end_date` (str, optional, format: YYYY-MM-DD)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `start_date` (str, optional, format: YYYY-MM-DD): Start date for the growth analysis
+- `end_date` (str, optional, format: YYYY-MM-DD): End date for the growth analysis
 
 **Sample MCP Request:**
 ```json
@@ -198,10 +198,10 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `market_trends`
 **Arguments:**
-- `industry` (str, required)
-- `region` (str, optional)
-- `start_date` (str, optional, format: YYYY-MM-DD)
-- `end_date` (str, optional, format: YYYY-MM-DD)
+- `industry` (str, required): Industry to analyze (e.g., 'FinTech', 'Healthcare')
+- `region` (str, optional): Geographic region to focus on
+- `start_date` (str, optional, format: YYYY-MM-DD): Start date for trend analysis
+- `end_date` (str, optional, format: YYYY-MM-DD): End date for trend analysis
 
 **Sample MCP Request:**
 ```json
@@ -220,10 +220,10 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `competitive_analysis`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `industry` (str, optional)
-- `region` (str, optional)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `industry` (str, optional): Industry context for the analysis
+- `region` (str, optional): Geographic region to focus on
 
 **Sample MCP Request:**
 ```json
@@ -242,10 +242,10 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `growth_projections`
 **Arguments:**
-- `industry` (str, required)
-- `region` (str, optional)
-- `start_date` (str, optional, format: YYYY-MM-DD)
-- `end_date` (str, optional, format: YYYY-MM-DD)
+- `industry` (str, required): Industry to analyze (e.g., 'FinTech', 'Healthcare')
+- `region` (str, optional): Geographic region to focus on
+- `start_date` (str, optional, format: YYYY-MM-DD): Start date for projection period
+- `end_date` (str, optional, format: YYYY-MM-DD): End date for projection period
 
 **Sample MCP Request:**
 ```json
@@ -264,10 +264,10 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `regional_trends`
 **Arguments:**
-- `industry` (str, required)
-- `regions` (list of str, optional)
-- `start_date` (str, optional, format: YYYY-MM-DD)
-- `end_date` (str, optional, format: YYYY-MM-DD)
+- `industry` (str, required): Industry to analyze (e.g., 'FinTech', 'Healthcare')
+- `regions` (list of str, optional): List of regions to compare
+- `start_date` (str, optional, format: YYYY-MM-DD): Start date for trend analysis
+- `end_date` (str, optional, format: YYYY-MM-DD): End date for trend analysis
 
 **Sample MCP Request:**
 ```json
@@ -290,10 +290,10 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `regulatory_risks`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `industry` (str, optional)
-- `region` (str, optional)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `industry` (str, optional): Industry context for the analysis
+- `region` (str, optional): Geographic region to focus on
 
 **Sample MCP Request:**
 ```json
@@ -312,10 +312,10 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `market_risks`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `industry` (str, optional)
-- `region` (str, optional)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `industry` (str, optional): Industry context for the analysis
+- `region` (str, optional): Geographic region to focus on
 
 **Sample MCP Request:**
 ```json
@@ -334,10 +334,10 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `operational_risks`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `industry` (str, optional)
-- `region` (str, optional)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `industry` (str, optional): Industry context for the analysis
+- `region` (str, optional): Geographic region to focus on
 
 **Sample MCP Request:**
 ```json
@@ -356,10 +356,10 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `legal_risks`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `industry` (str, optional)
-- `region` (str, optional)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `industry` (str, optional): Industry context for the analysis
+- `region` (str, optional): Geographic region to focus on
 
 **Sample MCP Request:**
 ```json
@@ -382,12 +382,12 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `sentiment_summary`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `product` (str, optional)
-- `region` (str, optional)
-- `start_date` (str, optional, format: YYYY-MM-DD)
-- `end_date` (str, optional, format: YYYY-MM-DD)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `product` (str, optional): Specific product to analyze (if applicable)
+- `region` (str, optional): Geographic region to focus on
+- `start_date` (str, optional, format: YYYY-MM-DD): Start date for sentiment analysis
+- `end_date` (str, optional, format: YYYY-MM-DD): End date for sentiment analysis
 
 **Sample MCP Request:**
 ```json
@@ -408,12 +408,12 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `customer_feedback`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `product` (str, optional)
-- `region` (str, optional)
-- `start_date` (str, optional, format: YYYY-MM-DD)
-- `end_date` (str, optional, format: YYYY-MM-DD)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `product` (str, optional): Specific product to analyze (if applicable)
+- `region` (str, optional): Geographic region to focus on
+- `start_date` (str, optional, format: YYYY-MM-DD): Start date for feedback analysis
+- `end_date` (str, optional, format: YYYY-MM-DD): End date for feedback analysis
 
 **Sample MCP Request:**
 ```json
@@ -434,11 +434,11 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `brand_reputation`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `region` (str, optional)
-- `start_date` (str, optional, format: YYYY-MM-DD)
-- `end_date` (str, optional, format: YYYY-MM-DD)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `region` (str, optional): Geographic region to focus on
+- `start_date` (str, optional, format: YYYY-MM-DD): Start date for reputation analysis
+- `end_date` (str, optional, format: YYYY-MM-DD): End date for reputation analysis
 
 **Sample MCP Request:**
 ```json
@@ -462,10 +462,10 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `compliance_overview`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `industry` (str, optional)
-- `region` (str, optional)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `industry` (str, optional): Industry context for the analysis
+- `region` (str, optional): Geographic region to focus on
 
 **Sample MCP Request:**
 ```json
@@ -484,12 +484,12 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `violation_history`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `industry` (str, optional)
-- `region` (str, optional)
-- `start_date` (str, optional, format: YYYY-MM-DD)
-- `end_date` (str, optional, format: YYYY-MM-DD)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `industry` (str, optional): Industry context for the analysis
+- `region` (str, optional): Geographic region to focus on
+- `start_date` (str, optional, format: YYYY-MM-DD): Start date for violation history
+- `end_date` (str, optional, format: YYYY-MM-DD): End date for violation history
 
 **Sample MCP Request:**
 ```json
@@ -510,10 +510,10 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `compliance_risk`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `industry` (str, optional)
-- `region` (str, optional)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `industry` (str, optional): Industry context for the analysis
+- `region` (str, optional): Geographic region to focus on
 
 **Sample MCP Request:**
 ```json
@@ -532,10 +532,10 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `regional_compliance`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `industry` (str, optional)
-- `regions` (list of str, optional)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `industry` (str, optional): Industry context for the analysis
+- `regions` (list of str, optional): List of regions to compare compliance across
 
 **Sample MCP Request:**
 ```json
@@ -558,10 +558,10 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `partner_list`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `industry` (str, optional)
-- `region` (str, optional)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `industry` (str, optional): Industry context for the analysis
+- `region` (str, optional): Geographic region to focus on
 
 **Sample MCP Request:**
 ```json
@@ -580,10 +580,10 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `strategic_alliances`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `industry` (str, optional)
-- `region` (str, optional)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `industry` (str, optional): Industry context for the analysis
+- `region` (str, optional): Geographic region to focus on
 
 **Sample MCP Request:**
 ```json
@@ -602,10 +602,10 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `network_strength`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `industry` (str, optional)
-- `region` (str, optional)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `industry` (str, optional): Industry context for the analysis
+- `region` (str, optional): Geographic region to focus on
 
 **Sample MCP Request:**
 ```json
@@ -624,12 +624,12 @@ This document describes the MCP tool interface for all Venture Insights agents. 
 
 ### Tool: `partnership_trends`
 **Arguments:**
-- `company_name` (str, required)
-- `domain` (str, optional)
-- `industry` (str, optional)
-- `region` (str, optional)
-- `start_date` (str, optional, format: YYYY-MM-DD)
-- `end_date` (str, optional, format: YYYY-MM-DD)
+- `company_name` (str, required): Name of the company to analyze
+- `domain` (str, optional): Company domain/website
+- `industry` (str, optional): Industry context for the analysis
+- `region` (str, optional): Geographic region to focus on
+- `start_date` (str, optional, format: YYYY-MM-DD): Start date for trend analysis
+- `end_date` (str, optional, format: YYYY-MM-DD): End date for trend analysis
 
 **Sample MCP Request:**
 ```json
