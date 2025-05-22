@@ -14,21 +14,30 @@ from backend.models.response.finance import (
     ValuationEstimationResponse,
     FundingHistoryResponse,
 )
-
+from backend.services.knowledge import KnowledgeBaseService
 
 class FinanceService:
-    def __init__(self, llm_config: LLMConfig, sonar_config: SonarConfig):
+    def __init__(
+        self,
+        llm_config: LLMConfig,
+        sonar_config: SonarConfig,
+        knowledge_base_service: KnowledgeBaseService,
+    ):
         self.llm_config = llm_config
         self.sonar_config = sonar_config
         self.llm_model = get_model(self.llm_config)
         self.sonar_model = get_sonar_model(self.sonar_config)
         self.llm_output_parser = LLMOutputParserAgent(self.llm_model)
+        self.knowledge_base_service = knowledge_base_service
+        self.knowledge_base = self.knowledge_base_service.get_knowledge_base()
 
     async def _execute_llm_analysis(
         self,
+        company_name: str,
         prompt: str,
         response_model: Type[BaseModel],
         agent_name: str = "AnalysisAgent",
+        use_knowledge_base: bool = False,
     ) -> Union[
         RevenueAnalysisResponse,
         ExpenseAnalysisResponse,
@@ -52,6 +61,10 @@ class FinanceService:
             model=self.sonar_model,
             instructions=prompt,
         )
+        
+        if use_knowledge_base:
+            analysis_agent.knowledge = self.knowledge_base
+            analysis_agent.knowledge_filters = {"company_name": company_name}
 
         # Use the LLM to generate the content
         content = analysis_agent.run(prompt)
@@ -74,6 +87,7 @@ class FinanceService:
         start_date: Optional[date] = None,
         end_date: Optional[date] = None,
         granularity: str = "year",
+        use_knowledge_base: bool = False,
     ) -> RevenueAnalysisResponse:
         """
         Retrieve revenue analysis data for a company.
@@ -110,9 +124,11 @@ class FinanceService:
         """
 
         return await self._execute_llm_analysis(
+            company_name=company_name,
             prompt=prompt,
             response_model=RevenueAnalysisResponse,
             agent_name="RevenueAgent",
+            use_knowledge_base=use_knowledge_base,
         )
 
     async def get_expense_analysis(
@@ -121,6 +137,7 @@ class FinanceService:
         domain: Optional[str] = None,
         year: Optional[int] = None,
         category: Optional[str] = None,
+        use_knowledge_base: bool = False,
     ) -> ExpenseAnalysisResponse:
         """
         Retrieve expense analysis data for a company.
@@ -153,9 +170,11 @@ class FinanceService:
         """
 
         return await self._execute_llm_analysis(
+            company_name=company_name,
             prompt=prompt,
             response_model=ExpenseAnalysisResponse,
             agent_name="ExpenseAgent",
+            use_knowledge_base=use_knowledge_base,
         )
 
     async def get_profit_margins(
@@ -163,6 +182,7 @@ class FinanceService:
         company_name: str,
         domain: Optional[str] = None,
         year: Optional[int] = None,
+        use_knowledge_base: bool = False,
     ) -> ProfitMarginsResponse:
         """
         Retrieve profit margin data for a company.
@@ -190,9 +210,11 @@ class FinanceService:
         """
 
         return await self._execute_llm_analysis(
+            company_name=company_name,
             prompt=prompt,
             response_model=ProfitMarginsResponse,
             agent_name="ProfitMarginsAgent",
+            use_knowledge_base=use_knowledge_base,
         )
 
     async def get_valuation_estimation(
@@ -200,6 +222,7 @@ class FinanceService:
         company_name: str,
         domain: Optional[str] = None,
         as_of_date: Optional[date] = None,
+        use_knowledge_base: bool = False,
     ) -> ValuationEstimationResponse:
         """
         Retrieve valuation estimation data for a company.
@@ -228,13 +251,18 @@ class FinanceService:
         """
 
         return await self._execute_llm_analysis(
+            company_name=company_name,
             prompt=prompt,
             response_model=ValuationEstimationResponse,
             agent_name="ValuationEstimationAgent",
+            use_knowledge_base=use_knowledge_base,
         )
 
     async def get_funding_history(
-        self, company_name: str, domain: Optional[str] = None
+        self,
+        company_name: str,
+        domain: Optional[str] = None,
+        use_knowledge_base: bool = False,  
     ) -> FundingHistoryResponse:
         """
         Retrieve funding history data for a company.
@@ -261,7 +289,9 @@ class FinanceService:
         """
 
         return await self._execute_llm_analysis(
+            company_name=company_name,
             prompt=prompt,
             response_model=FundingHistoryResponse,
             agent_name="FundingHistoryAgent",
+            use_knowledge_base=use_knowledge_base,
         )

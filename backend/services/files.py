@@ -24,7 +24,8 @@ class FilesService:
         temp_path = f"/tmp/{file.filename}"
         with open(temp_path, "wb") as f:
             f.write(await file.read())
-        cloud_url = self.doc_engine.upload_to_cloudinary(temp_path)
+        # cloud_url = self.doc_engine.upload_to_cloudinary(temp_path)
+        cloud_url = ""
         documents = self.doc_engine.extract_text(temp_path, file.filename, company_name)
         await self.vector_store.add_documents(documents)
         os.remove(temp_path)

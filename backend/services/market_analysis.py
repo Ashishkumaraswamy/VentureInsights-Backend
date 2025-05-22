@@ -24,9 +24,11 @@ class MarketAnalysisService:
 
     async def _execute_llm_analysis(
         self,
+        company_name: str,
         prompt: str,
         response_model: Type[BaseModel],
         agent_name: str = "AnalysisAgent",
+        use_knowledge_base: bool = False,
     ) -> Union[
         MarketTrendsResponse,
         CompetitiveAnalysisResponse,
@@ -50,6 +52,10 @@ class MarketAnalysisService:
             instructions=prompt,
         )
 
+        if use_knowledge_base:
+            analysis_agent.knowledge = self.knowledge_base
+            analysis_agent.knowledge_filters = {"company_name": company_name}
+
         # Use the LLM to generate the content
         content = analysis_agent.run(prompt)
 
@@ -71,6 +77,7 @@ class MarketAnalysisService:
         region: Optional[str] = None,
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
+        use_knowledge_base: bool = False,
     ):
         """
         Retrieve market trends data for a company.
@@ -102,9 +109,11 @@ class MarketAnalysisService:
         Output should be a detailed textual description of all these fields and their values.
         """
         return await self._execute_llm_analysis(
+            company_name=company_name,
             prompt=prompt,
             response_model=MarketTrendsResponse,
             agent_name="MarketTrendsAgent",
+            use_knowledge_base=use_knowledge_base,
         )
 
     async def get_competitive_analysis(
@@ -114,6 +123,7 @@ class MarketAnalysisService:
         industry: Optional[str] = None,
         region: Optional[str] = None,
         companies_to_compare: Optional[list[str]] = None,
+        use_knowledge_base: bool = False,
     ):
         prompt = f"""
         The current date is {datetime.now().isoformat()}. 
@@ -133,9 +143,11 @@ class MarketAnalysisService:
         Output should be a detailed textual description of all these fields and their values.
         """
         return await self._execute_llm_analysis(
+            company_name=company_name,
             prompt=prompt,
             response_model=CompetitiveAnalysisResponse,
             agent_name="CompetitiveAnalysisAgent",
+            use_knowledge_base=use_knowledge_base,
         )
 
     async def get_growth_projections(
@@ -145,6 +157,7 @@ class MarketAnalysisService:
         region: Optional[str] = None,
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
+        use_knowledge_base: bool = False,
     ):
         prompt = f"""
         The current date is {datetime.now().isoformat()}. 
@@ -164,9 +177,11 @@ class MarketAnalysisService:
         Output should be a detailed textual description of all these fields and their values.
         """
         return await self._execute_llm_analysis(
+            company_name=company_name,
             prompt=prompt,
             response_model=GrowthProjectionsResponse,
             agent_name="GrowthProjectionsAgent",
+            use_knowledge_base=use_knowledge_base,
         )
 
     async def get_regional_trends(
@@ -176,6 +191,7 @@ class MarketAnalysisService:
         regions_of_interest: Optional[list[str]] = None,
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
+        use_knowledge_base: bool = False,
     ):
         prompt = f"""
         The current date is {datetime.now().isoformat()}. 
@@ -195,7 +211,9 @@ class MarketAnalysisService:
         Output should be a detailed textual description of all these fields and their values.
         """
         return await self._execute_llm_analysis(
+            company_name=company_name,
             prompt=prompt,
             response_model=RegionalTrendsResponse,
             agent_name="RegionalTrendsAgent",
+            use_knowledge_base=use_knowledge_base,
         )

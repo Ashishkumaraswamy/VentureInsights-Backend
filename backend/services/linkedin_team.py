@@ -25,9 +25,11 @@ class LinkedInTeamService:
 
     async def _execute_llm_analysis(
         self,
+        company_name: str,
         prompt: str,
         response_model: Type[BaseModel],
         agent_name: str = "AnalysisAgent",
+        use_knowledge_base: bool = False,
     ) -> Union[
         TeamOverviewResponse,
         IndividualPerformanceResponse,
@@ -50,6 +52,10 @@ class LinkedInTeamService:
             model=self.sonar_model,
             instructions=prompt,
         )
+
+        if use_knowledge_base:
+            analysis_agent.knowledge = self.knowledge_base
+            analysis_agent.knowledge_filters = {"company_name": company_name}
 
         # Use the LLM to generate the content
         content = analysis_agent.run(prompt)
@@ -125,6 +131,7 @@ class LinkedInTeamService:
         company_name: str,
         domain: Optional[str] = None,
         individual_name: Optional[str] = None,
+        use_knowledge_base: bool = False,
     ):
         """
         Retrieve performance data for an individual based on LinkedIn.
@@ -163,12 +170,19 @@ class LinkedInTeamService:
         """
 
         return await self._execute_llm_analysis(
+            company_name=company_name,
             prompt=prompt,
             response_model=IndividualPerformanceResponse,
             agent_name="LinkedInIndividualPerformanceAgent",
+            use_knowledge_base=use_knowledge_base,
         )
 
-    async def get_org_structure(self, company_name: str, domain: Optional[str] = None):
+    async def get_org_structure(
+        self,
+        company_name: str,
+        domain: Optional[str] = None,
+        use_knowledge_base: bool = False,
+    ):
         """
         Retrieve organizational structure data for a company from LinkedIn.
         Args:
@@ -205,9 +219,11 @@ class LinkedInTeamService:
         """
 
         return await self._execute_llm_analysis(
+            company_name=company_name,
             prompt=prompt,
             response_model=OrgStructureResponse,
             agent_name="LinkedInOrgStructureAgent",
+            use_knowledge_base=use_knowledge_base,
         )
 
     async def get_team_growth(
@@ -216,6 +232,7 @@ class LinkedInTeamService:
         domain: Optional[str] = None,
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
+        use_knowledge_base: bool = False,
     ):
         """
         Retrieve team growth data for a company from LinkedIn.
@@ -262,7 +279,9 @@ class LinkedInTeamService:
         """
 
         return await self._execute_llm_analysis(
+            company_name=company_name,
             prompt=prompt,
             response_model=TeamGrowthResponse,
             agent_name="LinkedInTeamGrowthAgent",
+            use_knowledge_base=use_knowledge_base,
         )

@@ -25,9 +25,11 @@ class CustomerSentimentService:
 
     async def _execute_llm_analysis(
         self,
+        company_name: str,
         prompt: str,
         response_model: Type[BaseModel],
         agent_name: str = "AnalysisAgent",
+        use_knowledge_base: bool = False,
     ) -> Union[
         SentimentSummaryResponse,
         CustomerFeedbackResponse,
@@ -51,6 +53,10 @@ class CustomerSentimentService:
             instructions=prompt,
         )
 
+        if use_knowledge_base:
+            analysis_agent.knowledge = self.knowledge_base
+            analysis_agent.knowledge_filters = {"company_name": company_name}
+
         # Use the LLM to generate the content
         content = analysis_agent.run(prompt)
 
@@ -73,6 +79,7 @@ class CustomerSentimentService:
         region: Optional[str] = None,
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
+        use_knowledge_base: bool = False,
     ):
         """
         Retrieve sentiment summary for a company.
@@ -127,9 +134,11 @@ class CustomerSentimentService:
         """
 
         return await self._execute_llm_analysis(
+            company_name=company_name,
             prompt=prompt,
             response_model=SentimentSummaryResponse,
             agent_name="SentimentSummaryAgent",
+            use_knowledge_base=use_knowledge_base,
         )
 
     async def get_customer_feedback(
@@ -140,6 +149,7 @@ class CustomerSentimentService:
         region: Optional[str] = None,
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
+        use_knowledge_base: bool = False,
     ):
         """
         Retrieve customer feedback for a company.
@@ -188,9 +198,11 @@ class CustomerSentimentService:
         """
 
         return await self._execute_llm_analysis(
+            company_name=company_name,
             prompt=prompt,
             response_model=CustomerFeedbackResponse,
             agent_name="CustomerFeedbackAgent",
+            use_knowledge_base=use_knowledge_base,
         )
 
     async def get_brand_reputation(
@@ -200,6 +212,7 @@ class CustomerSentimentService:
         region: Optional[str] = None,
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
+        use_knowledge_base: bool = False,
     ):
         """
         Retrieve brand reputation data for a company.
@@ -244,9 +257,11 @@ class CustomerSentimentService:
         """
 
         return await self._execute_llm_analysis(
+            company_name=company_name,
             prompt=prompt,
             response_model=BrandReputationResponse,
             agent_name="BrandReputationAgent",
+            use_knowledge_base=use_knowledge_base,
         )
 
     async def get_sentiment_comparison(
@@ -258,6 +273,7 @@ class CustomerSentimentService:
         region: Optional[str] = None,
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
+        use_knowledge_base: bool = False,
     ):
         """
         Compare the sentiment of a target company with its competitors using publicly available data sources.
@@ -319,7 +335,9 @@ class CustomerSentimentService:
         """
 
         return await self._execute_llm_analysis(
+            company_name=company_name,
             prompt=prompt,
             response_model=SentimentComparisonResponse,
             agent_name="SentimentComparisonAgent",
+            use_knowledge_base=use_knowledge_base,
         )

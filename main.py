@@ -7,6 +7,7 @@ from backend.api.companies import companies_router
 from backend.api.news import news_router
 from backend.api.chat import chat_router
 from backend.api.files import files_router
+from backend.api.research import research_router
 from backend.dependencies import get_user
 from fastapi.middleware.cors import CORSMiddleware
 from backend.models.base.users import User
@@ -51,6 +52,7 @@ routers = [
     customer_sentiment_router,
     regulatory_compliance_router,
     partnership_network_router,
+    research_router
 ]
 
 unprotected_routers = [auth_router]

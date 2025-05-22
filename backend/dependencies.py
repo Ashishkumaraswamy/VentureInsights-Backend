@@ -13,6 +13,11 @@ from backend.services.market_analysis import MarketAnalysisService
 from backend.services.linkedin_team import LinkedInTeamService
 from backend.services.customer_sentiment import CustomerSentimentService
 from backend.utils.llm import get_model
+from backend.services.knowledge import KnowledgeBaseService
+from backend.services.partnership_network import PartnershipNetworkService
+from backend.services.regulatory_compliance import RegulatoryComplianceService
+from backend.services.risk_analysis import RiskAnalysisService
+from backend.services.research import ResearchService
 
 
 def get_user(request: Request):
@@ -21,6 +26,11 @@ def get_user(request: Request):
 
     return None
 
+def get_knowledge_base_service(app_settings: AppSettings = Depends(get_app_settings)):
+    return KnowledgeBaseService(
+        app_settings.db_config,
+        app_settings.vector_store_config,
+    )
 
 def get_news_service(app_settings: AppSettings = Depends(get_app_settings)):
     return NewsService(
@@ -66,22 +76,51 @@ def get_files_service(
     )
 
 
-def get_finance_service(app_settings: AppSettings = Depends(get_app_settings)):
-    return FinanceService(app_settings.llm_config, app_settings.sonar_config)
+def get_finance_service(app_settings: AppSettings = Depends(get_app_settings), knowledge_base_service=Depends(get_knowledge_base_service)):
+    return FinanceService(app_settings.llm_config, app_settings.sonar_config, knowledge_base_service)
 
 
 def get_market_analysis_service(app_settings: AppSettings = Depends(get_app_settings)):
     return MarketAnalysisService(app_settings.llm_config, app_settings.sonar_config)
 
 
-def get_linkedin_team_service(app_settings: AppSettings = Depends(get_app_settings)):
-    return LinkedInTeamService(app_settings.llm_config, app_settings.sonar_config)
+def get_linkedin_team_service(app_settings: AppSettings = Depends(get_app_settings), ):
+    return LinkedInTeamService(app_settings.llm_config, app_settings.sonar_config, )
 
 
 def get_customer_sentiment_service(
     app_settings: AppSettings = Depends(get_app_settings),
 ):
     return CustomerSentimentService(app_settings.llm_config, app_settings.sonar_config)
+
+
+def get_partnership_network_service():
+    return PartnershipNetworkService()
+
+def get_regulatory_compliance_service():
+    return RegulatoryComplianceService()
+
+def get_risk_analysis_service():
+    return RiskAnalysisService()
+
+def get_research_service(
+    finance_service=Depends(get_finance_service),
+    linkedin_team_service=Depends(get_linkedin_team_service),
+    market_analysis_service=Depends(get_market_analysis_service),
+    partnership_network_service=Depends(get_partnership_network_service),
+    customer_sentiment_service=Depends(get_customer_sentiment_service),
+    regulatory_compliance_service=Depends(get_regulatory_compliance_service),
+    risk_analysis_service=Depends(get_risk_analysis_service),
+):
+    return ResearchService(
+        finance_service=finance_service,
+        linkedin_team_service=linkedin_team_service,
+        market_analysis_service=market_analysis_service,
+        partnership_network_service=partnership_network_service,
+        customer_sentiment_service=customer_sentiment_service,
+        regulatory_compliance_service=regulatory_compliance_service,
+        risk_analysis_service=risk_analysis_service,
+    )
 
 
 class CommonDeps:
