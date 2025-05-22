@@ -7,7 +7,9 @@ from backend.services.customer_sentiment import CustomerSentimentService
 from backend.services.regulatory_compliance import RegulatoryComplianceService
 from backend.services.partnership_network import PartnershipNetworkService
 from backend.settings import get_app_settings
+from dotenv import load_dotenv
 
+load_dotenv()
 mcp = FastMCP("Venture Insights MCP Server")
 
 # Get app settings
@@ -18,9 +20,15 @@ finance_service = FinanceService(app_settings.llm_config, app_settings.sonar_con
 linkedin_team_service = LinkedInTeamService(
     app_settings.llm_config, app_settings.sonar_config
 )
-market_analysis_service = MarketAnalysisService()
+market_analysis_service = MarketAnalysisService(
+    llm_config=app_settings.llm_config,
+    sonar_config=app_settings.sonar_config,
+)
 risk_analysis_service = RiskAnalysisService()
-customer_sentiment_service = CustomerSentimentService()
+customer_sentiment_service = CustomerSentimentService(
+    llm_config=app_settings.llm_config,
+    sonar_config=app_settings.sonar_config,
+)
 regulatory_compliance_service = RegulatoryComplianceService()
 partnership_network_service = PartnershipNetworkService()
 
@@ -434,9 +442,32 @@ async def partnership_trends(
     )
 
 
-@mcp.tool()
-async def hi(name: str, age: int | None = None):
-    return "Hi"
+# Add a resource for documentation overview
+@mcp.resource("docs://overview")
+async def get_overview() -> str:
+    """
+    Get an overview of the Venture Insights MCP Server.
+
+    This resource provides a high-level description of the available
+    tools and capabilities of this server.
+    """
+    return """
+    # Venture Insights MCP Server
+    
+    This MCP server provides tools for analyzing companies, markets, and industries.
+    
+    ## Available Tool Categories:
+    
+    - **Finance**: Revenue analysis, expense analysis, profit margins, valuation estimation
+    - **Team**: Team overview, individual performance, org structure, team growth
+    - **Market**: Market trends, competitive analysis, growth projections, regional trends
+    - **Risk**: Regulatory risks, market risks, operational risks, legal risks
+    - **Customer**: Sentiment summary, customer feedback, brand reputation
+    - **Compliance**: Compliance overview, violation history, compliance risk, regional compliance
+    - **Partnerships**: Partner list, strategic alliances, network strength, partnership trends
+    
+    For detailed documentation on each tool, explore the available tools in the MCP Inspector.
+    """
 
 
 @mcp.resource("docs://mcp/full")
@@ -458,5 +489,4 @@ async def get_all_resources() -> str:
 
 
 if __name__ == "__main__":
-    mcp.run(transport="stdio")
-    # mcp.run(transport='streamable-http', host='0.0.0.0', port=9000)
+    mcp.run(transport="streamable-http", host="0.0.0.0", port=9000)

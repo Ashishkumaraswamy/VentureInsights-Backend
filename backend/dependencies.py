@@ -49,7 +49,9 @@ def get_company_service(app_settings: AppSettings = Depends(get_app_settings)):
 
 
 def get_chat_service(app_settings: AppSettings = Depends(get_app_settings)):
-    return ChatService(app_settings.db_config)
+    return ChatService(
+        app_settings.llm_config, app_settings.db_config, app_settings.mcp_url
+    )
 
 
 def get_document_processing_engine(

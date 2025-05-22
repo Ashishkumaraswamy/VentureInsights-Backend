@@ -69,6 +69,7 @@ class AppSettings(BaseSettings):
     )
     local_user_email: Optional[str] = Field(None, description="Local user mail id")
     local: bool = Field(False, description="Local mode")
+    mcp_url: str = Field(..., description="MCP server URL")
 
     model_config = SettingsConfigDict(
         env_file=".env",
@@ -121,6 +122,7 @@ class AppSettings(BaseSettings):
             ),
             local_user=os.environ.get("LOCAL_USER"),
             local=os.environ.get("LOCAL"),
+            mcp_url=os.environ.get("MCP_URL"),
         )
 
 

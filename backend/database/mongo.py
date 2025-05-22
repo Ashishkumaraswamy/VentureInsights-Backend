@@ -203,6 +203,8 @@ class MongoDBConnector:
     async def adelete_records(self, collection_name: str, query: dict):
         collection_obj = await self.aget_collection(collection_name)
         try:
-            await collection_obj.delete(query)
-        except Exception:
-            LOG.info(f"Failed to delete records from {collection_name} due to {query}")
+            await collection_obj.delete_many(query)
+        except Exception as e:
+            LOG.info(
+                f"Failed to delete records from {collection_name} due to {query} and error {e}"
+            )
