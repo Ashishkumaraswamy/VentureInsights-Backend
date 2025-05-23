@@ -31,6 +31,11 @@ class ChatThreadWithoutMessages(ChatThreadBase):
     pass
 
 
+class ThreadSummary(ChatThreadBase):
+    last_message: Optional[LastMessage] = None
+    message_count: Optional[int] = 0
+
+
 class ChatMessage(ChatMessageBase):
     metadata: Optional[MessageMetadata] = None
 
