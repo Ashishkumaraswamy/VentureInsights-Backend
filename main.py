@@ -52,7 +52,7 @@ routers = [
     customer_sentiment_router,
     regulatory_compliance_router,
     partnership_network_router,
-    research_router
+    research_router,
 ]
 
 unprotected_routers = [auth_router]

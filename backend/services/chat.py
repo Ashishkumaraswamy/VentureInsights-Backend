@@ -6,7 +6,12 @@ from backend.utils.logger import get_logger
 from agno.storage.mongodb import MongoDbStorage
 from backend.database.mongo import MongoDBConnector
 from backend.models.requests.chat import SendMessageRequest
-from backend.models.response.chat import ChatThreadWithMessages, MessageResponse, ThreadSummary, LastMessage
+from backend.models.response.chat import (
+    ChatThreadWithMessages,
+    MessageResponse,
+    ThreadSummary,
+    LastMessage,
+)
 from backend.models.base.chat import MessageMetadata, AgnoMessage
 from agno.run.response import RunResponse
 from fastapi.responses import StreamingResponse
@@ -163,7 +168,7 @@ Always prioritize delivering accurate, relevant information from Venture Insight
                 for m in messages
             ],
         )
-        
+
     async def _format_thread_summary(self, thread: dict) -> ThreadSummary:
         runs = thread.get("memory", {}).get("runs", [])
         last_run = runs[-1] if runs else {}
@@ -172,7 +177,7 @@ Always prioritize delivering accurate, relevant information from Venture Insight
             for m in last_run.get("messages", [])
             if m.get("role") not in ("system", "tool") and m.get("content")
         ]
-        
+
         # Get the last message if any
         last_message = None
         if messages:
@@ -183,7 +188,7 @@ Always prioritize delivering accurate, relevant information from Venture Insight
                 timestamp=last_msg.get("created_at", datetime.now()),
                 user_id=thread.get("user_id"),
             )
-        
+
         return ThreadSummary(
             id=thread["session_id"],
             created_at=thread.get("created_at"),
@@ -202,30 +207,32 @@ Always prioritize delivering accurate, relevant information from Venture Insight
         sort_order: str = "desc",
     ) -> List[ThreadSummary]:
         query = {"user_id": user_id} if user_id else {}
-        
+
         # Fetch threads without sorting
         threads = await self.mongo.aquery("chat_agent", query)
-        
+
         # Manual sorting
-        sort_field = sort_by if sort_by in ["created_at", "updated_at"] else "updated_at"
+        sort_field = (
+            sort_by if sort_by in ["created_at", "updated_at"] else "updated_at"
+        )
         reverse_sort = sort_order.lower() == "desc"
-        
+
         # Sort the threads (handle None values by placing them at the end)
         sorted_threads = sorted(
-            threads,
-            key=lambda t: t.get(sort_field, datetime.min),
-            reverse=reverse_sort
+            threads, key=lambda t: t.get(sort_field, datetime.min), reverse=reverse_sort
         )
-        
+
         # Apply pagination after sorting
-        paginated_threads = sorted_threads[offset:offset+limit]
-        
+        paginated_threads = sorted_threads[offset : offset + limit]
+
         return [await self._format_thread_summary(t) for t in paginated_threads]
 
     async def get_thread(self, thread_id: str) -> ChatThreadWithMessages:
         threads = await self.mongo.aquery("chat_agent", {"session_id": thread_id})
         if not threads:
-            raise HTTPException(status_code=404, detail=f"Thread with ID {thread_id} not found")
+            raise HTTPException(
+                status_code=404, detail=f"Thread with ID {thread_id} not found"
+            )
         return await self._format_thread(threads[0])
 
     async def delete_thread(self, thread_id: str) -> bool:

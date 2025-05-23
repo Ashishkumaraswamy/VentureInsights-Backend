@@ -18,13 +18,27 @@ from backend.models.response.research import (
     RiskAnalysisResponse,
 )
 from datetime import datetime
-from backend.models.response.finance import RevenueAnalysisResponse, RevenueTimeSeriesPoint
-from backend.models.response.linkedin_team import TeamOverviewResponse, TeamRoleBreakdown
+from backend.models.response.finance import (
+    RevenueAnalysisResponse,
+    RevenueTimeSeriesPoint,
+)
+from backend.models.response.linkedin_team import (
+    TeamOverviewResponse,
+    TeamRoleBreakdown,
+)
 from backend.models.response.market_analysis import MarketTrendsResponse, MarketSize
 from backend.models.response.partnership_network import PartnerListResponse, PartnerItem
-from backend.models.response.regulatory_compliance import ComplianceOverviewResponse, RegulationItem
-from backend.models.response.customer_sentiment import SentimentSummaryResponse, SentimentBreakdown, SentimentTimeSeriesPoint
+from backend.models.response.regulatory_compliance import (
+    ComplianceOverviewResponse,
+    RegulationItem,
+)
+from backend.models.response.customer_sentiment import (
+    SentimentSummaryResponse,
+    SentimentBreakdown,
+    SentimentTimeSeriesPoint,
+)
 from backend.models.response.risk_analysis import RegulatoryRisksResponse
+
 
 class ResearchService:
     def __init__(
@@ -47,7 +61,10 @@ class ResearchService:
 
     async def get_research(self, company_name: str, use_knowledge_base: bool = False):
         # Mock data for demonstration
-        sample_citations = [UrlCitation(url="https://example.com/citation1", title="Sample Citation 1"), UrlCitation(url="https://example.com/citation2", title="Sample Citation 2")]
+        sample_citations = [
+            UrlCitation(url="https://example.com/citation1", title="Sample Citation 1"),
+            UrlCitation(url="https://example.com/citation2", title="Sample Citation 2"),
+        ]
         return ResearchResponse(
             company_name=company_name,
             finance=FinanceResponse(
@@ -138,7 +155,7 @@ class ResearchService:
                             regulation="GDPR",
                             description="EU data privacy regulation.",
                             applicable=True,
-                            sources=["https://gdpr.eu/"]
+                            sources=["https://gdpr.eu/"],
                         )
                     ],
                     summary="Compliant with GDPR.",
@@ -156,7 +173,9 @@ class ResearchService:
                     product="Main Product",
                     region="Global",
                     sentiment_score=0.85,
-                    sentiment_breakdown=SentimentBreakdown(positive=80, negative=10, neutral=10),
+                    sentiment_breakdown=SentimentBreakdown(
+                        positive=80, negative=10, neutral=10
+                    ),
                     sentiment_timeseries=[
                         SentimentTimeSeriesPoint(
                             period_start="2023-01-01",
@@ -184,7 +203,13 @@ class ResearchService:
                     industry="Technology",
                     region="Global",
                     risks=[
-                        {"risk": "GDPR Non-compliance", "severity": "High", "description": "Potential non-compliance with EU data privacy laws.", "sources": ["https://gdpr.eu/"], "confidence": 0.85}
+                        {
+                            "risk": "GDPR Non-compliance",
+                            "severity": "High",
+                            "description": "Potential non-compliance with EU data privacy laws.",
+                            "sources": ["https://gdpr.eu/"],
+                            "confidence": 0.85,
+                        }
                     ],
                     summary="Key regulatory risk is GDPR.",
                     sources=["https://gdpr.eu/"],
@@ -195,4 +220,4 @@ class ResearchService:
                 operational_risks=None,
                 legal_risks=None,
             ),
-        ) 
+        )

@@ -45,6 +45,7 @@ from backend.models.response.risk_analysis import (
     LegalRisksResponse,
 )
 
+
 class FinanceResponse(BaseModel):
     revenue: Optional[RevenueAnalysisResponse] = None
     expenses: Optional[ExpenseAnalysisResponse] = None
@@ -52,11 +53,13 @@ class FinanceResponse(BaseModel):
     valuation: Optional[ValuationEstimationResponse] = None
     funding: Optional[FundingHistoryResponse] = None
 
+
 class LinkedInTeamResponse(BaseModel):
     team_overview: Optional[TeamOverviewResponse] = None
     individual_performance: Optional[IndividualPerformanceResponse] = None
     org_structure: Optional[OrgStructureResponse] = None
     team_growth: Optional[TeamGrowthResponse] = None
+
 
 class MarketAnalysisResponse(BaseModel):
     market_trends: Optional[MarketTrendsResponse] = None
@@ -64,11 +67,13 @@ class MarketAnalysisResponse(BaseModel):
     growth_projections: Optional[GrowthProjectionsResponse] = None
     regional_trends: Optional[RegionalTrendsResponse] = None
 
+
 class PartnershipNetworkResponse(BaseModel):
     partner_list: Optional[PartnerListResponse] = None
     strategic_alliances: Optional[StrategicAlliancesResponse] = None
     network_strength: Optional[NetworkStrengthResponse] = None
     partnership_trends: Optional[PartnershipTrendsResponse] = None
+
 
 class RegulatoryComplianceResponse(BaseModel):
     compliance_overview: Optional[ComplianceOverviewResponse] = None
@@ -76,17 +81,20 @@ class RegulatoryComplianceResponse(BaseModel):
     compliance_risk: Optional[ComplianceRiskResponse] = None
     regional_compliance: Optional[RegionalComplianceResponse] = None
 
+
 class CustomerSentimentResponse(BaseModel):
     sentiment_summary: Optional[SentimentSummaryResponse] = None
     customer_feedback: Optional[CustomerFeedbackResponse] = None
     brand_reputation: Optional[BrandReputationResponse] = None
     sentiment_comparison: Optional[SentimentComparisonResponse] = None
 
+
 class RiskAnalysisResponse(BaseModel):
     regulatory_risks: Optional[RegulatoryRisksResponse] = None
     market_risks: Optional[MarketRisksResponse] = None
     operational_risks: Optional[OperationalRisksResponse] = None
     legal_risks: Optional[LegalRisksResponse] = None
+
 
 class ResearchResponse(BaseModel):
     company_name: str
@@ -97,5 +105,3 @@ class ResearchResponse(BaseModel):
     regulatory_compliance: Optional[RegulatoryComplianceResponse] = None
     customer_sentiment: Optional[CustomerSentimentResponse] = None
     risk_analysis: Optional[RiskAnalysisResponse] = None
-    
-    

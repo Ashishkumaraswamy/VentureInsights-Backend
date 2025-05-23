@@ -31,7 +31,9 @@ class ChatAPI:
         limit: int = Query(10, ge=1, le=100),
         offset: int = Query(0, ge=0),
         user_id: str = Query(None, description="User ID"),
-        sort_by: str = Query("updated_at", description="Field to sort by (updated_at or created_at)"),
+        sort_by: str = Query(
+            "updated_at", description="Field to sort by (updated_at or created_at)"
+        ),
         sort_order: str = Query("desc", description="Sort order (asc or desc)"),
     ) -> List[ThreadSummary]:
         LOG.debug(f"Getting threads for user {user_id}")
@@ -40,11 +42,7 @@ class ChatAPI:
             user_id = self.user.email
 
         return await self.chat_service.get_threads(
-            limit, 
-            offset, 
-            user_id, 
-            sort_by=sort_by, 
-            sort_order=sort_order
+            limit, offset, user_id, sort_by=sort_by, sort_order=sort_order
         )
 
     @chat_router.post("/threads", response_model=dict)

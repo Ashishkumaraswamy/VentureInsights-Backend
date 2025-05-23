@@ -1,4 +1,5 @@
 from pydantic import BaseModel
 
+
 class ResearchRequest(BaseModel):
-    company_name: str 
+    company_name: str

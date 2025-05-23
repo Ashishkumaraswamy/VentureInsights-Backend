@@ -15,11 +15,17 @@ mcp = FastMCP("Venture Insights MCP Server")
 
 # Get app settings
 app_settings = get_app_settings()
-knowledge_base_service = KnowledgeBaseService(db_config=app_settings.db_config, vector_store_config=app_settings.vector_store_config)
+knowledge_base_service = KnowledgeBaseService(
+    db_config=app_settings.db_config,
+    vector_store_config=app_settings.vector_store_config,
+)
 # Instantiate services
-finance_service = FinanceService(app_settings.llm_config, app_settings.sonar_config,knowledge_base_service)
+finance_service = FinanceService(
+    app_settings.llm_config, app_settings.sonar_config, knowledge_base_service
+)
 linkedin_team_service = LinkedInTeamService(
-    app_settings.llm_config, app_settings.sonar_config,
+    app_settings.llm_config,
+    app_settings.sonar_config,
 )
 market_analysis_service = MarketAnalysisService(
     llm_config=app_settings.llm_config,
@@ -84,7 +90,6 @@ async def valuation_estimation(
         company_name=company_name,
         domain=domain,
         as_of_date=as_of_date,
-
     )
 
 

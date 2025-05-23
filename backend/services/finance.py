@@ -16,6 +16,7 @@ from backend.models.response.finance import (
 )
 from backend.services.knowledge import KnowledgeBaseService
 
+
 class FinanceService:
     def __init__(
         self,
@@ -61,7 +62,7 @@ class FinanceService:
             model=self.sonar_model,
             instructions=prompt,
         )
-        
+
         if use_knowledge_base:
             analysis_agent.knowledge = self.knowledge_base
             analysis_agent.knowledge_filters = {"company_name": company_name}
@@ -262,7 +263,7 @@ class FinanceService:
         self,
         company_name: str,
         domain: Optional[str] = None,
-        use_knowledge_base: bool = False,  
+        use_knowledge_base: bool = False,
     ) -> FundingHistoryResponse:
         """
         Retrieve funding history data for a company.

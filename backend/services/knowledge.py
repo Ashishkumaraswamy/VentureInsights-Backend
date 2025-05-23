@@ -3,6 +3,7 @@ from agno.vectordb.mongodb import MongoDb
 from agno.knowledge import AgentKnowledge
 from backend.utils.llm import get_embedding_model
 
+
 class KnowledgeBaseService:
     def __init__(
         self,
@@ -21,9 +22,5 @@ class KnowledgeBaseService:
             wait_after_insert=300,
         )
 
-    def get_knowledge_base(
-        self
-    ):
-        return AgentKnowledge(
-            vector_db=self.vector_db
-        )
+    def get_knowledge_base(self):
+        return AgentKnowledge(vector_db=self.vector_db)

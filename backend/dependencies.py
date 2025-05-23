@@ -26,11 +26,13 @@ def get_user(request: Request):
 
     return None
 
+
 def get_knowledge_base_service(app_settings: AppSettings = Depends(get_app_settings)):
     return KnowledgeBaseService(
         app_settings.db_config,
         app_settings.vector_store_config,
     )
+
 
 def get_news_service(app_settings: AppSettings = Depends(get_app_settings)):
     return NewsService(
@@ -78,16 +80,26 @@ def get_files_service(
     )
 
 
-def get_finance_service(app_settings: AppSettings = Depends(get_app_settings), knowledge_base_service=Depends(get_knowledge_base_service)):
-    return FinanceService(app_settings.llm_config, app_settings.sonar_config, knowledge_base_service)
+def get_finance_service(
+    app_settings: AppSettings = Depends(get_app_settings),
+    knowledge_base_service=Depends(get_knowledge_base_service),
+):
+    return FinanceService(
+        app_settings.llm_config, app_settings.sonar_config, knowledge_base_service
+    )
 
 
 def get_market_analysis_service(app_settings: AppSettings = Depends(get_app_settings)):
     return MarketAnalysisService(app_settings.llm_config, app_settings.sonar_config)
 
 
-def get_linkedin_team_service(app_settings: AppSettings = Depends(get_app_settings), ):
-    return LinkedInTeamService(app_settings.llm_config, app_settings.sonar_config, )
+def get_linkedin_team_service(
+    app_settings: AppSettings = Depends(get_app_settings),
+):
+    return LinkedInTeamService(
+        app_settings.llm_config,
+        app_settings.sonar_config,
+    )
 
 
 def get_customer_sentiment_service(
@@ -99,11 +111,14 @@ def get_customer_sentiment_service(
 def get_partnership_network_service():
     return PartnershipNetworkService()
 
+
 def get_regulatory_compliance_service():
     return RegulatoryComplianceService()
 
+
 def get_risk_analysis_service():
     return RiskAnalysisService()
+
 
 def get_research_service(
     finance_service=Depends(get_finance_service),

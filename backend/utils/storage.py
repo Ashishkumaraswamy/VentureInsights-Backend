@@ -5,8 +5,7 @@ from dotenv import load_dotenv
 from backend.settings import get_app_settings
 from backend.utils.llm import get_model
 
-if __name__ == '__main__':
-
+if __name__ == "__main__":
     load_dotenv()
     app_settings = get_app_settings()
     model = get_model(app_settings.llm_config)
@@ -20,7 +19,13 @@ if __name__ == '__main__':
     )
 
     # Add storage to the Agent
-    agent = Agent(session_id="fixed_id_for_demo", storage=storage, model=model, add_history_to_messages=True, num_history_runs=3)
+    agent = Agent(
+        session_id="fixed_id_for_demo",
+        storage=storage,
+        model=model,
+        add_history_to_messages=True,
+        num_history_runs=3,
+    )
 
     response = agent.run("What's my name")
     print(response)
