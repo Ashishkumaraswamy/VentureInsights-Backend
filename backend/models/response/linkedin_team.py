@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional, List
+from backend.plot.types import ChartData
+from backend.models.response.base import CitationResponse
 
 
 # --- Team Overview ---
@@ -13,7 +15,7 @@ class TeamRoleBreakdown(BaseModel):
     confidence: Optional[float] = None
 
 
-class TeamOverviewResponse(BaseModel):
+class TeamOverviewResponse(CitationResponse):
     company_name: str
     company_description: Optional[str] = None  # Added field for company context
     total_employees: int
@@ -23,6 +25,24 @@ class TeamOverviewResponse(BaseModel):
     growth_rate: Optional[float] = None  # Added field for team expansion rate
     sources: Optional[List[str]] = None
     last_updated: Optional[str] = None  # ISO format datetime string
+    plot_url: Optional[str] = None
+
+    def get_plot_data(self) -> ChartData:
+        data = [
+            {
+                "role": r.role,
+                "count": r.count,
+                "percentage": r.percentage,
+            }
+            for r in self.roles_breakdown
+        ]
+        return ChartData(
+            data=data,
+            title=f"Team Roles Breakdown for {self.company_name}",
+            x="role",
+            y="count",
+            kind="pie",
+        )
 
 
 # --- Individual Performance ---
@@ -49,7 +69,7 @@ class Education(BaseModel):
     dates: Optional[str] = None
 
 
-class IndividualPerformanceResponse(BaseModel):
+class IndividualPerformanceResponse(CitationResponse):
     company_name: str
     individual_name: str
     title: Optional[str] = None
@@ -66,6 +86,19 @@ class IndividualPerformanceResponse(BaseModel):
     education: Optional[List[Education]] = None  # Added field for background context
     sources: Optional[List[str]] = None
     last_updated: Optional[str] = None  # ISO format datetime string
+    plot_url: Optional[str] = None
+
+    def get_plot_data(self) -> ChartData:
+        data = [
+            {"metric": m.metric, "value": m.value} for m in self.performance_metrics
+        ]
+        return ChartData(
+            data=data,
+            title=f"Performance Metrics for {self.individual_name}",
+            x="metric",
+            y="value",
+            kind="bar",
+        )
 
 
 # --- Org Structure ---
@@ -95,7 +128,7 @@ class LeadershipTeamMember(BaseModel):
     department: Optional[str] = None
 
 
-class OrgStructureResponse(BaseModel):
+class OrgStructureResponse(CitationResponse):
     company_name: str
     org_chart: List[OrgNode]
     ceo: Optional[str] = None  # Added field to highlight top leadership
@@ -107,6 +140,23 @@ class OrgStructureResponse(BaseModel):
     )
     sources: Optional[List[str]] = None
     last_updated: Optional[str] = None  # ISO format datetime string
+    plot_url: Optional[str] = None
+
+    def get_plot_data(self) -> ChartData:
+        if self.departments:
+            data = [
+                {"department": d.name, "employee_count": d.employee_count or 0}
+                for d in self.departments
+            ]
+            return ChartData(
+                data=data,
+                title=f"Department Sizes for {self.company_name}",
+                x="department",
+                y="employee_count",
+                kind="bar",
+            )
+        else:
+            return ChartData(data=[], title="No department data", kind="bar")
 
 
 # --- Team Growth ---
@@ -146,7 +196,7 @@ class HiringTrend(BaseModel):
     supporting_data: Optional[HiringTrendSupportingData] = None
 
 
-class TeamGrowthResponse(BaseModel):
+class TeamGrowthResponse(CitationResponse):
     company_name: str
     team_growth_timeseries: List[TeamGrowthTimeSeriesPoint]
     total_hires: int
@@ -166,3 +216,17 @@ class TeamGrowthResponse(BaseModel):
     )
     sources: Optional[List[str]] = None
     last_updated: Optional[str] = None  # ISO format datetime string
+    plot_url: Optional[str] = None
+
+    def get_plot_data(self) -> ChartData:
+        data = [
+            {"period_start": t.period_start, "net_growth": t.net_growth}
+            for t in self.team_growth_timeseries
+        ]
+        return ChartData(
+            data=data,
+            title=f"Team Net Growth Over Time for {self.company_name}",
+            x="period_start",
+            y="net_growth",
+            kind="line",
+        )

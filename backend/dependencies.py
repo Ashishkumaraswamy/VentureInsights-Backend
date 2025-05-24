@@ -18,6 +18,7 @@ from backend.services.partnership_network import PartnershipNetworkService
 from backend.services.regulatory_compliance import RegulatoryComplianceService
 from backend.services.risk_analysis import RiskAnalysisService
 from backend.services.research import ResearchService
+from backend.agents.netlify import NetlifyAgent
 
 
 def get_user(request: Request):
@@ -80,25 +81,40 @@ def get_files_service(
     )
 
 
+def get_netlify_agent(app_settings: AppSettings = Depends(get_app_settings)):
+    return NetlifyAgent(app_settings.netlify_config)
+
+
 def get_finance_service(
     app_settings: AppSettings = Depends(get_app_settings),
     knowledge_base_service=Depends(get_knowledge_base_service),
+    netlify_agent=Depends(get_netlify_agent),
 ):
     return FinanceService(
-        app_settings.llm_config, app_settings.sonar_config, knowledge_base_service
+        app_settings.llm_config,
+        app_settings.sonar_config,
+        knowledge_base_service,
+        netlify_agent,
     )
 
 
-def get_market_analysis_service(app_settings: AppSettings = Depends(get_app_settings)):
-    return MarketAnalysisService(app_settings.llm_config, app_settings.sonar_config)
+def get_market_analysis_service(
+    app_settings: AppSettings = Depends(get_app_settings),
+    netlify_agent=Depends(get_netlify_agent),
+):
+    return MarketAnalysisService(
+        app_settings.llm_config, app_settings.sonar_config, netlify_agent
+    )
 
 
 def get_linkedin_team_service(
     app_settings: AppSettings = Depends(get_app_settings),
+    netlify_agent=Depends(get_netlify_agent),
 ):
     return LinkedInTeamService(
         app_settings.llm_config,
         app_settings.sonar_config,
+        netlify_agent,
     )
 
 
@@ -108,16 +124,22 @@ def get_customer_sentiment_service(
     return CustomerSentimentService(app_settings.llm_config, app_settings.sonar_config)
 
 
-def get_partnership_network_service():
-    return PartnershipNetworkService()
+def get_partnership_network_service(
+    netlify_agent=Depends(get_netlify_agent),
+):
+    return PartnershipNetworkService(netlify_agent)
 
 
-def get_regulatory_compliance_service():
-    return RegulatoryComplianceService()
+def get_regulatory_compliance_service(
+    netlify_agent=Depends(get_netlify_agent),
+):
+    return RegulatoryComplianceService(netlify_agent)
 
 
-def get_risk_analysis_service():
-    return RiskAnalysisService()
+def get_risk_analysis_service(
+    netlify_agent=Depends(get_netlify_agent),
+):
+    return RiskAnalysisService(netlify_agent)
 
 
 def get_research_service(

@@ -54,6 +54,11 @@ class JWTConfig(BaseModel):
     expire_after: int = Field(..., description="Validity for the JWT token in minutes")
 
 
+class NetlifyConfig(BaseModel):
+    site_id: str = Field(..., description="Netlify site ID")
+    auth_token: str = Field(..., description="Netlify personal access token")
+
+
 class AppSettings(BaseSettings):
     db_config: MongoConnectionDetails = Field(
         ..., description="MongoDB connection details"
@@ -66,6 +71,9 @@ class AppSettings(BaseSettings):
     )
     vector_store_config: VectorStoreConfig = Field(
         ..., description="Vector store configuration details"
+    )
+    netlify_config: NetlifyConfig = Field(
+        ..., description="Netlify deployment configuration"
     )
     local_user_email: Optional[str] = Field(None, description="Local user mail id")
     local: bool = Field(False, description="Local mode")
@@ -119,6 +127,10 @@ class AppSettings(BaseSettings):
                 secret_key=os.environ.get("JWT_SECRET_KEY"),
                 algorithm=os.environ.get("JWT_ALGORITHM"),
                 expire_after=os.environ.get("JWT_TOKEN_EXPIRY_MINUTES"),
+            ),
+            netlify_config=NetlifyConfig(
+                site_id=os.environ.get("NETLIFY_SITE_ID"),
+                auth_token=os.environ.get("NETLIFY_AUTH_TOKEN"),
             ),
             local_user=os.environ.get("LOCAL_USER"),
             local=os.environ.get("LOCAL"),

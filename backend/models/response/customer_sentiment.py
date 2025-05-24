@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 from typing import Optional, List
 from .base import CitationResponse
+from backend.plot.types import ChartData
 
 
 # --- Sentiment Summary ---
@@ -32,6 +33,20 @@ class SentimentSummaryResponse(CitationResponse):
     sources: Optional[List[str]] = None
     last_updated: Optional[str] = None  # ISO format datetime string
 
+    def get_plot_data(self) -> ChartData:
+        # Example: Line chart of sentiment score over time
+        data = [
+            {"period_start": t.period_start, "sentiment_score": t.sentiment_score}
+            for t in self.sentiment_timeseries
+        ]
+        return ChartData(
+            data=data,
+            title=f"Sentiment Score Over Time for {self.company_name}",
+            x="period_start",
+            y="sentiment_score",
+            kind="line",
+        )
+
     class Config:
         arbitrary_types_allowed = True
 
@@ -55,6 +70,21 @@ class CustomerFeedbackResponse(CitationResponse):
     sources: Optional[List[str]] = None
     last_updated: Optional[str] = None  # ISO format datetime string
 
+    def get_plot_data(self) -> ChartData:
+        # Example: Pie chart of feedback sentiment distribution
+        sentiment_counts = {"positive": 0, "negative": 0, "neutral": 0}
+        for item in self.feedback_items:
+            if item.sentiment in sentiment_counts:
+                sentiment_counts[item.sentiment] += 1
+        data = [{"sentiment": k, "count": v} for k, v in sentiment_counts.items()]
+        return ChartData(
+            data=data,
+            title=f"Customer Feedback Sentiment Distribution for {self.company_name}",
+            x="sentiment",
+            y="count",
+            kind="pie",
+        )
+
     class Config:
         arbitrary_types_allowed = True
 
@@ -76,6 +106,20 @@ class BrandReputationResponse(CitationResponse):
     summary: Optional[str] = None
     sources: Optional[List[str]] = None
     last_updated: Optional[str] = None  # ISO format datetime string
+
+    def get_plot_data(self) -> ChartData:
+        # Example: Line chart of reputation score over time
+        data = [
+            {"period_start": t.period_start, "reputation_score": t.reputation_score}
+            for t in self.reputation_timeseries
+        ]
+        return ChartData(
+            data=data,
+            title=f"Brand Reputation Over Time for {self.company_name}",
+            x="period_start",
+            y="reputation_score",
+            kind="line",
+        )
 
     class Config:
         arbitrary_types_allowed = True
@@ -99,6 +143,25 @@ class SentimentComparisonResponse(CitationResponse):
     summary: Optional[str] = None
     confidence: float
     last_updated: str  # ISO format datetime string
+
+    def get_plot_data(self) -> ChartData:
+        # Example: Bar chart comparing sentiment scores
+        data = [
+            {
+                "company": self.company_name,
+                "sentiment_score": self.target_sentiment.sentiment_score,
+            }
+        ] + [
+            {"company": c.company, "sentiment_score": c.sentiment_score}
+            for c in self.competitor_sentiments
+        ]
+        return ChartData(
+            data=data,
+            title=f"Sentiment Comparison for {self.company_name} vs Competitors",
+            x="company",
+            y="sentiment_score",
+            kind="bar",
+        )
 
     class Config:
         arbitrary_types_allowed = True

@@ -1,10 +1,17 @@
 from datetime import datetime
 from typing import Optional
+from backend.plot.factory import get_builder
+from backend.models.response.partnership_network import (
+    PartnerListResponse,
+    StrategicAlliancesResponse,
+    NetworkStrengthResponse,
+    PartnershipTrendsResponse,
+)
 
 
 class PartnershipNetworkService:
-    def __init__(self):
-        pass
+    def __init__(self, netlify_agent):
+        self.netlify_agent = netlify_agent
 
     async def get_partner_list(
         self,
@@ -13,7 +20,7 @@ class PartnershipNetworkService:
         industry: Optional[str] = None,
         region: Optional[str] = None,
     ):
-        return {
+        data = {
             "company_name": company_name,
             "partners": [
                 {
@@ -38,6 +45,14 @@ class PartnershipNetworkService:
             ],
             "last_updated": datetime.now().isoformat(),
         }
+        response = PartnerListResponse(**data)
+        try:
+            chart_data = response.get_plot_data()
+            builder = get_builder("bar", self.netlify_agent)
+            response.iframe_url = await builder.plot(chart_data, company_name)
+        except Exception:
+            response.iframe_url = None
+        return response
 
     async def get_strategic_alliances(
         self,
@@ -46,7 +61,7 @@ class PartnershipNetworkService:
         industry: Optional[str] = None,
         region: Optional[str] = None,
     ):
-        return {
+        data = {
             "company_name": company_name,
             "alliances": [
                 {
@@ -71,6 +86,14 @@ class PartnershipNetworkService:
             ],
             "last_updated": datetime.now().isoformat(),
         }
+        response = StrategicAlliancesResponse(**data)
+        try:
+            chart_data = response.get_plot_data()
+            builder = get_builder("bar", self.netlify_agent)
+            response.iframe_url = await builder.plot(chart_data, company_name)
+        except Exception:
+            response.iframe_url = None
+        return response
 
     async def get_network_strength(
         self,
@@ -79,7 +102,7 @@ class PartnershipNetworkService:
         industry: Optional[str] = None,
         region: Optional[str] = None,
     ):
-        return {
+        data = {
             "company_name": company_name,
             "network_metrics": [
                 {
@@ -99,6 +122,14 @@ class PartnershipNetworkService:
             "sources": ["https://tecnova.com/network"],
             "last_updated": datetime.now().isoformat(),
         }
+        response = NetworkStrengthResponse(**data)
+        try:
+            chart_data = response.get_plot_data()
+            builder = get_builder("bar", self.netlify_agent)
+            response.iframe_url = await builder.plot(chart_data, company_name)
+        except Exception:
+            response.iframe_url = None
+        return response
 
     async def get_partnership_trends(
         self,
@@ -109,7 +140,7 @@ class PartnershipNetworkService:
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
     ):
-        return {
+        data = {
             "company_name": company_name,
             "partnership_trends_timeseries": [
                 {
@@ -135,3 +166,11 @@ class PartnershipNetworkService:
             "sources": ["https://tecnova.com/partners"],
             "last_updated": datetime.now().isoformat(),
         }
+        response = PartnershipTrendsResponse(**data)
+        try:
+            chart_data = response.get_plot_data()
+            builder = get_builder("bar", self.netlify_agent)
+            response.iframe_url = await builder.plot(chart_data, company_name)
+        except Exception:
+            response.iframe_url = None
+        return response

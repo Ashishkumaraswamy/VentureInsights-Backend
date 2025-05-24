@@ -15,6 +15,7 @@ from backend.models.response.finance import (
     FundingHistoryResponse,
 )
 from backend.services.knowledge import KnowledgeBaseService
+from backend.plot.factory import get_builder
 
 
 class FinanceService:
@@ -23,6 +24,7 @@ class FinanceService:
         llm_config: LLMConfig,
         sonar_config: SonarConfig,
         knowledge_base_service: KnowledgeBaseService,
+        netlify_agent,
     ):
         self.llm_config = llm_config
         self.sonar_config = sonar_config
@@ -31,6 +33,7 @@ class FinanceService:
         self.llm_output_parser = LLMOutputParserAgent(self.llm_model)
         self.knowledge_base_service = knowledge_base_service
         self.knowledge_base = self.knowledge_base_service.get_knowledge_base()
+        self.netlify_agent = netlify_agent
 
     async def _execute_llm_analysis(
         self,
@@ -78,6 +81,14 @@ class FinanceService:
             response.citations = (
                 content.citations.urls if hasattr(content.citations, "urls") else []
             )
+
+        # Add plot iframe_url
+        try:
+            chart_data = response.get_plot_data()
+            builder = get_builder("bar", self.netlify_agent)
+            response.iframe_url = await builder.plot(chart_data, company_name)
+        except Exception:
+            response.iframe_url = None
 
         return response
 

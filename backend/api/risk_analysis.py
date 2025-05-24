@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
+
+from backend.dependencies import get_risk_analysis_service
 from backend.services.risk_analysis import RiskAnalysisService
 from backend.models.requests.risk_analysis import (
     RegulatoryRisksRequest,
@@ -18,8 +20,8 @@ risk_analysis_router = APIRouter(prefix="/risk-analysis", tags=["risk-analysis"]
 
 
 @cbv(risk_analysis_router)
-class RiskAnalysisCBV:
-    risk_analysis_service: RiskAnalysisService = Depends(RiskAnalysisService)
+class RiskAnalysisAPI:
+    risk_analysis_service: RiskAnalysisService = Depends(get_risk_analysis_service)
 
     @risk_analysis_router.post(
         "/regulatory-risks", response_model=RegulatoryRisksResponse

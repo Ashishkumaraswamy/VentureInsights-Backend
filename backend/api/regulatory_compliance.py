@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
+
+from backend.dependencies import get_regulatory_compliance_service
 from backend.services.regulatory_compliance import RegulatoryComplianceService
 from backend.models.requests.regulatory_compliance import (
     ComplianceOverviewRequest,
@@ -20,9 +22,9 @@ regulatory_compliance_router = APIRouter(
 
 
 @cbv(regulatory_compliance_router)
-class RegulatoryComplianceCBV:
+class RegulatoryComplianceAPI:
     regulatory_compliance_service: RegulatoryComplianceService = Depends(
-        RegulatoryComplianceService
+        get_regulatory_compliance_service
     )
 
     @regulatory_compliance_router.post(

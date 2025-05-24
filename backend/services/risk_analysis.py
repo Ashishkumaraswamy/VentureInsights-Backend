@@ -1,10 +1,17 @@
 from datetime import datetime
 from typing import Optional
+from backend.plot.factory import get_builder
+from backend.models.response.risk_analysis import (
+    RegulatoryRisksResponse,
+    MarketRisksResponse,
+    OperationalRisksResponse,
+    LegalRisksResponse,
+)
 
 
 class RiskAnalysisService:
-    def __init__(self):
-        pass
+    def __init__(self, netlify_agent):
+        self.netlify_agent = netlify_agent
 
     async def get_regulatory_risks(
         self,
@@ -13,7 +20,7 @@ class RiskAnalysisService:
         industry: Optional[str] = None,
         region: Optional[str] = None,
     ):
-        return {
+        data = {
             "company_name": company_name,
             "industry": industry or "Cloud Computing",
             "region": region or "Global",
@@ -37,6 +44,14 @@ class RiskAnalysisService:
             "sources": ["https://gdpr.eu/tecnova", "https://sox.com/tecnova"],
             "last_updated": datetime.now().isoformat(),
         }
+        response = RegulatoryRisksResponse(**data)
+        try:
+            chart_data = response.get_plot_data()
+            builder = get_builder("bar", self.netlify_agent)
+            response.iframe_url = await builder.plot(chart_data, company_name)
+        except Exception:
+            response.iframe_url = None
+        return response
 
     async def get_market_risks(
         self,
@@ -45,7 +60,7 @@ class RiskAnalysisService:
         industry: Optional[str] = None,
         region: Optional[str] = None,
     ):
-        return {
+        data = {
             "company_name": company_name,
             "industry": industry or "Cloud Computing",
             "region": region or "Global",
@@ -72,6 +87,14 @@ class RiskAnalysisService:
             ],
             "last_updated": datetime.now().isoformat(),
         }
+        response = MarketRisksResponse(**data)
+        try:
+            chart_data = response.get_plot_data()
+            builder = get_builder("bar", self.netlify_agent)
+            response.iframe_url = await builder.plot(chart_data, company_name)
+        except Exception:
+            response.iframe_url = None
+        return response
 
     async def get_operational_risks(
         self,
@@ -80,7 +103,7 @@ class RiskAnalysisService:
         industry: Optional[str] = None,
         region: Optional[str] = None,
     ):
-        return {
+        data = {
             "company_name": company_name,
             "industry": industry or "Cloud Computing",
             "region": region or "Global",
@@ -107,6 +130,14 @@ class RiskAnalysisService:
             ],
             "last_updated": datetime.now().isoformat(),
         }
+        response = OperationalRisksResponse(**data)
+        try:
+            chart_data = response.get_plot_data()
+            builder = get_builder("bar", self.netlify_agent)
+            response.iframe_url = await builder.plot(chart_data, company_name)
+        except Exception:
+            response.iframe_url = None
+        return response
 
     async def get_legal_risks(
         self,
@@ -115,7 +146,7 @@ class RiskAnalysisService:
         industry: Optional[str] = None,
         region: Optional[str] = None,
     ):
-        return {
+        data = {
             "company_name": company_name,
             "industry": industry or "Cloud Computing",
             "region": region or "Global",
@@ -146,3 +177,11 @@ class RiskAnalysisService:
             ],
             "last_updated": datetime.now().isoformat(),
         }
+        response = LegalRisksResponse(**data)
+        try:
+            chart_data = response.get_plot_data()
+            builder = get_builder("bar", self.netlify_agent)
+            response.iframe_url = await builder.plot(chart_data, company_name)
+        except Exception:
+            response.iframe_url = None
+        return response

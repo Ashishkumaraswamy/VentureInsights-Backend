@@ -2,6 +2,7 @@ from pydantic import BaseModel
 from typing import Optional, List
 from pydantic import Field
 from backend.models.response.base import CitationResponse
+from backend.plot.types import ChartData
 
 
 # --- Market Trends ---
@@ -29,6 +30,20 @@ class MarketTrendsResponse(CitationResponse):
         None,
         description="ISO 8601 timestamp indicating when this analysis was last updated",
     )
+    plot_url: Optional[str] = None
+
+    def get_plot_data(self) -> ChartData:
+        data = [
+            {"industry": m.industry, "percentage": m.percentage}
+            for m in self.market_size
+        ]
+        return ChartData(
+            data=data,
+            title="Market Size by Industry",
+            x="industry",
+            y="percentage",
+            kind="pie",
+        )
 
 
 # --- Competitive Analysis ---
@@ -73,6 +88,20 @@ class CompetitiveAnalysisResponse(CitationResponse):
         None,
         description="ISO 8601 timestamp indicating when this analysis was last updated",
     )
+    plot_url: Optional[str] = None
+
+    def get_plot_data(self) -> ChartData:
+        data = [
+            {"company_name": c.company_name, "market_share": c.market_share or 0}
+            for c in self.top_competitors
+        ]
+        return ChartData(
+            data=data,
+            title="Competitor Market Share",
+            x="company_name",
+            y="market_share",
+            kind="bar",
+        )
 
 
 # --- Growth Projections ---
@@ -103,6 +132,20 @@ class GrowthProjectionsResponse(CitationResponse):
         None, description="List of sources or references for this revenue data point"
     )
     last_updated: Optional[str] = None
+    plot_url: Optional[str] = None
+
+    def get_plot_data(self) -> ChartData:
+        data = [
+            {"period_start": p.period_start, "projected_value": p.projected_value}
+            for p in self.projections_timeseries
+        ]
+        return ChartData(
+            data=data,
+            title="Growth Projections Over Time",
+            x="period_start",
+            y="projected_value",
+            kind="line",
+        )
 
 
 # --- Regional Trends ---
@@ -128,3 +171,17 @@ class RegionalTrendsResponse(CitationResponse):
     )
     summary: Optional[str] = Field(None, description="Summary of the regional trends")
     last_updated: Optional[str] = Field(None, description="Last updated timestamp")
+    plot_url: Optional[str] = None
+
+    def get_plot_data(self) -> ChartData:
+        data = [
+            {"region": r.region, "period_start": r.period_start, "value": r.value}
+            for r in self.regional_trends
+        ]
+        return ChartData(
+            data=data,
+            title="Regional Trends Over Time",
+            x="period_start",
+            y="value",
+            kind="area",
+        )
