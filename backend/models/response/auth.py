@@ -6,3 +6,4 @@ class UserResponse(BaseModel):
     first_name: str = Field(..., description="First Name")
     last_name: str = Field(..., description="Last Name")
     token: str = Field(..., description="JWT Token")
+    user_type: str = Field(default="vc", description="Type of user: 'vc' or 'founder'")
