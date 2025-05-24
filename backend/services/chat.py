@@ -152,7 +152,7 @@ Always prioritize delivering accurate, relevant information from Venture Insight
         messages = [
             m
             for m in last_run.get("messages", [])
-            if m.get("role") not in ("system", "tool") and m.get("content")
+            if m.get("role") not in ("system") and m.get("content")
         ]
         return ChatThreadWithMessages(
             id=thread["session_id"],
@@ -164,6 +164,7 @@ Always prioritize delivering accurate, relevant information from Venture Insight
                     sender=m["role"],
                     timestamp=m.get("created_at"),
                     user_id=thread.get("user_id"),
+                    metadata=m.get("metadata"),
                 )
                 for m in messages
             ],
