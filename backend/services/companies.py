@@ -1,14 +1,13 @@
 from backend.settings import MongoConnectionDetails
 from backend.models.response.companies import (
-    CompanyBaseInfo,
+    FeaturedCompany,
+    CompanySearchResult,
 )
 from backend.utils.cache_decorator import cacheable
 from backend.database.mongo import MongoDBConnector
 from backend.models.response.research import (
     ResearchResponse,
 )
-import json
-import os
 from typing import Optional
 
 
@@ -59,45 +58,42 @@ class CompaniesService:
             return ResearchResponse(company_name=company_name)
 
     @cacheable()
-    async def get_companies(self, limit: int = None) -> list[CompanyBaseInfo]:
-        mock_companies = [
-            {
-                "name": "DataGenie",
-                "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQS7QDxSkojyltJTl6vIloCWUDzmtohbDsWCg&s",
-                "founder": "Ashish Verma",
-                "headquarters": "San Francisco, CA, USA",
-                "founding_date": "2020-01-01T00:00:00",
-                "members_count": 10,
-            },
-            {
-                "name": "Meta",
-                "logo": "https://m.economictimes.com/thumb/msid-111856636,width-1200,height-900,resizemode-4,imgsize-155652/a-microsoft-logo.jpg",
-                "founder": "Mark Zuckerberg",
-                "headquarters": "Menlo Park, CA, USA",
-                "founding_date": "2015-01-01T00:00:00",
-                "members_count": 50,
-            },
-            {
-                "name": "CypherD",
-                "logo": "https://play-lh.googleusercontent.com/-dmoFW03JcyJihlNoguKe5mZBGSigpDGVlZKkJi6EhDLnzvUJQMIUhw3l6TrCW6CksE",
-                "founder": "John Doe",
-                "headquarters": "New York, NY, USA",
-                "founding_date": "2015-01-01T00:00:00",
-                "members_count": 50,
-            },
-            {
-                "name": "PayPal",
-                "logo": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQZ0ffI8EqxD3ClancA6PDjV_Blp1dZuZv_HVb6KkSXn1Z3i9fAdz4i1WBmun75iVpQU38&usqp=CAU",
-                "founder": "Elon Musk, Peter Thiel, Max Levchin",
-                "headquarters": "San Jose, CA, USA",
-                "founding_date": "2015-01-01T00:00:00",
-                "members_count": 50,
-            },
-        ]
-        return [CompanyBaseInfo(**company) for company in mock_companies]
+    async def get_companies(self, limit: int = 100) -> list[CompanySearchResult]:
+        """
+        Get all companies from the database
 
+        Args:
+            limit: Maximum number of companies to return
+
+        Returns:
+            List of CompanySearchResult with company name and logo URL
+        """
+        pipeline = [
+            {
+                "$project": {
+                    "company_name": 1,
+                    "logoUrl": {
+                        "$ifNull": [
+                            "$card_info.logoUrl",
+                            "https://pngimg.com/uploads/google/google_PNG19635.png",
+                        ]
+                    },
+                }
+            },
+            {"$sort": {"company_name": 1}},
+            {"$limit": limit},
+        ]
+        res = await self.mongo_db.aaggregate("company_info", pipeline)
+        return [
+            CompanySearchResult(
+                name=company["company_name"], logoUrl=company["logoUrl"]
+            )
+            for company in res
+        ]
+
+    @cacheable()
     async def get_featured_companies(
-        self, limit: Optional[int] = None, page: int = 1
+        self, limit: Optional[int] = 10, page: int = 1
     ) -> dict:
         """
         Get featured companies for display on the homepage or featured section
@@ -109,31 +105,46 @@ class CompaniesService:
         Returns:
             Dictionary with companies, total count, page number and limit
         """
-        # Load sample data from JSON file
-        json_path = os.path.join(
-            os.path.dirname(os.path.dirname(__file__)), "data", "sample_card.json"
-        )
 
-        with open(json_path, "r") as f:
-            companies_data = json.load(f)
-
-        # Apply pagination if limit is provided
-        total = len(companies_data)
-
-        if limit:
-            # Calculate start and end indices for pagination
-            start_idx = (page - 1) * limit
-            end_idx = start_idx + limit
-
-            # Slice the data
-            paginated_data = companies_data[start_idx:end_idx]
-        else:
-            paginated_data = companies_data
-            limit = total
+        pipeline = [
+            {"$sort": {"company_name": 1}},
+            {"$skip": ((page - 1) * limit)},
+            {"$limit": limit},
+            {
+                "$project": {
+                    "_id": 0,
+                    "id": {"$ifNull": ["$card_info.id", {"$toString": "$_id"}]},
+                    "name": {"$ifNull": ["$card_info.name", "$company_name"]},
+                    "description": {
+                        "$ifNull": [
+                            "$card_info.description",
+                            "AI-powered business solutions",
+                        ]
+                    },
+                    "logoUrl": {
+                        "$ifNull": [
+                            "$card_info.logoUrl",
+                            "https://pngimg.com/uploads/google/google_PNG19635.png",
+                        ]
+                    },
+                    "logoText": {"$ifNull": ["$card_info.logoText", "COMPANY"]},
+                    "logoSubText": {"$ifNull": ["$card_info.logoSubText", "SOLUTIONS"]},
+                    "fundingStage": {
+                        "$ifNull": ["$card_info.fundingStage", "Seed Stage"]
+                    },
+                    "tags": {"$ifNull": ["$card_info.tags", ["AI", "Tech", "SaaS"]]},
+                    "fundingAsk": {"$ifNull": ["$card_info.fundingAsk", "500000"]},
+                    "industry": {"$ifNull": ["$card_info.industry", "Tech"]},
+                    "valuation": {"$ifNull": ["$card_info.valuation", "5000000"]},
+                    "location": {"$ifNull": ["$card_info.location", "San Francisco"]},
+                }
+            },
+        ]
+        res = await self.mongo_db.aaggregate("company_info", pipeline)
 
         return {
-            "companies": paginated_data,
-            "total": total,
+            "companies": [FeaturedCompany.parse_obj(company) for company in res],
+            "total": 10,
             "page": page,
             "limit": limit,
         }

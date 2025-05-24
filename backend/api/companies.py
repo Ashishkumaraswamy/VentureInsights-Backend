@@ -3,8 +3,8 @@ from fastapi_utils.cbv import cbv
 
 from backend.dependencies import get_company_service
 from backend.models.response.companies import (
-    CompanyBaseInfo,
     FeaturedCompaniesResponse,
+    CompanySearchResult,
 )
 from backend.models.response.research import ResearchResponse
 from backend.services.companies import CompaniesService
@@ -16,8 +16,13 @@ companies_router = APIRouter(prefix="/companies", tags=["companies"])
 class CompaniesAPI:
     company_service: CompaniesService = Depends(get_company_service)
 
-    @companies_router.get("/search", response_model=list[CompanyBaseInfo])
-    async def get_companies_list(self, limit: int = None) -> list[CompanyBaseInfo]:
+    @companies_router.get("/search", response_model=list[CompanySearchResult])
+    async def get_companies_list(self, limit: int = 100) -> list[CompanySearchResult]:
+        """
+        Get a list of companies for search functionality
+
+        Returns simplified company information including name and logo URL
+        """
         return await self.company_service.get_companies(limit)
 
     @companies_router.get("/{companyName}/analysis", response_model=ResearchResponse)
@@ -27,7 +32,7 @@ class CompaniesAPI:
     @companies_router.get("/featured", response_model=FeaturedCompaniesResponse)
     async def get_featured_companies(
         self,
-        limit: int = Query(None, description="Number of companies to return"),
+        limit: int = Query(10, description="Number of companies to return"),
         page: int = Query(1, description="Page number for pagination"),
     ) -> FeaturedCompaniesResponse:
         """

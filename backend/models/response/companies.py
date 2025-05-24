@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Optional
 
 from pydantic import BaseModel, Field
 
@@ -116,9 +117,9 @@ class CompanyAnalysisFullResponse(BaseModel):
 
 class GradientColors(BaseModel):
     from_color: str = Field(
-        ..., alias="from", description="Tailwind CSS 'from' gradient class"
+        "from-teal-600", alias="from", description="Tailwind CSS 'from' gradient class"
     )
-    to: str = Field(..., description="Tailwind CSS 'to' gradient class")
+    to: str = Field("to-teal-700", description="Tailwind CSS 'to' gradient class")
 
     class Config:
         populate_by_name = True
@@ -146,14 +147,14 @@ class FeaturedCompany(BaseModel):
         ..., alias="fundingStage", description="Company's funding stage"
     )
     tags: list[str] = Field(..., description="Tags related to the company")
-    funding_ask: str = Field(
-        ..., alias="fundingAsk", description="Amount of funding requested"
+    funding_ask: int = Field(
+        500000, alias="fundingAsk", description="Amount of funding requested"
     )
     industry: str = Field(..., description="Industry sector of the company")
-    valuation: str = Field(..., description="Company valuation")
+    valuation: int = Field(5000000, description="Company valuation")
     location: str = Field(..., description="Company location")
-    gradient_colors: GradientColors = Field(
-        ..., alias="gradientColors", description="Gradient colors for UI"
+    gradient_colors: Optional[GradientColors] = Field(
+        GradientColors(), alias="gradientColors", description="Gradient colors for UI"
     )
 
     class Config:
@@ -167,3 +168,13 @@ class FeaturedCompaniesResponse(BaseModel):
     total: int = Field(..., description="Total number of companies")
     page: int = Field(..., description="Current page number")
     limit: int = Field(..., description="Number of companies per page")
+
+
+class CompanySearchResult(BaseModel):
+    """Model for simplified company search results"""
+
+    name: str = Field(..., description="Name of the company")
+    logo_url: str = Field(..., alias="logoUrl", description="URL to the company logo")
+
+    class Config:
+        populate_by_name = True
