@@ -48,13 +48,178 @@ class FinanceResponse(BaseModel):
 {
   "company_name": "TechNova Inc.",
   "finance": {
-    "revenue": {"company_name": "TechNova Inc.", ...},
-    "expenses": null,
-    "margins": null,
-    "valuation": null,
-    "funding": null
+    "revenue": {
+      "company_name": "TechNova Inc.",
+      "revenue_timeseries": [
+        {
+          "currency": "USD",
+          "period_start": "2023-01-01",
+          "period_end": "2023-12-31",
+          "value": 1000000.0,
+          "sources": ["https://finance.example.com"],
+          "confidence": 0.9
+        }
+      ],
+      "total_revenue": 1000000.0,
+      "last_updated": "2024-06-01T12:00:00Z",
+      "citations": [
+        {"url": "https://example.com/citation1", "title": "Sample Citation 1"},
+        {"url": "https://example.com/citation2", "title": "Sample Citation 2"}
+      ],
+      "iframe_url": "https://charts.netlify.app/revenue"
+    },
+    "expenses": {
+      "company_name": "TechNova Inc.",
+      "expenses": [
+        {"category": "R&D", "value": 200000.0, "currency": "USD", "sources": ["https://finance.example.com/expenses"], "confidence": 0.8},
+        {"category": "Marketing", "value": 150000.0, "currency": "USD", "sources": ["https://finance.example.com/expenses"], "confidence": 0.7}
+      ],
+      "total_expense": 350000.0,
+      "last_updated": "2024-06-01T12:00:00Z",
+      "citations": [
+        {"url": "https://example.com/citation1", "title": "Sample Citation 1"},
+        {"url": "https://example.com/citation2", "title": "Sample Citation 2"}
+      ],
+      "iframe_url": "https://charts.netlify.app/expenses"
+    },
+    "margins": {
+      "company_name": "TechNova Inc.",
+      "margins": [
+        {"margin_type": "Gross", "value": 0.6, "currency": "USD", "sources": ["https://finance.example.com/margins"], "confidence": 0.85},
+        {"margin_type": "Net", "value": 0.2, "currency": "USD", "sources": ["https://finance.example.com/margins"], "confidence": 0.8}
+      ],
+      "last_updated": "2024-06-01T12:00:00Z",
+      "citations": [
+        {"url": "https://example.com/citation1", "title": "Sample Citation 1"},
+        {"url": "https://example.com/citation2", "title": "Sample Citation 2"}
+      ],
+      "iframe_url": "https://charts.netlify.app/margins"
+    },
+    "valuation": {
+      "company_name": "TechNova Inc.",
+      "last_valuation": 5000000.0,
+      "valuation_timeseries": [
+        {"date": "2023-01-01", "value": 4000000.0, "currency": "USD", "sources": ["https://finance.example.com/valuation"], "confidence": 0.9},
+        {"date": "2023-12-31", "value": 5000000.0, "currency": "USD", "sources": ["https://finance.example.com/valuation"], "confidence": 0.95}
+      ],
+      "last_updated": "2024-06-01T12:00:00Z",
+      "citations": [
+        {"url": "https://example.com/citation1", "title": "Sample Citation 1"},
+        {"url": "https://example.com/citation2", "title": "Sample Citation 2"}
+      ],
+      "iframe_url": "https://charts.netlify.app/valuation"
+    },
+    "funding": {
+      "company_name": "TechNova Inc.",
+      "funding_rounds": [
+        {"round_type": "Seed", "value": 500000.0, "currency": "USD", "date": "2021-06-01", "lead_investors": ["VC Firm A"], "sources": ["https://finance.example.com/funding"], "confidence": 0.9},
+        {"round_type": "Series A", "value": 2000000.0, "currency": "USD", "date": "2022-08-15", "lead_investors": ["VC Firm B"], "sources": ["https://finance.example.com/funding"], "confidence": 0.95}
+      ],
+      "total_funding": 2500000.0,
+      "last_updated": "2024-06-01T12:00:00Z",
+      "citations": [
+        {"url": "https://example.com/citation1", "title": "Sample Citation 1"},
+        {"url": "https://example.com/citation2", "title": "Sample Citation 2"}
+      ],
+      "iframe_url": "https://charts.netlify.app/funding"
+    }
   },
-  "linkedin_team": {"team_overview": {"company_name": "TechNova Inc.", ...}},
+  "linkedin_team": {
+    "team_overview": {
+      "company_name": "TechNova Inc.",
+      "company_description": "A leading tech company.",
+      "total_employees": 200,
+      "roles_breakdown": [
+        {"role": "Engineer", "count": 100, "percentage": 50.0, "sources": [1], "confidence": 0.9},
+        {"role": "Product", "count": 50, "percentage": 25.0, "sources": [1], "confidence": 0.8},
+        {"role": "Sales", "count": 50, "percentage": 25.0, "sources": [1], "confidence": 0.7}
+      ],
+      "locations": ["San Francisco", "New York"],
+      "key_hiring_areas": ["AI", "Cloud"],
+      "growth_rate": 0.15,
+      "sources": ["https://linkedin.com/company/example"],
+      "last_updated": "2024-06-01T12:00:00Z",
+      "citations": [
+        {"url": "https://example.com/citation1", "title": "Sample Citation 1"},
+        {"url": "https://example.com/citation2", "title": "Sample Citation 2"}
+      ],
+      "iframe_url": "https://charts.netlify.app/team_overview"
+    },
+    "individual_performance": {
+      "company_name": "TechNova Inc.",
+      "individual_name": "Jane Doe",
+      "title": "CTO",
+      "image_url": "https://linkedin.com/jane.jpg",
+      "tenure_years": 3.5,
+      "performance_metrics": [
+        {"metric": "Leadership", "value": 9.5, "sources": [1], "confidence": 0.95},
+        {"metric": "Technical Skill", "value": 9.0, "sources": [1], "confidence": 0.9}
+      ],
+      "previous_companies": [
+        {"name": "BigTech", "title": "Engineer", "duration": "2 years", "dates": "2018-2020"}
+      ],
+      "key_strengths": ["Leadership", "AI Expertise"],
+      "development_areas": ["Public Speaking"],
+      "education": [
+        {"institution": "MIT", "degree": "PhD", "field_of_study": "CS", "dates": "2010-2015"}
+      ],
+      "sources": ["https://linkedin.com/jane"],
+      "last_updated": "2024-06-01T12:00:00Z",
+      "citations": [
+        {"url": "https://example.com/citation1", "title": "Sample Citation 1"},
+        {"url": "https://example.com/citation2", "title": "Sample Citation 2"}
+      ],
+      "iframe_url": "https://charts.netlify.app/individual_performance"
+    },
+    "org_structure": {
+      "company_name": "TechNova Inc.",
+      "org_chart": [
+        {"name": "Alice Smith", "title": "CEO", "department": "Executive", "linkedin_url": "https://linkedin.com/alice", "direct_reports": ["Bob Jones", "Carol Lee"]},
+        {"name": "Bob Jones", "title": "CTO", "department": "Engineering", "linkedin_url": "https://linkedin.com/bob", "reports_to": "Alice Smith"},
+        {"name": "Carol Lee", "title": "CFO", "department": "Finance", "linkedin_url": "https://linkedin.com/carol", "reports_to": "Alice Smith"}
+      ],
+      "ceo": "Alice Smith",
+      "departments": [
+        {"name": "Engineering", "head": "Bob Jones", "employee_count": 100},
+        {"name": "Finance", "head": "Carol Lee", "employee_count": 30}
+      ],
+      "leadership_team": [
+        {"name": "Alice Smith", "title": "CEO", "linkedin_url": "https://linkedin.com/alice", "department": "Executive"},
+        {"name": "Bob Jones", "title": "CTO", "linkedin_url": "https://linkedin.com/bob", "department": "Engineering"}
+      ],
+      "sources": ["https://linkedin.com/orgstructure"],
+      "last_updated": "2024-06-01T12:00:00Z",
+      "citations": [
+        {"url": "https://example.com/citation1", "title": "Sample Citation 1"},
+        {"url": "https://example.com/citation2", "title": "Sample Citation 2"}
+      ],
+      "iframe_url": "https://charts.netlify.app/org_structure"
+    },
+    "team_growth": {
+      "company_name": "TechNova Inc.",
+      "team_growth_timeseries": [
+        {"period_start": "2022-01-01", "period_end": "2022-12-31", "hires": 60, "attrition": 10, "net_growth": 50, "growth_rate": 0.25, "sources": [1], "confidence": 0.9}
+      ],
+      "total_hires": 60,
+      "total_attrition": 10,
+      "net_growth": 50,
+      "growth_rate_annualized": 0.25,
+      "key_hiring_areas": ["AI", "Cloud"],
+      "attrition_by_department": [
+        {"department": "Engineering", "attrition_count": 5, "attrition_rate": 0.05}
+      ],
+      "hiring_trends": [
+        {"trend": "Upward", "description": "Hiring increased in 2022", "supporting_data": {"percentage": 20.0, "count": 12, "year_over_year_change": 0.2, "previous_value": 48, "current_value": 60, "description": "12 more hires than last year"}}
+      ],
+      "sources": ["https://linkedin.com/teamgrowth"],
+      "last_updated": "2024-06-01T12:00:00Z",
+      "citations": [
+        {"url": "https://example.com/citation1", "title": "Sample Citation 1"},
+        {"url": "https://example.com/citation2", "title": "Sample Citation 2"}
+      ],
+      "iframe_url": "https://charts.netlify.app/team_growth"
+    }
+  },
   "market_analysis": {"market_trends": {"summary": "Cloud market is growing rapidly.", ...}},
   "partnership_network": {"partner_list": {"company_name": "TechNova Inc.", ...}},
   "regulatory_compliance": {"compliance_overview": {"company_name": "TechNova Inc.", ...}},
