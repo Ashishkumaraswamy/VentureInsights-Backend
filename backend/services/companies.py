@@ -1,21 +1,12 @@
 from backend.settings import MongoConnectionDetails
 from backend.models.response.companies import (
     CompanyBaseInfo,
-    CompanyAnalysisFullResponse,
-    CompanyAnalysisCompanyInfo,
-    CompanyAnalysis,
-    DocumentProcessing,
-    DocumentInfo,
-    TeamAnalysis,
-    TeamMember,
-    MarketIntelligence,
-    Competitor,
-    CompetitiveLandscape,
-    FinancialAnalysis,
-    RiskAssessment,
-    RiskItem,
 )
 from backend.utils.cache_decorator import cacheable
+from backend.database.mongo import MongoDBConnector
+from backend.models.response.research import (
+    ResearchResponse,
+)
 import json
 import os
 from typing import Optional
@@ -24,87 +15,48 @@ from typing import Optional
 class CompaniesService:
     def __init__(self, mongo_config: MongoConnectionDetails):
         self.mongo_config = mongo_config
+        self.mongo_db = MongoDBConnector(mongo_config)
         # cache_service will be injected by the dependency injection system
 
-    @cacheable()
-    async def get_company_analysis(self, company_name: str):
-        # Mock data for demonstration
-        return CompanyAnalysisFullResponse(
-            company=CompanyAnalysisCompanyInfo(
-                name=company_name,
-                description="A platform for venture analysis.",
-                industry="Technology",
-                foundingYear=2015,
-                headquarters="San Francisco, CA",
-                website="https://ventureinsights.com",
-                logo="https://upload.wikimedia.org/wikipedia/commons/thumb/1/1b/Apple_logo_grey.svg/1010px-Apple_logo_grey.svg.png",
-            ),
-            analysis=CompanyAnalysis(
-                documentProcessing=DocumentProcessing(
-                    summary="Key company documents have been analyzed.",
-                    keyFindings=["Strong IP portfolio", "Recent funding round"],
-                    documents=[
-                        DocumentInfo(
-                            id="doc1",
-                            name="Pitch Deck",
-                            type="pdf",
-                            uploadDate="2023-01-01",
-                            analysis="Highlights growth potential.",
-                        )
-                    ],
-                ),
-                teamAnalysis=TeamAnalysis(
-                    founders=[
-                        TeamMember(
-                            name="Alice Smith",
-                            role="CEO",
-                            background="Serial entrepreneur",
-                            linkedin="https://linkedin.com/in/alicesmith",
-                        )
-                    ],
-                    keyTeamMembers=[
-                        TeamMember(
-                            name="Bob Lee",
-                            role="CTO",
-                            background="Ex-Google engineer",
-                            linkedin="https://linkedin.com/in/boblee",
-                        )
-                    ],
-                ),
-                marketIntelligence=MarketIntelligence(
-                    marketSize=100000000.0,
-                    growthRate=12.5,
-                    trends=["AI adoption", "Remote work"],
-                    opportunities=["Untapped SME market"],
-                ),
-                competitiveLandscape=CompetitiveLandscape(
-                    competitors=[
-                        Competitor(
-                            name="CompetitorX",
-                            strength="Strong brand",
-                            weakness="Limited product range",
-                        )
-                    ],
-                    marketPosition="Emerging leader",
-                ),
-                financialAnalysis=FinancialAnalysis(
-                    revenue=5000000.0,
-                    funding=12000000.0,
-                    valuation=50000000.0,
-                    metrics={"EBITDA": "1M", "Burn Rate": "100K/mo"},
-                ),
-                riskAssessment=RiskAssessment(
-                    risks=[
-                        RiskItem(
-                            category="Market",
-                            description="High competition",
-                            severity="Medium",
-                            mitigation="Focus on niche segments",
-                        )
-                    ]
-                ),
-            ),
-        )
+    async def get_company_analysis(self, company_name: str) -> ResearchResponse:
+        """
+        Retrieve company analysis data from MongoDB.
+
+        Args:
+            company_name (str): Name of the company to retrieve research for
+
+        Returns:
+            ResearchResponse: The research data for the company
+        """
+        try:
+            # Query MongoDB for the research data
+            collection_name = "company_info"
+            print(f">>> Querying collection: {collection_name}")
+
+            # Get the document from MongoDB
+            document = self.mongo_db.query(
+                collection_name, {"company_name": company_name}
+            )
+
+            if not document:
+                print(f">>> No research data found for {company_name}")
+                return ResearchResponse(company_name=company_name)
+            document = document[0]
+            # Convert MongoDB document to ResearchResponse
+            print(f">>> Found research data for {company_name}")
+            print(document)
+
+            # Create the research response from the document
+            # discard the _id field
+            document = {k: v for k, v in document.items() if k != "_id"}
+            research_response = ResearchResponse(**document)
+
+            return research_response
+
+        except Exception as e:
+            print(f">>> ERROR retrieving research data: {str(e)}")
+            # Return empty ResearchResponse with just the company name
+            return ResearchResponse(company_name=company_name)
 
     @cacheable()
     async def get_companies(self, limit: int = None) -> list[CompanyBaseInfo]:
@@ -144,7 +96,6 @@ class CompaniesService:
         ]
         return [CompanyBaseInfo(**company) for company in mock_companies]
 
-    @cacheable()
     async def get_featured_companies(
         self, limit: Optional[int] = None, page: int = 1
     ) -> dict:

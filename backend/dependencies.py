@@ -187,6 +187,7 @@ def get_risk_analysis_service(
 
 
 def get_research_service(
+    app_settings=Depends(get_app_settings),
     finance_service=Depends(get_finance_service),
     linkedin_team_service=Depends(get_linkedin_team_service),
     market_analysis_service=Depends(get_market_analysis_service),
@@ -194,18 +195,13 @@ def get_research_service(
     customer_sentiment_service=Depends(get_customer_sentiment_service),
     regulatory_compliance_service=Depends(get_regulatory_compliance_service),
     risk_analysis_service=Depends(get_risk_analysis_service),
-    cache_service: CacheService = Depends(get_cache_service),
 ):
     service = ResearchService(
+        db_config=app_settings.db_config,
         finance_service=finance_service,
         linkedin_team_service=linkedin_team_service,
         market_analysis_service=market_analysis_service,
-        partnership_network_service=partnership_network_service,
-        customer_sentiment_service=customer_sentiment_service,
-        regulatory_compliance_service=regulatory_compliance_service,
-        risk_analysis_service=risk_analysis_service,
     )
-    service.cache_service = cache_service
     return service
 
 

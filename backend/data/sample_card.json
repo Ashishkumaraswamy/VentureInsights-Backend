@@ -16,11 +16,11 @@
     },
     {
       "id": "2",
-      "name": "EcoGrow Farms",
+      "name": "TechInnovate AI",
       "description": "Sustainable urban agriculture solutions",
       "logoUrl": "https://pngimg.com/uploads/google/google_PNG19635.png",
-      "logoText": "ECOGROW",
-      "logoSubText": "farms",
+      "logoText": "TechInnovate AI",
+      "logoSubText": "TechInnovate AI",
       "fundingStage": "Series A",
       "tags": ["AgriTech", "Sustainability", "Food"],
       "fundingAsk": "$2M",
@@ -31,7 +31,7 @@
     },
     {
       "id": "3",
-      "name": "HealthWell AI",
+      "name": "microsoft",
       "description": "Personalized remote patient monitoring",
       "logoUrl": "https://pngimg.com/uploads/google/google_PNG19635.png",
       "logoText": "HealthWell",
