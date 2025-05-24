@@ -12,6 +12,7 @@ from dotenv import load_dotenv
 
 # Apply OpenAI client patch to fix AttributeError during garbage collection
 from backend.utils.openai_patch import patch_openai_client
+
 patch_openai_client()
 
 load_dotenv()
@@ -25,23 +26,31 @@ knowledge_base_service = KnowledgeBaseService(
 )
 # Instantiate services
 finance_service = FinanceService(
-    app_settings.llm_config, app_settings.sonar_config, knowledge_base_service
+    app_settings.llm_config,
+    app_settings.sonar_config,
+    knowledge_base_service,
+    app_settings.netlify_config,
 )
 linkedin_team_service = LinkedInTeamService(
     app_settings.llm_config,
     app_settings.sonar_config,
+    app_settings.netlify_config,
 )
 market_analysis_service = MarketAnalysisService(
     llm_config=app_settings.llm_config,
     sonar_config=app_settings.sonar_config,
+    netlify_agent=app_settings.netlify_config,
 )
-risk_analysis_service = RiskAnalysisService()
+risk_analysis_service = RiskAnalysisService(netlify_agent=app_settings.netlify_config)
 customer_sentiment_service = CustomerSentimentService(
-    llm_config=app_settings.llm_config,
-    sonar_config=app_settings.sonar_config,
+    llm_config=app_settings.llm_config, sonar_config=app_settings.sonar_config
 )
-regulatory_compliance_service = RegulatoryComplianceService()
-partnership_network_service = PartnershipNetworkService()
+regulatory_compliance_service = RegulatoryComplianceService(
+    netlify_agent=app_settings.netlify_config
+)
+partnership_network_service = PartnershipNetworkService(
+    netlify_agent=app_settings.netlify_config
+)
 
 
 # --- Finance ---
