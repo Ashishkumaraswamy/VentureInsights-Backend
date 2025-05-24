@@ -2,7 +2,6 @@ from backend.plot.builders.pie import PieBuilder
 from backend.plot.builders.bar import BarBuilder
 from backend.plot.builders.line import LineBuilder
 from backend.plot.builders.area import AreaBuilder
-from backend.services.files import FilesService
 from .builders import IBuilder
 from ..agents.netlify import NetlifyAgent
 

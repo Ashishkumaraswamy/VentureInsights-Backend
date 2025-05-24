@@ -1,3 +1,5 @@
+from backend.utils.cache_decorator import cacheable
+
 from datetime import datetime
 from typing import Optional, List
 from backend.plot.factory import get_builder
@@ -12,7 +14,9 @@ from backend.models.response.regulatory_compliance import (
 class RegulatoryComplianceService:
     def __init__(self, netlify_agent):
         self.netlify_agent = netlify_agent
+        # cache_service will be injected by the dependency injection system
 
+    @cacheable()
     async def get_compliance_overview(
         self,
         company_name: str,
@@ -57,6 +61,7 @@ class RegulatoryComplianceService:
             response.iframe_url = None
         return response
 
+    @cacheable()
     async def get_violation_history(
         self,
         company_name: str,
@@ -106,6 +111,7 @@ class RegulatoryComplianceService:
             response.iframe_url = None
         return response
 
+    @cacheable()
     async def get_compliance_risk(
         self,
         company_name: str,
@@ -146,6 +152,7 @@ class RegulatoryComplianceService:
             response.iframe_url = None
         return response
 
+    @cacheable()
     async def get_regional_compliance(
         self,
         company_name: str,

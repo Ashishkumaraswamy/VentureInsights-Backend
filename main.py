@@ -8,7 +8,8 @@ from backend.api.news import news_router
 from backend.api.chat import chat_router
 from backend.api.files import files_router
 from backend.api.research import research_router
-from backend.dependencies import get_user
+from backend.dependencies import get_cache_service, get_user
+from backend.middlewares.cache_cleanup import setup_cache_cleanup_middleware
 from fastapi.middleware.cors import CORSMiddleware
 from backend.models.base.users import User
 from backend.models.base.exceptions import NotFoundException
@@ -39,6 +40,10 @@ app = FastAPI(
     description="APIs for Virtual Insights Backend",
     docs_url="/swagger",
 )
+
+# Setup cache service and middleware
+cache_service = get_cache_service(app_settings)
+setup_cache_cleanup_middleware(app, cache_service)
 
 routers = [
     companies_router,

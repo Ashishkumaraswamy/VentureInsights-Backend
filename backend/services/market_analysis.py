@@ -13,11 +13,13 @@ from agno.agent import Agent
 from pydantic import BaseModel
 from typing import Type, Union
 from backend.plot.factory import get_builder
+from backend.utils.cache_decorator import cacheable
 
 
 class MarketAnalysisService:
     def __init__(self, llm_config: LLMConfig, sonar_config: SonarConfig, netlify_agent):
         self.llm_config = llm_config
+        # cache_service will be injected by the dependency injection system
         self.sonar_config = sonar_config
         self.llm_model = get_model(self.llm_config)
         self.sonar_model = get_sonar_model(self.sonar_config)
@@ -79,6 +81,7 @@ class MarketAnalysisService:
 
         return response
 
+    @cacheable()
     async def get_market_trends(
         self,
         company_name: str,
@@ -125,6 +128,7 @@ class MarketAnalysisService:
             use_knowledge_base=use_knowledge_base,
         )
 
+    @cacheable()
     async def get_competitive_analysis(
         self,
         company_name: str,
@@ -159,6 +163,7 @@ class MarketAnalysisService:
             use_knowledge_base=use_knowledge_base,
         )
 
+    @cacheable()
     async def get_growth_projections(
         self,
         company_name: str,
@@ -193,6 +198,7 @@ class MarketAnalysisService:
             use_knowledge_base=use_knowledge_base,
         )
 
+    @cacheable()
     async def get_regional_trends(
         self,
         company_name: str,

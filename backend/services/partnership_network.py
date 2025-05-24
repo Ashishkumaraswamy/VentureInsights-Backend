@@ -1,3 +1,5 @@
+from backend.utils.cache_decorator import cacheable
+
 from datetime import datetime
 from typing import Optional
 from backend.plot.factory import get_builder
@@ -12,7 +14,9 @@ from backend.models.response.partnership_network import (
 class PartnershipNetworkService:
     def __init__(self, netlify_agent):
         self.netlify_agent = netlify_agent
+        # cache_service will be injected by the dependency injection system
 
+    @cacheable()
     async def get_partner_list(
         self,
         company_name: str,
@@ -54,6 +58,7 @@ class PartnershipNetworkService:
             response.iframe_url = None
         return response
 
+    @cacheable()
     async def get_strategic_alliances(
         self,
         company_name: str,
@@ -95,6 +100,7 @@ class PartnershipNetworkService:
             response.iframe_url = None
         return response
 
+    @cacheable()
     async def get_network_strength(
         self,
         company_name: str,
@@ -131,6 +137,7 @@ class PartnershipNetworkService:
             response.iframe_url = None
         return response
 
+    @cacheable()
     async def get_partnership_trends(
         self,
         company_name: str,

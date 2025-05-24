@@ -15,6 +15,7 @@ from backend.models.response.companies import (
     RiskAssessment,
     RiskItem,
 )
+from backend.utils.cache_decorator import cacheable
 import json
 import os
 from typing import Optional
@@ -23,7 +24,9 @@ from typing import Optional
 class CompaniesService:
     def __init__(self, mongo_config: MongoConnectionDetails):
         self.mongo_config = mongo_config
+        # cache_service will be injected by the dependency injection system
 
+    @cacheable()
     async def get_company_analysis(self, company_name: str):
         # Mock data for demonstration
         return CompanyAnalysisFullResponse(
@@ -103,6 +106,7 @@ class CompaniesService:
             ),
         )
 
+    @cacheable()
     async def get_companies(self, limit: int = None) -> list[CompanyBaseInfo]:
         mock_companies = [
             {
@@ -140,6 +144,7 @@ class CompaniesService:
         ]
         return [CompanyBaseInfo(**company) for company in mock_companies]
 
+    @cacheable()
     async def get_featured_companies(
         self, limit: Optional[int] = None, page: int = 1
     ) -> dict:

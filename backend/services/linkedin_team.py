@@ -1,5 +1,6 @@
 from datetime import datetime, date
 from typing import Optional, Type, Union
+from backend.utils.cache_decorator import cacheable
 
 from agno.agent import Agent
 from pydantic import BaseModel
@@ -19,6 +20,7 @@ from backend.plot.factory import get_builder
 class LinkedInTeamService:
     def __init__(self, llm_config: LLMConfig, sonar_config: SonarConfig, netlify_agent):
         self.llm_config = llm_config
+        # cache_service will be injected by the dependency injection system
         self.sonar_config = sonar_config
         self.llm_model = get_model(self.llm_config)
         self.sonar_model = get_sonar_model(self.sonar_config)
@@ -95,6 +97,7 @@ class LinkedInTeamService:
 
         return response
 
+    @cacheable()
     async def get_team_overview(self, company_name: str, domain: Optional[str] = None):
         """
         Retrieve team overview data for a company from LinkedIn.
@@ -130,11 +133,13 @@ class LinkedInTeamService:
         """
 
         return await self._execute_llm_analysis(
+            company_name=company_name,
             prompt=prompt,
             response_model=TeamOverviewResponse,
             agent_name="LinkedInTeamOverviewAgent",
         )
 
+    @cacheable()
     async def get_individual_performance(
         self,
         company_name: str,
@@ -186,6 +191,7 @@ class LinkedInTeamService:
             use_knowledge_base=use_knowledge_base,
         )
 
+    @cacheable()
     async def get_org_structure(
         self,
         company_name: str,
@@ -235,6 +241,7 @@ class LinkedInTeamService:
             use_knowledge_base=use_knowledge_base,
         )
 
+    @cacheable()
     async def get_team_growth(
         self,
         company_name: str,

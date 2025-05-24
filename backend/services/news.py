@@ -2,9 +2,11 @@ from datetime import datetime
 
 from backend.models.response.news import NewsItem, NewsItemList
 from backend.settings import MongoConnectionDetails
+from backend.utils.api_helpers import LOG
 from backend.utils.llm import get_model, get_sonar_model
 from backend.agents.output_parser import LLMOutputParserAgent
 from backend.settings import LLMConfig, SonarConfig
+from backend.utils.cache_decorator import cacheable
 from agno.agent import Agent
 from pydantic import BaseModel
 from typing import Type
@@ -23,6 +25,7 @@ class NewsService:
         self.llm_model = get_model(self.llm_config)
         self.sonar_model = get_sonar_model(self.sonar_config)
         self.llm_output_parser = LLMOutputParserAgent(self.llm_model)
+        # cache_service will be injected by the dependency injection system
 
     async def _execute_llm_analysis(
         self,
@@ -46,18 +49,21 @@ class NewsService:
             model=self.sonar_model,
             instructions=prompt,
         )
-
+        s = datetime.now()
         # Use the LLM to generate the content
         content = analysis_agent.run(prompt)
+        LOG.info(f"Sonar response generated in {datetime.now() - s} seconds")
 
         # Parse the LLM output into the response model
+        s = datetime.now()
         response = self.llm_output_parser.parse(content.content, response_model)
-
+        LOG.info(f"Chatgpt took to Response parsed in {datetime.now() - s} seconds")
         # 3) Extract actual list of NewsItem
         news_items: list[NewsItem] = response.news_items
 
         return news_items
 
+    @cacheable()
     async def get_news(
         self, limit: int = None, company_name: str = None, domain: str = None
     ) -> list[NewsItem]:

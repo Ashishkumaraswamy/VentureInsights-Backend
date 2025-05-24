@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Optional, List, Type, Union
+from backend.utils.cache_decorator import cacheable
 
 from agno.agent import Agent
 from pydantic import BaseModel
@@ -18,14 +19,20 @@ from backend.models.response.customer_sentiment import (
 
 
 class CustomerSentimentService:
-    def __init__(self, llm_config: LLMConfig, sonar_config: SonarConfig, netlify_agent: NetlifyAgent):
+    def __init__(
+        self,
+        llm_config: LLMConfig,
+        sonar_config: SonarConfig,
+        netlify_agent: NetlifyAgent,
+    ):
         self.llm_config = llm_config
+        # cache_service will be injected by the dependency injection system
         self.sonar_config = sonar_config
         self.llm_model = get_model(self.llm_config)
         self.sonar_model = get_sonar_model(self.sonar_config)
         self.llm_output_parser = LLMOutputParserAgent(self.llm_model)
         self.netlify_agent = netlify_agent
-        
+
     async def _execute_llm_analysis(
         self,
         company_name: str,
@@ -82,6 +89,7 @@ class CustomerSentimentService:
 
         return response
 
+    @cacheable()
     async def get_sentiment_summary(
         self,
         company_name: str,
@@ -152,6 +160,7 @@ class CustomerSentimentService:
             use_knowledge_base=use_knowledge_base,
         )
 
+    @cacheable()
     async def get_customer_feedback(
         self,
         company_name: str,
@@ -216,6 +225,7 @@ class CustomerSentimentService:
             use_knowledge_base=use_knowledge_base,
         )
 
+    @cacheable()
     async def get_brand_reputation(
         self,
         company_name: str,
@@ -275,6 +285,7 @@ class CustomerSentimentService:
             use_knowledge_base=use_knowledge_base,
         )
 
+    @cacheable()
     async def get_sentiment_comparison(
         self,
         company_name: str,

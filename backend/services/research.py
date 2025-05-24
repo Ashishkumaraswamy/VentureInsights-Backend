@@ -1,4 +1,5 @@
 from agno.models.message import UrlCitation
+from backend.utils.cache_decorator import cacheable
 
 from backend.services.finance import FinanceService
 from backend.services.linkedin_team import LinkedInTeamService
@@ -59,6 +60,7 @@ class ResearchService:
         self.regulatory_compliance_service = regulatory_compliance_service
         self.risk_analysis_service = risk_analysis_service
 
+    @cacheable()
     async def get_research(self, company_name: str, use_knowledge_base: bool = False):
         # Mock data for demonstration
         sample_citations = [

@@ -7,6 +7,7 @@ from pydantic import BaseModel
 from backend.agents.output_parser import LLMOutputParserAgent
 from backend.settings import SonarConfig, LLMConfig
 from backend.utils.llm import get_model, get_sonar_model
+from backend.utils.cache_decorator import cacheable
 from backend.models.response.finance import (
     RevenueAnalysisResponse,
     ExpenseAnalysisResponse,
@@ -34,6 +35,7 @@ class FinanceService:
         self.knowledge_base_service = knowledge_base_service
         self.knowledge_base = self.knowledge_base_service.get_knowledge_base()
         self.netlify_agent = netlify_agent
+        # cache_service will be injected by the dependency injection system
 
     async def _execute_llm_analysis(
         self,
@@ -92,6 +94,7 @@ class FinanceService:
 
         return response
 
+    @cacheable()
     async def get_revenue_analysis(
         self,
         company_name: str,
@@ -143,6 +146,7 @@ class FinanceService:
             use_knowledge_base=use_knowledge_base,
         )
 
+    @cacheable()
     async def get_expense_analysis(
         self,
         company_name: str,
@@ -189,6 +193,7 @@ class FinanceService:
             use_knowledge_base=use_knowledge_base,
         )
 
+    @cacheable()
     async def get_profit_margins(
         self,
         company_name: str,
@@ -229,6 +234,7 @@ class FinanceService:
             use_knowledge_base=use_knowledge_base,
         )
 
+    @cacheable()
     async def get_valuation_estimation(
         self,
         company_name: str,
@@ -270,6 +276,7 @@ class FinanceService:
             use_knowledge_base=use_knowledge_base,
         )
 
+    @cacheable()
     async def get_funding_history(
         self,
         company_name: str,

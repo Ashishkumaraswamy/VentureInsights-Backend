@@ -1,3 +1,5 @@
+from backend.utils.cache_decorator import cacheable
+
 from datetime import datetime
 from typing import Optional
 from backend.plot.factory import get_builder
@@ -12,7 +14,9 @@ from backend.models.response.risk_analysis import (
 class RiskAnalysisService:
     def __init__(self, netlify_agent):
         self.netlify_agent = netlify_agent
+        # cache_service will be injected by the dependency injection system
 
+    @cacheable()
     async def get_regulatory_risks(
         self,
         company_name: str,
@@ -53,6 +57,7 @@ class RiskAnalysisService:
             response.iframe_url = None
         return response
 
+    @cacheable()
     async def get_market_risks(
         self,
         company_name: str,
@@ -96,6 +101,7 @@ class RiskAnalysisService:
             response.iframe_url = None
         return response
 
+    @cacheable()
     async def get_operational_risks(
         self,
         company_name: str,
@@ -139,6 +145,7 @@ class RiskAnalysisService:
             response.iframe_url = None
         return response
 
+    @cacheable()
     async def get_legal_risks(
         self,
         company_name: str,

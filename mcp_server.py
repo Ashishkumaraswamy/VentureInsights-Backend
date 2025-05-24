@@ -1,19 +1,25 @@
 from fastmcp import FastMCP
-from backend.services.finance import FinanceService
+
+from backend.dependencies import (
+    get_finance_service,
+    get_linkedin_team_service,
+    get_market_analysis_service,
+    get_risk_analysis_service,
+    get_customer_sentiment_service,
+    get_regulatory_compliance_service,
+    get_partnership_network_service,
+)
+from backend.services.cache import CacheService
 from backend.services.knowledge import KnowledgeBaseService
-from backend.services.linkedin_team import LinkedInTeamService
-from backend.services.market_analysis import MarketAnalysisService
-from backend.services.risk_analysis import RiskAnalysisService
-from backend.services.customer_sentiment import CustomerSentimentService
-from backend.services.regulatory_compliance import RegulatoryComplianceService
-from backend.services.partnership_network import PartnershipNetworkService
 from backend.settings import get_app_settings
 from dotenv import load_dotenv
 from backend.agents.netlify import NetlifyAgent
+from backend.utils.logger import get_logger
 
 # Apply OpenAI client patch to fix AttributeError during garbage collection
 from backend.utils.openai_patch import patch_openai_client
 
+LOG = get_logger("MCP Server")
 patch_openai_client()
 
 load_dotenv()
@@ -27,28 +33,34 @@ knowledge_base_service = KnowledgeBaseService(
 )
 netlify_agent = NetlifyAgent(app_settings.netlify_config)
 # Instantiate services
-finance_service = FinanceService(
-    app_settings.llm_config,
-    app_settings.sonar_config,
-    knowledge_base_service,
-    netlify_agent,
-)
-linkedin_team_service = LinkedInTeamService(
-    app_settings.llm_config,
-    app_settings.sonar_config,
-    netlify_agent,
-)
-market_analysis_service = MarketAnalysisService(
-    llm_config=app_settings.llm_config,
-    sonar_config=app_settings.sonar_config,
+finance_service = get_finance_service(
+    app_settings=app_settings,
+    knowledge_base_service=knowledge_base_service,
     netlify_agent=netlify_agent,
+    cache_service=CacheService(app_settings.db_config),
 )
-risk_analysis_service = RiskAnalysisService(netlify_agent=netlify_agent)
-customer_sentiment_service = CustomerSentimentService(
-    llm_config=app_settings.llm_config, sonar_config=app_settings.sonar_config, netlify_agent=netlify_agent
+linkedin_team_service = get_linkedin_team_service(
+    app_settings=app_settings,
+    netlify_agent=netlify_agent,
+    cache_service=CacheService(app_settings.db_config),
 )
-regulatory_compliance_service = RegulatoryComplianceService(netlify_agent=netlify_agent)
-partnership_network_service = PartnershipNetworkService(netlify_agent=netlify_agent)
+market_analysis_service = get_market_analysis_service(
+    app_settings=app_settings,
+    netlify_agent=netlify_agent,
+    cache_service=CacheService(app_settings.db_config),
+)
+risk_analysis_service = get_risk_analysis_service(
+    netlify_agent=netlify_agent, cache_service=CacheService(app_settings.db_config)
+)
+customer_sentiment_service = get_customer_sentiment_service(
+    app_settings=app_settings, cache_service=CacheService(app_settings.db_config)
+)
+regulatory_compliance_service = get_regulatory_compliance_service(
+    netlify_agent=netlify_agent, cache_service=CacheService(app_settings.db_config)
+)
+partnership_network_service = get_partnership_network_service(
+    netlify_agent=netlify_agent, cache_service=CacheService(app_settings.db_config)
+)
 
 
 # --- Finance ---
@@ -60,6 +72,7 @@ async def revenue_analysis(
     end_date: str | None = None,
     granularity: str | None = "year",
 ):
+    LOG.info("MCP tool call for revenue analysis")
     return await finance_service.get_revenue_analysis(
         company_name=company_name,
         domain=domain,

@@ -2,6 +2,7 @@ from backend.agents.document_processing import DocumentProcessingEngine
 from backend.agents.vector_store import VectorStore
 from backend.models.base.users import User
 from backend.services.auth import AuthService
+from backend.services.cache import CacheService
 from backend.services.companies import CompaniesService
 from backend.services.news import NewsService
 from backend.services.chat import ChatService
@@ -28,27 +29,46 @@ def get_user(request: Request):
     return None
 
 
-def get_knowledge_base_service(app_settings: AppSettings = Depends(get_app_settings)):
-    return KnowledgeBaseService(
+def get_cache_service(app_settings: AppSettings = Depends(get_app_settings)):
+    return CacheService(app_settings.db_config)
+
+
+def get_knowledge_base_service(
+    app_settings: AppSettings = Depends(get_app_settings),
+    cache_service: CacheService = Depends(get_cache_service),
+):
+    service = KnowledgeBaseService(
         app_settings.db_config,
         app_settings.vector_store_config,
     )
+    return service
 
 
-def get_news_service(app_settings: AppSettings = Depends(get_app_settings)):
-    return NewsService(
+def get_news_service(
+    app_settings: AppSettings = Depends(get_app_settings),
+    cache_service: CacheService = Depends(get_cache_service),
+):
+    service = NewsService(
         app_settings.db_config, app_settings.llm_config, app_settings.sonar_config
     )
+    service.cache_service = cache_service
+    return service
 
 
 def get_auth_service_settings(
     app_settings: AppSettings = Depends(get_app_settings),
 ):
-    return AuthService(app_settings.db_config, app_settings.jwt_config)
+    service = AuthService(app_settings.db_config, app_settings.jwt_config)
+    return service
 
 
-def get_company_service(app_settings: AppSettings = Depends(get_app_settings)):
-    return CompaniesService(app_settings.db_config)
+def get_company_service(
+    app_settings: AppSettings = Depends(get_app_settings),
+    cache_service: CacheService = Depends(get_cache_service),
+):
+    service = CompaniesService(app_settings.db_config)
+    service.cache_service = cache_service
+    return service
 
 
 def get_chat_service(app_settings: AppSettings = Depends(get_app_settings)):
@@ -89,57 +109,81 @@ def get_finance_service(
     app_settings: AppSettings = Depends(get_app_settings),
     knowledge_base_service=Depends(get_knowledge_base_service),
     netlify_agent=Depends(get_netlify_agent),
+    cache_service: CacheService = Depends(get_cache_service),
 ):
-    return FinanceService(
+    service = FinanceService(
         app_settings.llm_config,
         app_settings.sonar_config,
         knowledge_base_service,
         netlify_agent,
     )
+    service.cache_service = cache_service
+    return service
 
 
 def get_market_analysis_service(
     app_settings: AppSettings = Depends(get_app_settings),
     netlify_agent=Depends(get_netlify_agent),
+    cache_service: CacheService = Depends(get_cache_service),
 ):
-    return MarketAnalysisService(
+    service = MarketAnalysisService(
         app_settings.llm_config, app_settings.sonar_config, netlify_agent
     )
+    service.cache_service = cache_service
+    return service
 
 
 def get_linkedin_team_service(
     app_settings: AppSettings = Depends(get_app_settings),
     netlify_agent=Depends(get_netlify_agent),
+    cache_service: CacheService = Depends(get_cache_service),
 ):
-    return LinkedInTeamService(
+    service = LinkedInTeamService(
         app_settings.llm_config,
         app_settings.sonar_config,
         netlify_agent,
     )
+    service.cache_service = cache_service
+    return service
 
 
 def get_customer_sentiment_service(
     app_settings: AppSettings = Depends(get_app_settings),
+    netlify_agent=Depends(get_netlify_agent),
+    cache_service: CacheService = Depends(get_cache_service),
 ):
-    return CustomerSentimentService(app_settings.llm_config, app_settings.sonar_config)
+    service = CustomerSentimentService(
+        app_settings.llm_config, app_settings.sonar_config, netlify_agent
+    )
+    service.cache_service = cache_service
+    return service
 
 
 def get_partnership_network_service(
     netlify_agent=Depends(get_netlify_agent),
+    cache_service: CacheService = Depends(get_cache_service),
 ):
-    return PartnershipNetworkService(netlify_agent)
+    service = PartnershipNetworkService(netlify_agent)
+    service.cache_service = cache_service
+    return service
 
 
 def get_regulatory_compliance_service(
     netlify_agent=Depends(get_netlify_agent),
+    cache_service: CacheService = Depends(get_cache_service),
 ):
-    return RegulatoryComplianceService(netlify_agent)
+    service = RegulatoryComplianceService(netlify_agent)
+    service.cache_service = cache_service
+    return service
 
 
 def get_risk_analysis_service(
     netlify_agent=Depends(get_netlify_agent),
+    cache_service: CacheService = Depends(get_cache_service),
 ):
-    return RiskAnalysisService(netlify_agent)
+    service = RiskAnalysisService(netlify_agent)
+    service.cache_service = cache_service
+    return service
 
 
 def get_research_service(
@@ -150,8 +194,9 @@ def get_research_service(
     customer_sentiment_service=Depends(get_customer_sentiment_service),
     regulatory_compliance_service=Depends(get_regulatory_compliance_service),
     risk_analysis_service=Depends(get_risk_analysis_service),
+    cache_service: CacheService = Depends(get_cache_service),
 ):
-    return ResearchService(
+    service = ResearchService(
         finance_service=finance_service,
         linkedin_team_service=linkedin_team_service,
         market_analysis_service=market_analysis_service,
@@ -160,6 +205,8 @@ def get_research_service(
         regulatory_compliance_service=regulatory_compliance_service,
         risk_analysis_service=risk_analysis_service,
     )
+    service.cache_service = cache_service
+    return service
 
 
 class CommonDeps:
