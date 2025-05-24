@@ -9,6 +9,7 @@ from backend.services.regulatory_compliance import RegulatoryComplianceService
 from backend.services.partnership_network import PartnershipNetworkService
 from backend.settings import get_app_settings
 from dotenv import load_dotenv
+from backend.agents.netlify import NetlifyAgent
 
 # Apply OpenAI client patch to fix AttributeError during garbage collection
 from backend.utils.openai_patch import patch_openai_client
@@ -24,33 +25,30 @@ knowledge_base_service = KnowledgeBaseService(
     db_config=app_settings.db_config,
     vector_store_config=app_settings.vector_store_config,
 )
+netlify_agent = NetlifyAgent(app_settings.netlify_config)
 # Instantiate services
 finance_service = FinanceService(
     app_settings.llm_config,
     app_settings.sonar_config,
     knowledge_base_service,
-    app_settings.netlify_config,
+    netlify_agent,
 )
 linkedin_team_service = LinkedInTeamService(
     app_settings.llm_config,
     app_settings.sonar_config,
-    app_settings.netlify_config,
+    netlify_agent,
 )
 market_analysis_service = MarketAnalysisService(
     llm_config=app_settings.llm_config,
     sonar_config=app_settings.sonar_config,
-    netlify_agent=app_settings.netlify_config,
+    netlify_agent=netlify_agent,
 )
-risk_analysis_service = RiskAnalysisService(netlify_agent=app_settings.netlify_config)
+risk_analysis_service = RiskAnalysisService(netlify_agent=netlify_agent)
 customer_sentiment_service = CustomerSentimentService(
     llm_config=app_settings.llm_config, sonar_config=app_settings.sonar_config
 )
-regulatory_compliance_service = RegulatoryComplianceService(
-    netlify_agent=app_settings.netlify_config
-)
-partnership_network_service = PartnershipNetworkService(
-    netlify_agent=app_settings.netlify_config
-)
+regulatory_compliance_service = RegulatoryComplianceService(netlify_agent=netlify_agent)
+partnership_network_service = PartnershipNetworkService(netlify_agent=netlify_agent)
 
 
 # --- Finance ---
