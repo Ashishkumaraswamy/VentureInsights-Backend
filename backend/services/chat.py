@@ -258,7 +258,7 @@ Always prioritize delivering accurate, relevant information from Venture Insight
                 content=run.content,
                 sender="assistant",
                 metadata=MessageMetadata(
-                    tools=run.tools,
+                    tools=[t.to_dict() for t in run.tools],
                     formatted_tool_calls=run.formatted_tool_calls,
                     citations=run.citations,
                     messages=[

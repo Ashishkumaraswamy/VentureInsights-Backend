@@ -4,7 +4,6 @@ from datetime import datetime
 from agno.models.message import Citations
 from pydantic import Field
 
-
 class ChatThreadBase(BaseModel):
     id: str
     title: Optional[str] = None

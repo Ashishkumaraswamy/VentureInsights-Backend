@@ -45,7 +45,7 @@ market_analysis_service = MarketAnalysisService(
 )
 risk_analysis_service = RiskAnalysisService(netlify_agent=netlify_agent)
 customer_sentiment_service = CustomerSentimentService(
-    llm_config=app_settings.llm_config, sonar_config=app_settings.sonar_config
+    llm_config=app_settings.llm_config, sonar_config=app_settings.sonar_config, netlify_agent=netlify_agent
 )
 regulatory_compliance_service = RegulatoryComplianceService(netlify_agent=netlify_agent)
 partnership_network_service = PartnershipNetworkService(netlify_agent=netlify_agent)
