@@ -10,6 +10,10 @@ from backend.services.partnership_network import PartnershipNetworkService
 from backend.settings import get_app_settings
 from dotenv import load_dotenv
 
+# Apply OpenAI client patch to fix AttributeError during garbage collection
+from backend.utils.openai_patch import patch_openai_client
+patch_openai_client()
+
 load_dotenv()
 mcp = FastMCP("Venture Insights MCP Server")
 
