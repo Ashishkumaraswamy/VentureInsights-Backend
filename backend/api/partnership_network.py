@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
+
+from backend.dependencies import get_partnership_network_service
 from backend.services.partnership_network import PartnershipNetworkService
 from backend.models.requests.partnership_network import (
     PartnerListRequest,
@@ -20,9 +22,9 @@ partnership_network_router = APIRouter(
 
 
 @cbv(partnership_network_router)
-class PartnershipNetworkCBV:
+class PartnershipNetworkAPI:
     partnership_network_service: PartnershipNetworkService = Depends(
-        PartnershipNetworkService
+        get_partnership_network_service
     )
 
     @partnership_network_router.post(

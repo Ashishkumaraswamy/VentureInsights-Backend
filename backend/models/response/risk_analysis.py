@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from typing import Optional, List
 from datetime import datetime, date
+from backend.models.response.base import CitationResponse
+from backend.plot.types import ChartData
 
 
 # --- Regulatory Risks ---
@@ -12,7 +14,7 @@ class RegulatoryRiskItem(BaseModel):
     confidence: Optional[float] = None
 
 
-class RegulatoryRisksResponse(BaseModel):
+class RegulatoryRisksResponse(CitationResponse):
     company_name: str
     industry: Optional[str] = None
     region: Optional[str] = None
@@ -20,6 +22,19 @@ class RegulatoryRisksResponse(BaseModel):
     summary: Optional[str] = None
     sources: Optional[List[str]] = None
     last_updated: Optional[datetime] = None
+
+    def get_plot_data(self) -> ChartData:
+        data = [
+            {"risk": r.risk, "severity": r.severity, "confidence": r.confidence or 0}
+            for r in self.risks
+        ]
+        return ChartData(
+            data=data,
+            title=f"Regulatory Risks for {self.company_name}",
+            x="risk",
+            y="confidence",
+            kind="bar",
+        )
 
 
 # --- Market Risks ---
@@ -31,7 +46,7 @@ class MarketRiskItem(BaseModel):
     confidence: Optional[float] = None
 
 
-class MarketRisksResponse(BaseModel):
+class MarketRisksResponse(CitationResponse):
     company_name: str
     industry: Optional[str] = None
     region: Optional[str] = None
@@ -39,6 +54,19 @@ class MarketRisksResponse(BaseModel):
     summary: Optional[str] = None
     sources: Optional[List[str]] = None
     last_updated: Optional[datetime] = None
+
+    def get_plot_data(self) -> ChartData:
+        data = [
+            {"risk": r.risk, "severity": r.severity, "confidence": r.confidence or 0}
+            for r in self.risks
+        ]
+        return ChartData(
+            data=data,
+            title=f"Market Risks for {self.company_name}",
+            x="risk",
+            y="confidence",
+            kind="bar",
+        )
 
 
 # --- Operational Risks ---
@@ -50,7 +78,7 @@ class OperationalRiskItem(BaseModel):
     confidence: Optional[float] = None
 
 
-class OperationalRisksResponse(BaseModel):
+class OperationalRisksResponse(CitationResponse):
     company_name: str
     industry: Optional[str] = None
     region: Optional[str] = None
@@ -58,6 +86,19 @@ class OperationalRisksResponse(BaseModel):
     summary: Optional[str] = None
     sources: Optional[List[str]] = None
     last_updated: Optional[datetime] = None
+
+    def get_plot_data(self) -> ChartData:
+        data = [
+            {"risk": r.risk, "severity": r.severity, "confidence": r.confidence or 0}
+            for r in self.risks
+        ]
+        return ChartData(
+            data=data,
+            title=f"Operational Risks for {self.company_name}",
+            x="risk",
+            y="confidence",
+            kind="bar",
+        )
 
 
 # --- Legal Risks ---
@@ -71,7 +112,7 @@ class LegalRiskItem(BaseModel):
     date_filed: Optional[date] = None
 
 
-class LegalRisksResponse(BaseModel):
+class LegalRisksResponse(CitationResponse):
     company_name: str
     industry: Optional[str] = None
     region: Optional[str] = None
@@ -79,3 +120,16 @@ class LegalRisksResponse(BaseModel):
     summary: Optional[str] = None
     sources: Optional[List[str]] = None
     last_updated: Optional[datetime] = None
+
+    def get_plot_data(self) -> ChartData:
+        data = [
+            {"risk": r.risk, "severity": r.severity, "confidence": r.confidence or 0}
+            for r in self.risks
+        ]
+        return ChartData(
+            data=data,
+            title=f"Legal Risks for {self.company_name}",
+            x="risk",
+            y="confidence",
+            kind="bar",
+        )

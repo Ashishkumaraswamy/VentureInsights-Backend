@@ -96,11 +96,13 @@ class DocumentProcessingEngine:
             return documents
 
     @staticmethod
-    def upload_to_cloudinary(file_path: str) -> str:
+    def upload_to_cloudinary(file_path: str, public_id: str = None) -> str:
         """
         Uploads a file to Cloudinary and returns the public URL.
         """
-        result = cloudinary.uploader.upload(file_path, resource_type="raw")
+        result = cloudinary.uploader.upload(
+            file_path, resource_type="raw", public_id=public_id
+        )
         return result["secure_url"]
 
     @staticmethod

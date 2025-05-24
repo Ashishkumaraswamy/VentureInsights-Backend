@@ -1,10 +1,17 @@
 from datetime import datetime
 from typing import Optional, List
+from backend.plot.factory import get_builder
+from backend.models.response.regulatory_compliance import (
+    ComplianceOverviewResponse,
+    ViolationHistoryResponse,
+    ComplianceRiskResponse,
+    RegionalComplianceResponse,
+)
 
 
 class RegulatoryComplianceService:
-    def __init__(self):
-        pass
+    def __init__(self, netlify_agent):
+        self.netlify_agent = netlify_agent
 
     async def get_compliance_overview(
         self,
@@ -13,7 +20,7 @@ class RegulatoryComplianceService:
         industry: Optional[str] = None,
         region: Optional[str] = None,
     ):
-        return {
+        data = {
             "company_name": company_name,
             "industry": industry or "Cloud Computing",
             "region": region or "Global",
@@ -41,6 +48,14 @@ class RegulatoryComplianceService:
             "sources": ["https://gdpr.eu/", "https://sox.com/"],
             "last_updated": datetime.now().isoformat(),
         }
+        response = ComplianceOverviewResponse(**data)
+        try:
+            chart_data = response.get_plot_data()
+            builder = get_builder("bar", self.netlify_agent)
+            response.iframe_url = await builder.plot(chart_data, company_name)
+        except Exception:
+            response.iframe_url = None
+        return response
 
     async def get_violation_history(
         self,
@@ -51,7 +66,7 @@ class RegulatoryComplianceService:
         start_date: Optional[str] = None,
         end_date: Optional[str] = None,
     ):
-        return {
+        data = {
             "company_name": company_name,
             "industry": industry or "Cloud Computing",
             "region": region or "Global",
@@ -82,6 +97,14 @@ class RegulatoryComplianceService:
             ],
             "last_updated": datetime.now().isoformat(),
         }
+        response = ViolationHistoryResponse(**data)
+        try:
+            chart_data = response.get_plot_data()
+            builder = get_builder("bar", self.netlify_agent)
+            response.iframe_url = await builder.plot(chart_data, company_name)
+        except Exception:
+            response.iframe_url = None
+        return response
 
     async def get_compliance_risk(
         self,
@@ -90,7 +113,7 @@ class RegulatoryComplianceService:
         industry: Optional[str] = None,
         region: Optional[str] = None,
     ):
-        return {
+        data = {
             "company_name": company_name,
             "industry": industry or "Cloud Computing",
             "region": region or "Global",
@@ -114,6 +137,14 @@ class RegulatoryComplianceService:
             "sources": ["https://gdpr.eu/fines/", "https://sox.com/audit/"],
             "last_updated": datetime.now().isoformat(),
         }
+        response = ComplianceRiskResponse(**data)
+        try:
+            chart_data = response.get_plot_data()
+            builder = get_builder("bar", self.netlify_agent)
+            response.iframe_url = await builder.plot(chart_data, company_name)
+        except Exception:
+            response.iframe_url = None
+        return response
 
     async def get_regional_compliance(
         self,
@@ -122,7 +153,7 @@ class RegulatoryComplianceService:
         industry: Optional[str] = None,
         regions: Optional[List[str]] = None,
     ):
-        return {
+        data = {
             "company_name": company_name,
             "industry": industry or "Cloud Computing",
             "regional_compliance": [
@@ -167,3 +198,11 @@ class RegulatoryComplianceService:
             ],
             "last_updated": datetime.now().isoformat(),
         }
+        response = RegionalComplianceResponse(**data)
+        try:
+            chart_data = response.get_plot_data()
+            builder = get_builder("bar", self.netlify_agent)
+            response.iframe_url = await builder.plot(chart_data, company_name)
+        except Exception:
+            response.iframe_url = None
+        return response

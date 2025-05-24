@@ -1,3 +1,5 @@
+from typing import Optional
+
 from agno.models.message import UrlCitation
 from pydantic import BaseModel, Field, model_validator
 from urllib.parse import urlparse
@@ -6,6 +8,9 @@ from urllib.parse import urlparse
 class CitationResponse(BaseModel):
     citations: list[UrlCitation] = Field(
         ..., description="List of citations for the response"
+    )
+    iframe_url: Optional[str] = Field(
+        None, description="URL of the iframe for the response"
     )
 
     @model_validator(mode="after")

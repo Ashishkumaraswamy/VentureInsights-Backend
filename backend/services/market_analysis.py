@@ -12,15 +12,17 @@ from backend.models.response.market_analysis import (
 from agno.agent import Agent
 from pydantic import BaseModel
 from typing import Type, Union
+from backend.plot.factory import get_builder
 
 
 class MarketAnalysisService:
-    def __init__(self, llm_config: LLMConfig, sonar_config: SonarConfig):
+    def __init__(self, llm_config: LLMConfig, sonar_config: SonarConfig, netlify_agent):
         self.llm_config = llm_config
         self.sonar_config = sonar_config
         self.llm_model = get_model(self.llm_config)
         self.sonar_model = get_sonar_model(self.sonar_config)
         self.llm_output_parser = LLMOutputParserAgent(self.llm_model)
+        self.netlify_agent = netlify_agent
 
     async def _execute_llm_analysis(
         self,
@@ -67,6 +69,13 @@ class MarketAnalysisService:
             response.citations = (
                 content.citations.urls if hasattr(content.citations, "urls") else []
             )
+
+        try:
+            chart_data = response.get_plot_data()
+            builder = get_builder("bar", self.netlify_agent)
+            response.iframe_url = await builder.plot(chart_data, company_name)
+        except Exception:
+            response.iframe_url = None
 
         return response
 

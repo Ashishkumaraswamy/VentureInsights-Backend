@@ -15,6 +15,9 @@ from backend.models.response.companies import (
     RiskAssessment,
     RiskItem,
 )
+import json
+import os
+from typing import Optional
 
 
 class CompaniesService:
@@ -136,3 +139,45 @@ class CompaniesService:
             },
         ]
         return [CompanyBaseInfo(**company) for company in mock_companies]
+
+    async def get_featured_companies(
+        self, limit: Optional[int] = None, page: int = 1
+    ) -> dict:
+        """
+        Get featured companies for display on the homepage or featured section
+
+        Args:
+            limit: Optional number of companies to return
+            page: Page number for pagination
+
+        Returns:
+            Dictionary with companies, total count, page number and limit
+        """
+        # Load sample data from JSON file
+        json_path = os.path.join(
+            os.path.dirname(os.path.dirname(__file__)), "data", "sample_card.json"
+        )
+
+        with open(json_path, "r") as f:
+            companies_data = json.load(f)
+
+        # Apply pagination if limit is provided
+        total = len(companies_data)
+
+        if limit:
+            # Calculate start and end indices for pagination
+            start_idx = (page - 1) * limit
+            end_idx = start_idx + limit
+
+            # Slice the data
+            paginated_data = companies_data[start_idx:end_idx]
+        else:
+            paginated_data = companies_data
+            limit = total
+
+        return {
+            "companies": paginated_data,
+            "total": total,
+            "page": page,
+            "limit": limit,
+        }

@@ -2,6 +2,7 @@ from pydantic import BaseModel, Field
 from typing import Optional
 
 from backend.models.response.base import CitationResponse
+from backend.plot.types import ChartData
 
 
 # --- Revenue Analysis ---
@@ -47,6 +48,25 @@ class RevenueAnalysisResponse(CitationResponse):
         None,
         description="ISO 8601 timestamp indicating when this analysis was last updated",
     )
+    plot_url: Optional[str] = None
+
+    def get_plot_data(self) -> ChartData:
+        data = [
+            {
+                "period_start": t.period_start,
+                "period_end": t.period_end,
+                "value": t.value,
+                "currency": t.currency,
+            }
+            for t in self.revenue_timeseries
+        ]
+        return ChartData(
+            data=data,
+            title=f"Revenue Over Time for {self.company_name}",
+            x="period_start",
+            y="value",
+            kind="line",
+        )
 
 
 # --- Expense Analysis ---
@@ -99,6 +119,24 @@ class ExpenseAnalysisResponse(CitationResponse):
         None,
         description="ISO 8601 timestamp indicating when this expense analysis was last updated",
     )
+    plot_url: Optional[str] = None
+
+    def get_plot_data(self) -> ChartData:
+        data = [
+            {
+                "category": e.category,
+                "value": e.value,
+                "currency": e.currency,
+            }
+            for e in self.expenses
+        ]
+        return ChartData(
+            data=data,
+            title=f"Expenses by Category for {self.company_name}",
+            x="category",
+            y="value",
+            kind="bar",
+        )
 
 
 # --- Profit Margins ---
@@ -142,6 +180,24 @@ class ProfitMarginsResponse(CitationResponse):
     last_updated: Optional[str] = Field(
         None, description="ISO date string when this margin data was last updated"
     )
+    plot_url: Optional[str] = None
+
+    def get_plot_data(self) -> ChartData:
+        data = [
+            {
+                "margin_type": m.margin_type,
+                "value": m.value,
+                "currency": m.currency,
+            }
+            for m in self.margins
+        ]
+        return ChartData(
+            data=data,
+            title=f"Profit Margins for {self.company_name}",
+            x="margin_type",
+            y="value",
+            kind="bar",
+        )
 
 
 # --- Valuation Estimation ---
@@ -177,6 +233,24 @@ class ValuationEstimationResponse(CitationResponse):
     last_updated: Optional[str] = Field(
         None, description="ISO date string when this valuation data was last updated"
     )
+    plot_url: Optional[str] = None
+
+    def get_plot_data(self) -> ChartData:
+        data = [
+            {
+                "date": v.date,
+                "value": v.value,
+                "currency": v.currency,
+            }
+            for v in self.valuation_timeseries
+        ]
+        return ChartData(
+            data=data,
+            title=f"Valuation Over Time for {self.company_name}",
+            x="date",
+            y="value",
+            kind="line",
+        )
 
 
 # --- Funding History ---
@@ -224,3 +298,22 @@ class FundingHistoryResponse(CitationResponse):
     last_updated: Optional[str] = Field(
         None, description="ISO date string when this funding data was last updated"
     )
+    plot_url: Optional[str] = None
+
+    def get_plot_data(self) -> ChartData:
+        data = [
+            {
+                "round_type": f.round_type,
+                "value": f.value,
+                "currency": f.currency,
+                "date": f.date,
+            }
+            for f in self.funding_rounds
+        ]
+        return ChartData(
+            data=data,
+            title=f"Funding Rounds for {self.company_name}",
+            x="round_type",
+            y="value",
+            kind="bar",
+        )
