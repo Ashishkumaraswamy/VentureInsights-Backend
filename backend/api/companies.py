@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Query
 from fastapi_utils.cbv import cbv
 
 from backend.dependencies import get_company_service
 from backend.models.response.companies import (
     CompanyBaseInfo,
     CompanyAnalysisFullResponse,
+    FeaturedCompaniesResponse,
 )
 from backend.services.companies import CompaniesService
 
@@ -24,3 +25,18 @@ class CompaniesAPI:
     )
     async def get_company_analysis(self, companyName: str):
         return await self.company_service.get_company_analysis(companyName)
+
+    @companies_router.get("/featured", response_model=FeaturedCompaniesResponse)
+    async def get_featured_companies(
+        self,
+        limit: int = Query(None, description="Number of companies to return"),
+        page: int = Query(1, description="Page number for pagination"),
+    ) -> FeaturedCompaniesResponse:
+        """
+        Get featured investment companies.
+
+        This endpoint returns a list of featured companies for investment consideration.
+        Optional authentication via Bearer token provides personalized results.
+        """
+        result = await self.company_service.get_featured_companies(limit, page)
+        return result
