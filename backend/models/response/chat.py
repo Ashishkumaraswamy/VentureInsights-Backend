@@ -64,7 +64,7 @@ class MessageResponse(ChatMessageBase):
 
 
 class ChatThreadWithMessages(ChatThreadBase):
-    messages: list[MessageResponse]
+    messages: Optional[list[MessageResponse]] = None
 
     @model_validator(mode="after")
     def set_iframe_url(self):

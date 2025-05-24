@@ -8,6 +8,7 @@ from backend.dependencies import (
     get_customer_sentiment_service,
     get_regulatory_compliance_service,
     get_partnership_network_service,
+    get_search_service,
 )
 from backend.services.cache import CacheService
 from backend.services.knowledge import KnowledgeBaseService
@@ -60,6 +61,12 @@ regulatory_compliance_service = get_regulatory_compliance_service(
 )
 partnership_network_service = get_partnership_network_service(
     netlify_agent=netlify_agent, cache_service=CacheService(app_settings.db_config)
+)
+search_service = get_search_service(
+    app_settings=app_settings,
+    netlify_agent=netlify_agent,
+    knowledge_base_service=knowledge_base_service,
+    cache_service=CacheService(app_settings.db_config),
 )
 
 
@@ -470,6 +477,15 @@ async def partnership_trends(
         region=region,
         start_date=start_date,
         end_date=end_date,
+    )
+
+
+@mcp.tool()
+async def general_search_knowledge(
+    query: str,
+):
+    return await search_service.get_general_search_knowledge(
+        query=query,
     )
 
 

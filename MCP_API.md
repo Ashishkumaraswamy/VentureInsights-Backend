@@ -647,3 +647,19 @@ This document describes the MCP tool interface for all Venture Insights agents. 
   "id": 1
 }
 ``` 
+
+### Tool: `search`
+**Arguments:**
+- `query` (str, required): Query to search for
+
+**Sample MCP Request:**
+```json
+{
+  "jsonrpc": "2.0",
+  "method": "search",
+  "params": {
+    "query": "Tell me Interesting News."
+  },
+  "id": 1
+}
+```

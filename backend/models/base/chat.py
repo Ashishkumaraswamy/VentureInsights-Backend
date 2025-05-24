@@ -6,7 +6,7 @@ from pydantic import Field
 
 
 class ChatThreadBase(BaseModel):
-    id: str
+    id: Optional[str] = None
     title: Optional[str] = None
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None

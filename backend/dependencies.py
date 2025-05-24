@@ -20,6 +20,7 @@ from backend.services.regulatory_compliance import RegulatoryComplianceService
 from backend.services.risk_analysis import RiskAnalysisService
 from backend.services.research import ResearchService
 from backend.agents.netlify import NetlifyAgent
+from backend.services.search_service import SearchService
 
 
 def get_user(request: Request):
@@ -164,6 +165,22 @@ def get_partnership_network_service(
     cache_service: CacheService = Depends(get_cache_service),
 ):
     service = PartnershipNetworkService(netlify_agent)
+    service.cache_service = cache_service
+    return service
+
+
+def get_search_service(
+    app_settings: AppSettings = Depends(get_app_settings),
+    netlify_agent=Depends(get_netlify_agent),
+    knowledge_base_service=Depends(get_knowledge_base_service),
+    cache_service: CacheService = Depends(get_cache_service),
+):
+    service = SearchService(
+        app_settings.llm_config,
+        app_settings.sonar_config,
+        knowledge_base_service,
+        netlify_agent,
+    )
     service.cache_service = cache_service
     return service
 

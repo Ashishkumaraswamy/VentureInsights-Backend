@@ -15,7 +15,6 @@ from backend.models.response.chat import (
 from backend.models.base.chat import MessageMetadata, AgnoMessage
 from agno.run.response import RunResponse
 from fastapi.responses import StreamingResponse
-from fastapi import HTTPException
 from typing import List, Optional, Union, AsyncGenerator
 import uuid
 import json
@@ -231,9 +230,7 @@ Always prioritize delivering accurate, relevant information from Venture Insight
     async def get_thread(self, thread_id: str) -> ChatThreadWithMessages:
         threads = await self.mongo.aquery("chat_agent", {"session_id": thread_id})
         if not threads:
-            raise HTTPException(
-                status_code=404, detail=f"Thread with ID {thread_id} not found"
-            )
+            return ChatThreadWithMessages(messages=[], id=thread_id)
         return await self._format_thread(threads[0])
 
     async def delete_thread(self, thread_id: str) -> bool:
