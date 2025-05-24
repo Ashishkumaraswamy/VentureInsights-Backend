@@ -4,6 +4,7 @@ from backend.plot.builders.line import LineBuilder
 from backend.plot.builders.area import AreaBuilder
 from backend.services.files import FilesService
 from .builders import IBuilder
+from ..agents.netlify import NetlifyAgent
 
 BUILDER_MAP = {
     "pie": PieBuilder,
@@ -13,7 +14,7 @@ BUILDER_MAP = {
 }
 
 
-def get_builder(kind: str, files_service: FilesService) -> IBuilder:
+def get_builder(kind: str, netlify_agent: NetlifyAgent) -> IBuilder:
     """
     Factory to get the correct builder instance for the given chart type.
     Args:
@@ -26,4 +27,4 @@ def get_builder(kind: str, files_service: FilesService) -> IBuilder:
     """
     if kind not in BUILDER_MAP:
         raise ValueError(f"Unsupported plot kind: {kind}")
-    return BUILDER_MAP[kind](files_service)
+    return BUILDER_MAP[kind](netlify_agent)
