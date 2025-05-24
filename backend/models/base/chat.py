@@ -17,6 +17,7 @@ class ChatMessageBase(BaseModel):
     id: Optional[str] = None
     content: Optional[str] = None
     sender: Literal["user", "assistant", "tool"]
+    iframe_url: Optional[list[str]] = None
     timestamp: datetime = Field(default_factory=datetime.now)
     user_id: Optional[str] = None  # User ID associated with the message
     user_name: Optional[str] = None  # User name/display name
