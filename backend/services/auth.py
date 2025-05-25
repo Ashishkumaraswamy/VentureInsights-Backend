@@ -11,7 +11,11 @@ from backend.models.requests.auth import (
     FounderSignupRequest,
     VCSignupRequest,
 )
-from backend.models.response.auth import UserResponse
+from backend.models.response.auth import (
+    UserResponse,
+    FounderConnectedVCsResponse,
+    VCConnectedCompaniesResponse,
+)
 from backend.settings import MongoConnectionDetails, JWTConfig
 from backend.utils.exceptions import ServiceException
 from backend.utils.logger import get_logger
@@ -189,7 +193,8 @@ class AuthService:
 
     async def make_connection(self, founder_email: str, vc_email: str):
         """
-        Connect a founder's company to a VC user by adding the company to the VC's connected_companies list.
+        Connect a founder's company to a VC user by adding the company to the VC's connected_companies list,
+        and add the VC's email to the founder's connected_vc list.
         """
         # 1. Find the founder's company
         companies_collection = await self.mongo_connector.aget_collection("companies")
@@ -208,6 +213,12 @@ class AuthService:
         await users_collection.update_one(
             {"email": vc_email, "user_type": {"$in": ["vc", "investor"]}},
             {"$addToSet": {"connected_companies": company_name}},
+        )
+
+        # 3. Update the founder user's document to add the VC's email to connected_vc
+        await users_collection.update_one(
+            {"email": founder_email, "user_type": "founder"},
+            {"$addToSet": {"connected_vc": vc_email}},
         )
 
         return {
@@ -243,3 +254,28 @@ class AuthService:
                 status=Status.EXECUTION_ERROR,
                 message=f"Failed to create VC user due to {e}",
             )
+
+    async def get_founder_connected_vcs(
+        self, email: str
+    ) -> FounderConnectedVCsResponse:
+        user = await self.mongo_connector.aquery(
+            "users", {"email": email, "user_type": "founder"}
+        )
+        if not user[0].get("connected_vc"):
+            return FounderConnectedVCsResponse(connected_vcs=[])
+        return FounderConnectedVCsResponse(
+            connected_vcs=user[0].get("connected_vc", [])
+        )
+
+    async def get_vc_connected_companies(
+        self, email: str
+    ) -> VCConnectedCompaniesResponse:
+        users_collection = await self.mongo_connector.aget_collection("users")
+        user = await users_collection.find_one(
+            {"email": email, "user_type": {"$in": ["vc", "investor"]}}
+        )
+        if not user:
+            return VCConnectedCompaniesResponse(connected_companies=[])
+        return VCConnectedCompaniesResponse(
+            connected_companies=user.get("connected_companies", [])
+        )

@@ -186,6 +186,7 @@ class TopInvestorResponse(BaseModel):
     linkedin_url: str = Field(..., description="LinkedIn URL of the investor")
     portfolio: int = Field(..., description="Investment Value Portfolio of the VC")
     companies_invested: int = Field(..., description="Number of companies invested in")
+    email: str = Field(..., description="Email of the investor")
 
 
 class TopInvestorsListResponse(BaseModel):

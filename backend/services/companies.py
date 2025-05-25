@@ -203,6 +203,7 @@ class CompaniesService:
                     linkedin_url=user.get("linkedin_url"),
                     portfolio=user.get("portfolio"),
                     companies_invested=user.get("companies_invested"),
+                    email=user.get("email"),
                 )
             )
         return TopInvestorsListResponse(investors=investors)
