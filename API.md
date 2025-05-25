@@ -1213,12 +1213,16 @@ class LegalRisksResponse(BaseModel):
 
 ### /chat/threads (GET, POST)
 **GET Request:**
-- Query parameters: limit (int), offset (int), user_id (str, optional)
+- Query parameters:
+  - limit (int, default 10, min 1, max 100)
+  - offset (int, default 0, min 0)
+  - user_id (str, optional) - User ID
+  - sort_by (str, default "updated_at") - Field to sort by (updated_at or created_at)
+  - sort_order (str, default "desc") - Sort order (asc or desc)
 
 **Response Model:**
 ```python
-class ChatThreadWithMessages(ChatThreadBase):
-    messages: list[MessageResponse]
+List[ThreadSummary]
 ```
 
 **POST Request:**
@@ -1232,11 +1236,19 @@ class ChatThreadWithMessages(ChatThreadBase):
 ```
 
 ### /chat/threads/{thread_id} (GET, DELETE)
+**GET Request:**
+- Path parameters: thread_id (str)
+- Query parameters: user_id (str, optional)
+
 **GET Response Model:**
 ```python
 class ChatThreadWithMessages(ChatThreadBase):
     messages: list[MessageResponse]
 ```
+
+**DELETE Request:**
+- Path parameters: thread_id (str)
+- Query parameters: user_id (str, optional)
 
 **DELETE Response:**
 ```json
@@ -1246,13 +1258,17 @@ class ChatThreadWithMessages(ChatThreadBase):
 ```
 
 ### /chat/threads/{thread_id}/messages (POST)
-**Request Model:**
+**Request:**
+- Path parameters: thread_id (str)
+- Query parameters: stream (bool, default False)
+- Body:
 ```python
 class SendMessageRequest(BaseModel):
     content: str
     user_id: Optional[str] = None
     user_name: Optional[str] = None
 ```
+
 **Response Model:**
 ```python
 class MessageResponse(ChatMessageBase):
