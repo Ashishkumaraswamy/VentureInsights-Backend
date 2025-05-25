@@ -1,31 +1,138 @@
+from agno.agent import Agent
+from backend.agents.output_parser import LLMOutputParserAgent
+from backend.database.mongo import MongoDBConnector
+from backend.models.base.exceptions import Status
+from backend.services.knowledge import KnowledgeBaseService
+from backend.settings import MongoConnectionDetails, LLMConfig
 import asyncio
 import time
-from backend.database.mongo import MongoDBConnector
-from backend.settings import MongoConnectionDetails
 
 from backend.services.finance import FinanceService
-from backend.services.linkedin_team import LinkedInTeamService
+from backend.services.team import TeamService
 from backend.services.market_analysis import MarketAnalysisService
+from backend.services.partnership_network import PartnershipNetworkService
+from backend.services.customer_sentiment import CustomerSentimentService
+from backend.services.regulatory_compliance import RegulatoryComplianceService
+from backend.services.risk_analysis import RiskAnalysisService
 from backend.models.response.research import (
     ResearchResponse,
     FinanceResponse,
     LinkedInTeamResponse,
     MarketAnalysisResponse,
+    ResearchResponseWithSummary,
 )
+from backend.models.response.finance import (
+    RevenueAnalysisResponse,
+    ExpenseAnalysisResponse,
+    ProfitMarginsResponse,
+    ValuationEstimationResponse,
+    FundingHistoryResponse,
+)
+from backend.models.response.team import (
+    TeamOverviewResponse,
+    IndividualPerformanceResponse,
+    OrgStructureResponse,
+    TeamGrowthResponse,
+)
+from backend.models.response.market_analysis import (
+    MarketTrendsResponse,
+    CompetitiveAnalysisResponse,
+    GrowthProjectionsResponse,
+    RegionalTrendsResponse,
+)
+from backend.utils.exceptions import ServiceException
+from backend.utils.llm import get_model
+
+
+# Common base system prompt for all section/field LLMs
+def BASE_SYSTEM_PROMPT():
+    return """
+You are a research agent. Your job is to extract, synthesize, and update company research details using the knowledge base as your primary source of truth.
+
+General Instructions:
+- For the field you are responsible for, actively search for and extract the most relevant and up-to-date information from the knowledge base.
+- If the knowledge base contains relevant information for your field, you MUST:
+    - Replace all basic info for that field with the knowledge base data.
+    - Remove all basic info and citations for that field.
+    - Set the only source for that field to 'Knowledge Base'.
+    - Give extremely low weight to the basic info—use it ONLY if the knowledge base is empty for that field.
+- Only if the knowledge base does not have information for your field, use the basic info as a fallback.
+- This is a mandatory, high-priority rule: always check the knowledge base first and use its data if available. Be explicit and exhaustive in your search for your field.
+- Your output must be a single, valid JSON object that exactly matches the schema provided below. Do not include any explanations or text outside the JSON.
+"""
+
+
+# Field-specific system prompt templates
+def FIELD_SYSTEM_PROMPT(field_name, schema):
+    return f"""
+{BASE_SYSTEM_PROMPT()}
+You are responsible for the field: **{field_name}** in the response model **{schema.__name__}**.
+
+Instructions for this field:
+- Focus your search and extraction on information relevant to **{field_name}**.
+- Highlight and use any knowledge base facts/documents that mention or relate to **{field_name}** or its subfields.
+- If the knowledge base contains information for **{field_name}**, you MUST replace all basic info and citations for that field with the knowledge base data, and set the only source to 'Knowledge Base'.
+- Only use the basic info if the knowledge base is empty for this field, and give it extremely low weight.
+
+Below is the schema for your field:
+```json
+{schema.schema_json(indent=2)}
+```
+"""
 
 
 class ResearchService:
     def __init__(
         self,
-        db_config: MongoConnectionDetails,
         finance_service: FinanceService,
-        linkedin_team_service: LinkedInTeamService,
+        linkedin_team_service: TeamService,
         market_analysis_service: MarketAnalysisService,
+        partnership_network_service: PartnershipNetworkService,
+        customer_sentiment_service: CustomerSentimentService,
+        regulatory_compliance_service: RegulatoryComplianceService,
+        risk_analysis_service: RiskAnalysisService,
+        knowledge_base_service: KnowledgeBaseService,
+        db_config: MongoConnectionDetails,
+        llm_config: LLMConfig,
     ):
-        self.mongo_db = MongoDBConnector(db_config)
         self.finance_service = finance_service
         self.linkedin_team_service = linkedin_team_service
         self.market_analysis_service = market_analysis_service
+        self.partnership_network_service = partnership_network_service
+        self.customer_sentiment_service = customer_sentiment_service
+        self.regulatory_compliance_service = regulatory_compliance_service
+        self.risk_analysis_service = risk_analysis_service
+        self.knowledge_base = knowledge_base_service.get_knowledge_base()
+        self.db_config = db_config
+        self.mongo_connector = MongoDBConnector(db_config)
+        self.llm_model = get_model(llm_config)
+        self.llm_output_parser = LLMOutputParserAgent(self.llm_model)
+
+    async def _llm_field(
+        self, company: str, section_name, field_name, schema, knowledge, basic_info
+    ):
+        prompt = FIELD_SYSTEM_PROMPT(field_name, schema)
+        agent = Agent(
+            name=f"{section_name}_{field_name}Agent",
+            model=self.llm_model,
+            instructions=prompt,
+            response_model=schema,
+            knowledge=knowledge,
+            search_knowledge=True,
+            use_json_mode=True,
+            show_tool_calls=True,
+        )
+        input_text = (
+            f"Generate the {company} {field_name} field for the {section_name} section"
+        )
+        # LOG THE CONTEXT
+        # print(f"\n--- LLM CONTEXT FOR {section_name.upper()} - {field_name.upper()} ---")
+        # print("Prompt:\n", prompt)
+        # print("Input Text:\n", input_text)
+        # print("Knowledge (first 1000 chars):\n", str(knowledge)[:1000])
+        # print("--- END CONTEXT ---\n")
+        response = await agent.arun(input_text)
+        return response.content
 
     async def get_research(self, company_name: str, use_knowledge_base: bool = False):
         """
@@ -230,7 +337,7 @@ class ResearchService:
         # Save to MongoDB - save research to a collection named after the company
         try:
             research_dict = research_response.dict()
-            self.mongo_db.insert_one(
+            self.mongo_connector.insert_records(
                 f"research_{company_name.lower().replace(' ', '_')}", research_dict
             )
             print(f">>> SAVED research data for {company_name} to MongoDB")
@@ -238,3 +345,114 @@ class ResearchService:
             print(f">>> ERROR saving to MongoDB: {str(e)}")
 
         return research_response
+
+    async def get_deep_research(
+        self, company_name: str, use_knowledge_base: bool = False
+    ):
+        get_basic_company_info = await self.mongo_connector.aquery(
+            "company_info", {"company_name": company_name}
+        )
+        if not get_basic_company_info:
+            raise ServiceException(
+                status=Status.NOT_FOUND, message="Company not found."
+            )
+        basic_info = get_basic_company_info[0]
+
+        # Finance fields
+        finance_fields = [
+            ("revenue", RevenueAnalysisResponse),
+            ("expenses", ExpenseAnalysisResponse),
+            ("margins", ProfitMarginsResponse),
+            ("valuation", ValuationEstimationResponse),
+            ("funding", FundingHistoryResponse),
+        ]
+        finance_tasks = [
+            self._llm_field(
+                company_name,
+                "Finance",
+                fname,
+                fschema,
+                self.knowledge_base,
+                basic_info.get("finance", {}),
+            )
+            for fname, fschema in finance_fields
+        ]
+        # Team fields
+        team_fields = [
+            ("team_overview", TeamOverviewResponse),
+            ("individual_performance", IndividualPerformanceResponse),
+            ("org_structure", OrgStructureResponse),
+            ("team_growth", TeamGrowthResponse),
+        ]
+        team_tasks = [
+            self._llm_field(
+                company_name,
+                "Team",
+                fname,
+                fschema,
+                self.knowledge_base,
+                basic_info.get("linkedin_team", {}),
+            )
+            for fname, fschema in team_fields
+        ]
+        # Market Analysis fields
+        market_fields = [
+            ("market_trends", MarketTrendsResponse),
+            ("competitive_analysis", CompetitiveAnalysisResponse),
+            ("growth_projections", GrowthProjectionsResponse),
+            ("regional_trends", RegionalTrendsResponse),
+        ]
+        market_tasks = [
+            self._llm_field(
+                company_name,
+                "MarketAnalysis",
+                fname,
+                fschema,
+                self.knowledge_base,
+                basic_info.get("market_analysis", {}),
+            )
+            for fname, fschema in market_fields
+        ]
+
+        # Run all field LLMs sequentially (no parallel gather)
+        finance_results = []
+        for task in finance_tasks:
+            finance_results.append(await task)
+        team_results = []
+        for task in team_tasks:
+            team_results.append(await task)
+        market_results = []
+        for task in market_tasks:
+            market_results.append(await task)
+
+        # Assemble section responses
+        finance_response = FinanceResponse(
+            revenue=finance_results[0],
+            expenses=finance_results[1],
+            margins=finance_results[2],
+            valuation=finance_results[3],
+            funding=finance_results[4],
+        )
+        team_response = LinkedInTeamResponse(
+            team_overview=team_results[0],
+            individual_performance=team_results[1],
+            org_structure=team_results[2],
+            team_growth=team_results[3],
+        )
+        market_response = MarketAnalysisResponse(
+            market_trends=market_results[0],
+            competitive_analysis=market_results[1],
+            growth_projections=market_results[2],
+            regional_trends=market_results[3],
+        )
+
+        return ResearchResponse(
+            company_name=company_name,
+            finance=finance_response,
+            linkedin_team=team_response,
+            market_analysis=market_response,
+        )
+
+
+if __name__ == "__main__":
+    print(ResearchResponseWithSummary.schema_json(indent=2))

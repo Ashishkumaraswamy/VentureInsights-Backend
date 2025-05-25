@@ -8,7 +8,7 @@ from pydantic import BaseModel
 from backend.agents.output_parser import LLMOutputParserAgent
 from backend.settings import SonarConfig, LLMConfig
 from backend.utils.llm import get_model, get_sonar_model
-from backend.models.response.linkedin_team import (
+from backend.models.response.team import (
     TeamOverviewResponse,
     IndividualPerformanceResponse,
     OrgStructureResponse,
@@ -17,7 +17,7 @@ from backend.models.response.linkedin_team import (
 from backend.plot.factory import get_builder
 
 
-class LinkedInTeamService:
+class TeamService:
     def __init__(self, llm_config: LLMConfig, sonar_config: SonarConfig, netlify_agent):
         self.llm_config = llm_config
         # cache_service will be injected by the dependency injection system

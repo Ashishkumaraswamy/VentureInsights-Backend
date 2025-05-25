@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends
 from fastapi_utils.cbv import cbv
-from backend.services.linkedin_team import LinkedInTeamService
-from backend.models.requests.linkedin_team import (
+from backend.services.team import TeamService
+from backend.models.requests.team import (
     TeamOverviewRequest,
     IndividualPerformanceRequest,
     OrgStructureRequest,
     TeamGrowthRequest,
 )
-from backend.models.response.linkedin_team import (
+from backend.models.response.team import (
     TeamOverviewResponse,
     IndividualPerformanceResponse,
     OrgStructureResponse,
@@ -20,7 +20,7 @@ linkedin_team_router = APIRouter(prefix="/linkedin-team", tags=["linkedin-team"]
 
 @cbv(linkedin_team_router)
 class LinkedInTeamAPI:
-    linkedin_team_service: LinkedInTeamService = Depends(get_linkedin_team_service)
+    linkedin_team_service: TeamService = Depends(get_linkedin_team_service)
 
     @linkedin_team_router.post("/team-overview", response_model=TeamOverviewResponse)
     async def get_team_overview(self, req: TeamOverviewRequest):

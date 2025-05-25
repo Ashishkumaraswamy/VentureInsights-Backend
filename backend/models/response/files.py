@@ -77,3 +77,8 @@ class FileListResponse(BaseModel):
 class CompanyDocumentsResponse(BaseModel):
     company_name: str
     document_urls: List[str]
+
+
+class DoucmentParseResponse(BaseModel):
+    heading: str
+    content: str

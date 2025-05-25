@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
 
 from backend.models.response.finance import (
@@ -8,7 +8,7 @@ from backend.models.response.finance import (
     ValuationEstimationResponse,
     FundingHistoryResponse,
 )
-from backend.models.response.linkedin_team import (
+from backend.models.response.team import (
     TeamOverviewResponse,
     IndividualPerformanceResponse,
     OrgStructureResponse,
@@ -47,61 +47,131 @@ from backend.models.response.risk_analysis import (
 
 
 class FinanceResponse(BaseModel):
-    revenue: Optional[RevenueAnalysisResponse] = None
-    expenses: Optional[ExpenseAnalysisResponse] = None
-    margins: Optional[ProfitMarginsResponse] = None
-    valuation: Optional[ValuationEstimationResponse] = None
-    funding: Optional[FundingHistoryResponse] = None
+    revenue: Optional[RevenueAnalysisResponse] = Field(
+        None, description="Revenue analysis and timeseries data."
+    )
+    expenses: Optional[ExpenseAnalysisResponse] = Field(
+        None, description="Expense analysis and category breakdowns."
+    )
+    margins: Optional[ProfitMarginsResponse] = Field(
+        None, description="Profit margin analysis and breakdowns."
+    )
+    valuation: Optional[ValuationEstimationResponse] = Field(
+        None, description="Company valuation estimates and timeseries."
+    )
+    funding: Optional[FundingHistoryResponse] = Field(
+        None, description="Funding history and details of funding rounds."
+    )
 
 
 class LinkedInTeamResponse(BaseModel):
-    team_overview: Optional[TeamOverviewResponse] = None
-    individual_performance: Optional[IndividualPerformanceResponse] = None
-    org_structure: Optional[OrgStructureResponse] = None
-    team_growth: Optional[TeamGrowthResponse] = None
+    team_overview: Optional[TeamOverviewResponse] = Field(
+        None, description="Overview of the team, including size, roles, and locations."
+    )
+    individual_performance: Optional[IndividualPerformanceResponse] = Field(
+        None, description="Performance metrics and background for key individuals."
+    )
+    org_structure: Optional[OrgStructureResponse] = Field(
+        None, description="Organizational structure and leadership team."
+    )
+    team_growth: Optional[TeamGrowthResponse] = Field(
+        None, description="Team growth, hiring, and attrition trends."
+    )
 
 
 class MarketAnalysisResponse(BaseModel):
-    market_trends: Optional[MarketTrendsResponse] = None
-    competitive_analysis: Optional[CompetitiveAnalysisResponse] = None
-    growth_projections: Optional[GrowthProjectionsResponse] = None
-    regional_trends: Optional[RegionalTrendsResponse] = None
+    market_trends: Optional[MarketTrendsResponse] = Field(
+        None, description="Trends and size of the relevant market."
+    )
+    competitive_analysis: Optional[CompetitiveAnalysisResponse] = Field(
+        None, description="Analysis of competitors and market positioning."
+    )
+    growth_projections: Optional[GrowthProjectionsResponse] = Field(
+        None, description="Growth projections and forecasts."
+    )
+    regional_trends: Optional[RegionalTrendsResponse] = Field(
+        None, description="Regional trends and performance breakdowns."
+    )
 
 
 class PartnershipNetworkResponse(BaseModel):
-    partner_list: Optional[PartnerListResponse] = None
-    strategic_alliances: Optional[StrategicAlliancesResponse] = None
-    network_strength: Optional[NetworkStrengthResponse] = None
-    partnership_trends: Optional[PartnershipTrendsResponse] = None
+    partner_list: Optional[PartnerListResponse] = Field(
+        None, description="List of partners and partnership details."
+    )
+    strategic_alliances: Optional[StrategicAlliancesResponse] = Field(
+        None, description="Strategic alliances and their impact."
+    )
+    network_strength: Optional[NetworkStrengthResponse] = Field(
+        None, description="Strength and metrics of the partnership network."
+    )
+    partnership_trends: Optional[PartnershipTrendsResponse] = Field(
+        None, description="Trends in partnerships over time."
+    )
 
 
 class RegulatoryComplianceResponse(BaseModel):
-    compliance_overview: Optional[ComplianceOverviewResponse] = None
-    violation_history: Optional[ViolationHistoryResponse] = None
-    compliance_risk: Optional[ComplianceRiskResponse] = None
-    regional_compliance: Optional[RegionalComplianceResponse] = None
+    compliance_overview: Optional[ComplianceOverviewResponse] = Field(
+        None, description="Overview of compliance with key regulations."
+    )
+    violation_history: Optional[ViolationHistoryResponse] = Field(
+        None, description="History of regulatory violations."
+    )
+    compliance_risk: Optional[ComplianceRiskResponse] = Field(
+        None, description="Assessment of compliance risks."
+    )
+    regional_compliance: Optional[RegionalComplianceResponse] = Field(
+        None, description="Compliance status by region."
+    )
 
 
 class CustomerSentimentResponse(BaseModel):
-    sentiment_summary: Optional[SentimentSummaryResponse] = None
-    customer_feedback: Optional[CustomerFeedbackResponse] = None
-    brand_reputation: Optional[BrandReputationResponse] = None
-    sentiment_comparison: Optional[SentimentComparisonResponse] = None
+    sentiment_summary: Optional[SentimentSummaryResponse] = Field(
+        None, description="Summary of customer sentiment and scores."
+    )
+    customer_feedback: Optional[CustomerFeedbackResponse] = Field(
+        None, description="Customer feedback and qualitative insights."
+    )
+    brand_reputation: Optional[BrandReputationResponse] = Field(
+        None, description="Brand reputation scores and trends."
+    )
+    sentiment_comparison: Optional[SentimentComparisonResponse] = Field(
+        None, description="Comparison of sentiment with competitors."
+    )
 
 
 class RiskAnalysisResponse(BaseModel):
-    regulatory_risks: Optional[RegulatoryRisksResponse] = None
-    market_risks: Optional[MarketRisksResponse] = None
-    operational_risks: Optional[OperationalRisksResponse] = None
-    legal_risks: Optional[LegalRisksResponse] = None
+    regulatory_risks: Optional[RegulatoryRisksResponse] = Field(
+        None, description="Risks related to regulatory compliance."
+    )
+    market_risks: Optional[MarketRisksResponse] = Field(
+        None, description="Risks related to market conditions."
+    )
+    operational_risks: Optional[OperationalRisksResponse] = Field(
+        None, description="Risks related to operations and supply chain."
+    )
+    legal_risks: Optional[LegalRisksResponse] = Field(
+        None, description="Risks related to legal and intellectual property issues."
+    )
 
 
 class ResearchResponse(BaseModel):
-    company_name: str
-    finance: Optional[FinanceResponse] = None
-    linkedin_team: Optional[LinkedInTeamResponse] = None
-    market_analysis: Optional[MarketAnalysisResponse] = None
-    partnership_network: Optional[PartnershipNetworkResponse] = None
-    regulatory_compliance: Optional[RegulatoryComplianceResponse] = None
-    customer_sentiment: Optional[CustomerSentimentResponse] = None
-    risk_analysis: Optional[RiskAnalysisResponse] = None
+    company_name: str = Field(..., description="The full name of the company.")
+    finance: Optional[FinanceResponse] = Field(
+        None,
+        description="Detailed financial data for the company (revenue, expenses, margins, valuation, funding).",
+    )
+    linkedin_team: Optional[LinkedInTeamResponse] = Field(
+        None,
+        description="Team composition, org structure, leadership, and hiring trends.",
+    )
+    market_analysis: Optional[MarketAnalysisResponse] = Field(
+        None,
+        description="Market trends, projections, competitors, and regional growth analysis.",
+    )
+
+
+class ResearchResponseWithSummary(ResearchResponse):
+    summary: str = Field(
+        ...,
+        description="A summary of the company's financial, organizational, and market-level information.",
+    )

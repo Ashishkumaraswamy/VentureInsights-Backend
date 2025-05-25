@@ -15,4 +15,4 @@ class ResearchAPI:
     @research_router.get("/{company_name}", response_model=ResearchResponse)
     async def get_research(self, company_name: str = Path(...)):
         # Placeholder implementation
-        return await self.research_service.get_research(company_name)
+        return await self.research_service.get_deep_research(company_name)

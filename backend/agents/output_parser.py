@@ -13,7 +13,7 @@ class LLMOutputParserAgent:
     def __init__(self, model: AzureOpenAI):
         self.model = model
 
-    def parse(self, content: str, response_model: Type[BaseModel]) -> BaseModel:
+    def parse(self, content: str | dict, response_model: Type[BaseModel]) -> BaseModel:
         """
         Given a string and a response model class, use the LLM to convert the string into the response model structure.
         """
