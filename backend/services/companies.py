@@ -2,6 +2,8 @@ from backend.settings import MongoConnectionDetails
 from backend.models.response.companies import (
     FeaturedCompany,
     CompanySearchResult,
+    TopInvestorResponse,
+    TopInvestorsListResponse,
 )
 from backend.utils.cache_decorator import cacheable
 from backend.database.mongo import MongoDBConnector
@@ -148,3 +150,23 @@ class CompaniesService:
             "page": page,
             "limit": limit,
         }
+
+    async def get_top_investors(self, limit: int = 10) -> TopInvestorsListResponse:
+        users_collection = await self.mongo_db.aget_collection("users")
+        cursor = (
+            users_collection.find({"user_type": {"$in": ["vc", "investor"]}})
+            .sort("portfolio", -1)
+            .limit(limit)
+        )
+        investors = []
+        async for user in cursor:
+            investors.append(
+                TopInvestorResponse(
+                    first_name=user.get("first_name"),
+                    last_name=user.get("last_name"),
+                    linkedin_url=user.get("linkedin_url"),
+                    portfolio=user.get("portfolio"),
+                    companies_invested=user.get("companies_invested"),
+                )
+            )
+        return TopInvestorsListResponse(investors=investors)

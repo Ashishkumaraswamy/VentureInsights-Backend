@@ -9,6 +9,7 @@ from backend.models.requests.auth import (
     SignUpRequest,
     LoginRequest,
     FounderSignupRequest,
+    VCSignupRequest,
 )
 from backend.models.response.auth import UserResponse
 from backend.settings import MongoConnectionDetails, JWTConfig
@@ -64,6 +65,7 @@ class AuthService:
         hashed_password = bcrypt.hashpw(
             raw_password.encode("utf-8"), bcrypt.gensalt()
         ).decode("utf-8")
+        company_info = founder_signup_request.company_info
 
         # Create the user record
         user_record = {
@@ -75,10 +77,11 @@ class AuthService:
             "linkedin_url": personal_info.linkedin_url,
             "role": personal_info.role,
             "phone_number": personal_info.phone_number,
+            "company_name": company_info.company_name,
         }
 
         # Create the company record
-        company_info = founder_signup_request.company_info
+
         funding_details = founder_signup_request.funding_details
         company_status = founder_signup_request.company_status
 
@@ -183,3 +186,60 @@ class AuthService:
             )
         else:
             raise ServiceException(Status.UNAUTHORIZED, message="Invalid Password")
+
+    async def make_connection(self, founder_email: str, vc_email: str):
+        """
+        Connect a founder's company to a VC user by adding the company to the VC's connected_companies list.
+        """
+        # 1. Find the founder's company
+        companies_collection = await self.mongo_connector.aget_collection("companies")
+        founder_company = await companies_collection.find_one(
+            {"founder_email": founder_email}
+        )
+        if not founder_company:
+            raise ServiceException(
+                Status.NOT_FOUND, message="Founder's company not found"
+            )
+
+        company_name = founder_company["company_name"]
+
+        # 2. Update the VC user's document
+        users_collection = await self.mongo_connector.aget_collection("users")
+        await users_collection.update_one(
+            {"email": vc_email, "user_type": {"$in": ["vc", "investor"]}},
+            {"$addToSet": {"connected_companies": company_name}},
+        )
+
+        return {
+            "status": Status.SUCCESS,
+            "message": f"Company '{company_name}' connected to VC '{vc_email}'",
+        }
+
+    async def vc_signup(self, vc_signup_request: VCSignupRequest):
+        raw_password = vc_signup_request.password.get_secret_value()
+        hashed_password = bcrypt.hashpw(
+            raw_password.encode("utf-8"), bcrypt.gensalt()
+        ).decode("utf-8")
+
+        # Store VC user details in DB
+        user_record = {
+            "first_name": vc_signup_request.first_name,
+            "last_name": vc_signup_request.last_name,
+            "email": vc_signup_request.email,
+            "password": hashed_password,
+            "user_type": vc_signup_request.user_type,
+            "portfolio": getattr(vc_signup_request, "portfolio", []),
+            "companies_invested": getattr(vc_signup_request, "companies_invested", []),
+            "description": getattr(vc_signup_request, "description", None),
+            "website_url": getattr(vc_signup_request, "website_url", None),
+        }
+        collection = await self.mongo_connector.aget_collection("users")
+        try:
+            await collection.insert_one(user_record)
+            return {"status": Status.SUCCESS, "message": "VC User Created Successfully"}
+        except Exception as e:
+            LOG.error(f"Failed to create VC user due to {e}")
+            raise ServiceException(
+                status=Status.EXECUTION_ERROR,
+                message=f"Failed to create VC user due to {e}",
+            )

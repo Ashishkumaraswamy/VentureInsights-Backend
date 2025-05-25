@@ -178,3 +178,17 @@ class CompanySearchResult(BaseModel):
 
     class Config:
         populate_by_name = True
+
+
+class TopInvestorResponse(BaseModel):
+    first_name: str = Field(..., description="First name of the investor")
+    last_name: str = Field(..., description="Last name of the investor")
+    linkedin_url: str = Field(..., description="LinkedIn URL of the investor")
+    portfolio: int = Field(..., description="Investment Value Portfolio of the VC")
+    companies_invested: int = Field(..., description="Number of companies invested in")
+
+
+class TopInvestorsListResponse(BaseModel):
+    investors: list[TopInvestorResponse] = Field(
+        ..., description="List of top investors"
+    )

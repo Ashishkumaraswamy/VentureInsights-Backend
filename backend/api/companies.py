@@ -5,6 +5,7 @@ from backend.dependencies import get_company_service
 from backend.models.response.companies import (
     FeaturedCompaniesResponse,
     CompanySearchResult,
+    TopInvestorsListResponse,
 )
 from backend.models.response.research import ResearchResponse
 from backend.services.companies import CompaniesService
@@ -43,3 +44,12 @@ class CompaniesAPI:
         """
         result = await self.company_service.get_featured_companies(limit, page)
         return result
+
+    @companies_router.get("/top-investors", response_model=TopInvestorsListResponse)
+    async def get_top_investors(
+        self, limit: int = Query(10, description="Number of top investors to return")
+    ):
+        """
+        Get a list of top investors sorted by portfolio value.
+        """
+        return await self.company_service.get_top_investors(limit)

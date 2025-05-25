@@ -8,6 +8,7 @@ from backend.models.requests.auth import (
     SignUpRequest,
     LoginRequest,
     FounderSignupRequest,
+    VCSignupRequest,
 )
 from backend.services.auth import AuthService
 from backend.utils.logger import get_logger
@@ -33,3 +34,7 @@ class AuthorizationApi:
     async def founder_signup(self, founder_signup_request: FounderSignupRequest):
         LOG.info(f"request{founder_signup_request}")
         return await self.auth_service.founder_signup(founder_signup_request)
+
+    @auth_router.post("/vc-signup", status_code=status.HTTP_201_CREATED)
+    async def vc_signup(self, vc_signup_request: VCSignupRequest):
+        return await self.auth_service.vc_signup(vc_signup_request)

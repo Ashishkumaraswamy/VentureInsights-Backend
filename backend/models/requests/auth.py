@@ -68,3 +68,16 @@ class FounderSignupRequest(BaseModel):
     funding_details: FundingDetails
     company_status: CompanyStatus
     documents: Optional[Documents] = Field(None, description="Document file IDs")
+
+
+class VCSignupRequest(SignUpRequest):
+    portfolio: int = Field(..., description="Investment Value Portfolio of the VC")
+    companies_invested: int = Field(..., description="Number of companies invested in")
+    description: Optional[str] = Field(None, description="Description about the VC")
+    website_url: Optional[str] = Field(None, description="VC's website URL")
+    company_connections: Optional[list[str]] = Field(
+        None, description="List of company connections for the VC (optional)"
+    )
+    linkedin_url: Optional[str] = Field(
+        None, description="LinkedIn profile URL of the VC"
+    )
