@@ -74,7 +74,7 @@ class MarketAnalysisService:
 
         try:
             chart_data = response.get_plot_data()
-            builder = get_builder("bar", self.netlify_agent)
+            builder = get_builder(chart_data.kind, self.netlify_agent)
             response.iframe_url = await builder.plot(chart_data, company_name)
         except Exception:
             response.iframe_url = None

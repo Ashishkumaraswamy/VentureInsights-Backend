@@ -30,7 +30,6 @@ class MarketTrendsResponse(CitationResponse):
         None,
         description="ISO 8601 timestamp indicating when this analysis was last updated",
     )
-    plot_url: Optional[str] = None
 
     def get_plot_data(self) -> ChartData:
         data = [
@@ -88,7 +87,6 @@ class CompetitiveAnalysisResponse(CitationResponse):
         None,
         description="ISO 8601 timestamp indicating when this analysis was last updated",
     )
-    plot_url: Optional[str] = None
 
     def get_plot_data(self) -> ChartData:
         data = [
@@ -132,7 +130,6 @@ class GrowthProjectionsResponse(CitationResponse):
         None, description="List of sources or references for this revenue data point"
     )
     last_updated: Optional[str] = None
-    plot_url: Optional[str] = None
 
     def get_plot_data(self) -> ChartData:
         data = [
@@ -144,7 +141,7 @@ class GrowthProjectionsResponse(CitationResponse):
             title="Growth Projections Over Time",
             x="period_start",
             y="projected_value",
-            kind="line",
+            kind="area",
         )
 
 
@@ -171,7 +168,6 @@ class RegionalTrendsResponse(CitationResponse):
     )
     summary: Optional[str] = Field(None, description="Summary of the regional trends")
     last_updated: Optional[str] = Field(None, description="Last updated timestamp")
-    plot_url: Optional[str] = None
 
     def get_plot_data(self) -> ChartData:
         data = [
@@ -183,5 +179,5 @@ class RegionalTrendsResponse(CitationResponse):
             title="Regional Trends Over Time",
             x="period_start",
             y="value",
-            kind="area",
+            kind="bar",
         )

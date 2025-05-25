@@ -87,9 +87,11 @@ class FinanceService:
         # Add plot iframe_url
         try:
             chart_data = response.get_plot_data()
-            builder = get_builder("bar", self.netlify_agent)
+            builder = get_builder(chart_data.kind, self.netlify_agent)
+            print("chart_data.kind", chart_data.kind)
             response.iframe_url = await builder.plot(chart_data, company_name)
-        except Exception:
+        except Exception as e:
+            print(f"Failed to generate plot for response as {e}")
             response.iframe_url = None
 
         return response

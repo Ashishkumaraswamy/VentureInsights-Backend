@@ -48,7 +48,6 @@ class RevenueAnalysisResponse(CitationResponse):
         None,
         description="ISO 8601 timestamp indicating when this analysis was last updated",
     )
-    plot_url: Optional[str] = None
 
     def get_plot_data(self) -> ChartData:
         data = [
@@ -119,7 +118,6 @@ class ExpenseAnalysisResponse(CitationResponse):
         None,
         description="ISO 8601 timestamp indicating when this expense analysis was last updated",
     )
-    plot_url: Optional[str] = None
 
     def get_plot_data(self) -> ChartData:
         data = [
@@ -135,7 +133,7 @@ class ExpenseAnalysisResponse(CitationResponse):
             title=f"Expenses by Category for {self.company_name}",
             x="category",
             y="value",
-            kind="bar",
+            kind="pie",
         )
 
 
@@ -180,7 +178,6 @@ class ProfitMarginsResponse(CitationResponse):
     last_updated: Optional[str] = Field(
         None, description="ISO date string when this margin data was last updated"
     )
-    plot_url: Optional[str] = None
 
     def get_plot_data(self) -> ChartData:
         data = [
@@ -196,7 +193,7 @@ class ProfitMarginsResponse(CitationResponse):
             title=f"Profit Margins for {self.company_name}",
             x="margin_type",
             y="value",
-            kind="bar",
+            kind="pie",
         )
 
 
@@ -233,7 +230,6 @@ class ValuationEstimationResponse(CitationResponse):
     last_updated: Optional[str] = Field(
         None, description="ISO date string when this valuation data was last updated"
     )
-    plot_url: Optional[str] = None
 
     def get_plot_data(self) -> ChartData:
         data = [
@@ -298,7 +294,6 @@ class FundingHistoryResponse(CitationResponse):
     last_updated: Optional[str] = Field(
         None, description="ISO date string when this funding data was last updated"
     )
-    plot_url: Optional[str] = None
 
     def get_plot_data(self) -> ChartData:
         data = [
