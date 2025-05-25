@@ -8,7 +8,6 @@ from backend.plot.factory import get_builder
 from backend.services.knowledge import KnowledgeBaseService
 from backend.settings import MongoConnectionDetails, LLMConfig
 import asyncio
-import time
 
 from backend.services.finance import FinanceService
 from backend.services.team import TeamService
@@ -45,10 +44,12 @@ from backend.models.response.market_analysis import (
 )
 from backend.utils.exceptions import ServiceException
 from backend.utils.llm import get_model
+
 # Apply OpenAI client patch to fix AttributeError during garbage collection
 from backend.utils.openai_patch import patch_openai_client
 
 patch_openai_client()
+
 
 # Common base system prompt for all section/field LLMs
 def BASE_SYSTEM_PROMPT():
@@ -100,7 +101,7 @@ class ResearchService:
         knowledge_base_service: KnowledgeBaseService,
         db_config: MongoConnectionDetails,
         llm_config: LLMConfig,
-        netlify_agent: NetlifyAgent
+        netlify_agent: NetlifyAgent,
     ):
         self.finance_service = finance_service
         self.linkedin_team_service = linkedin_team_service
@@ -144,7 +145,7 @@ class ResearchService:
 
     async def get_research(self, company_name: str, use_knowledge_base: bool = False):
         """
-        Get comprehensive research data for a company by calling multiple service agents in parallel.
+        Get comprehensive research data for a company by calling multiple service agents in parallel (fully concurrent, not batched).
 
         Args:
             company_name (str): Name of the company to research
@@ -153,161 +154,81 @@ class ResearchService:
         Returns:
             ResearchResponse: Comprehensive research data about the company
         """
-
-        # Create task groups with clearer tracking
-        async def tracked_task(name, coro):
-            print(f">>> STARTING: {name} at {time.time()}")
-            try:
-                result = await coro
-                print(f">>> COMPLETED: {name} at {time.time()}")
-                return result
-            except Exception as e:
-                print(f">>> ERROR: {name} failed with {str(e)}")
-                return e
-
-        # Create finance tasks
-        finance_revenue = tracked_task(
-            "finance_revenue",
+        # Prepare all service call coroutines
+        coros = [
             self.finance_service.get_revenue_analysis(
                 company_name, use_knowledge_base=use_knowledge_base
             ),
-        )
-
-        finance_expenses = tracked_task(
-            "finance_expenses",
             self.finance_service.get_expense_analysis(
                 company_name, use_knowledge_base=use_knowledge_base
             ),
-        )
-
-        finance_margins = tracked_task(
-            "finance_margins",
             self.finance_service.get_profit_margins(
                 company_name, use_knowledge_base=use_knowledge_base
             ),
-        )
-
-        finance_valuation = tracked_task(
-            "finance_valuation",
             self.finance_service.get_valuation_estimation(
                 company_name, use_knowledge_base=use_knowledge_base
             ),
-        )
-
-        finance_funding = tracked_task(
-            "finance_funding",
             self.finance_service.get_funding_history(
                 company_name, use_knowledge_base=use_knowledge_base
             ),
-        )
-
-        # Create LinkedIn team tasks
-        linkedin_team_overview = tracked_task(
-            "linkedin_team_overview",
             self.linkedin_team_service.get_team_overview(company_name),
-        )
-
-        linkedin_individual = tracked_task(
-            "linkedin_individual",
             self.linkedin_team_service.get_individual_performance(
                 company_name, use_knowledge_base=use_knowledge_base
             ),
-        )
-
-        linkedin_org_structure = tracked_task(
-            "linkedin_org_structure",
             self.linkedin_team_service.get_org_structure(
                 company_name, use_knowledge_base=use_knowledge_base
             ),
-        )
-
-        linkedin_team_growth = tracked_task(
-            "linkedin_team_growth",
             self.linkedin_team_service.get_team_growth(
                 company_name, use_knowledge_base=use_knowledge_base
             ),
-        )
-
-        # Create market analysis tasks
-        market_trends = tracked_task(
-            "market_trends",
             self.market_analysis_service.get_market_trends(
                 company_name, use_knowledge_base=use_knowledge_base
             ),
-        )
-
-        market_competitive = tracked_task(
-            "market_competitive",
             self.market_analysis_service.get_competitive_analysis(
                 company_name, use_knowledge_base=use_knowledge_base
             ),
-        )
-
-        market_growth = tracked_task(
-            "market_growth",
             self.market_analysis_service.get_growth_projections(
                 company_name, use_knowledge_base=use_knowledge_base
             ),
-        )
-
-        market_regional = tracked_task(
-            "market_regional",
             self.market_analysis_service.get_regional_trends(
                 company_name, use_knowledge_base=use_knowledge_base
             ),
-        )
+        ]
 
-        # Run a small batch of concurrent tasks first (4 at a time)
-        print(f">>> STARTING BATCH 1 at {time.time()}")
-        finance_results_part1 = await asyncio.gather(
-            finance_revenue, finance_expenses, finance_margins, finance_valuation
-        )
+        # Run all service calls concurrently
+        results = await asyncio.gather(*coros, return_exceptions=True)
 
-        print(f">>> STARTING BATCH 2 at {time.time()}")
-        # Run the next batch
-        finance_results_part2 = await asyncio.gather(
-            finance_funding,
-            linkedin_team_overview,
-            linkedin_individual,
-            linkedin_org_structure,
-        )
-
-        print(f">>> STARTING BATCH 3 at {time.time()}")
-        # Run the final batch
-        remaining_results = await asyncio.gather(
-            linkedin_team_growth,
-            market_trends,
-            market_competitive,
-            market_growth,
-            market_regional,
-        )
-
-        # Combine results
-        revenue, expenses, margins, valuation = finance_results_part1
-        funding, team_overview, individual_performance, org_structure = (
-            finance_results_part2
-        )
+        # Unpack results
         (
+            revenue,
+            expenses,
+            margins,
+            valuation,
+            funding,
+            team_overview,
+            individual_performance,
+            org_structure,
             team_growth,
             market_trends_result,
             competitive_analysis,
             growth_projections,
             regional_trends,
-        ) = remaining_results
+        ) = results
 
-        # Process finance results
         # For each finance field, try to build the plot and set iframe_url
         finance_fields = [
-            ("revenue", RevenueAnalysisResponse),
-            ("expenses", ExpenseAnalysisResponse),
-            ("margins", ProfitMarginsResponse),
-            ("valuation", ValuationEstimationResponse),
-            ("funding", FundingHistoryResponse),
+            (revenue, "revenue"),
+            (expenses, "expenses"),
+            (margins, "margins"),
+            (valuation, "valuation"),
+            (funding, "funding"),
         ]
-        finance_results = [revenue, expenses, margins, valuation, funding]
-        for idx, (field_name, _) in enumerate(finance_fields):
-            response = finance_results[idx]
-            if response is not None and hasattr(response, 'get_plot_data'):
+        for response, field_name in finance_fields:
+            if (
+                response is not None
+                and not isinstance(response, Exception)
+                and hasattr(response, "get_plot_data")
+            ):
                 try:
                     chart_data = response.get_plot_data()
                     builder = get_builder(chart_data.kind, self.netlify_agent)
@@ -318,14 +239,12 @@ class ResearchService:
                     response.iframe_url = None
 
         finance_response = FinanceResponse(
-            revenue=finance_results[0],
-            expenses=finance_results[1],
-            margins=finance_results[2],
-            valuation=finance_results[3],
-            funding=finance_results[4],
+            revenue=revenue if not isinstance(revenue, Exception) else None,
+            expenses=expenses if not isinstance(expenses, Exception) else None,
+            margins=margins if not isinstance(margins, Exception) else None,
+            valuation=valuation if not isinstance(valuation, Exception) else None,
+            funding=funding if not isinstance(funding, Exception) else None,
         )
-
-        # Process LinkedIn team results
         linkedin_response = LinkedInTeamResponse(
             team_overview=team_overview
             if not isinstance(team_overview, Exception)
@@ -338,8 +257,6 @@ class ResearchService:
             else None,
             team_growth=team_growth if not isinstance(team_growth, Exception) else None,
         )
-
-        # Process market analysis results
         market_response = MarketAnalysisResponse(
             market_trends=market_trends_result
             if not isinstance(market_trends_result, Exception)
@@ -355,7 +272,6 @@ class ResearchService:
             else None,
         )
 
-        # Combine all responses
         research_response = ResearchResponse(
             company_name=company_name,
             finance=finance_response,
@@ -365,10 +281,8 @@ class ResearchService:
 
         # Save to MongoDB - save research to a collection named after the company
         try:
-            research_dict = research_response.model_dump_json()
-            self.mongo_connector.insert_records(
-                f"research_{company_name.lower().replace(' ', '_')}", [research_dict]
-            )
+            research_dict = research_response.dict()
+            self.mongo_connector.insert_records("company_info", [research_dict])
             print(f">>> SAVED research data for {company_name} to MongoDB")
         except Exception as e:
             print(f">>> ERROR saving to MongoDB: {str(e)}")
@@ -458,7 +372,7 @@ class ResearchService:
         # For each finance field, try to build the plot and set iframe_url
         for idx, (field_name, _) in enumerate(finance_fields):
             response = finance_results[idx]
-            if response is not None and hasattr(response, 'get_plot_data'):
+            if response is not None and hasattr(response, "get_plot_data"):
                 try:
                     chart_data = response.get_plot_data()
                     builder = get_builder(chart_data.kind, self.netlify_agent)

@@ -36,7 +36,6 @@ class ChatAPI:
         ),
         sort_order: str = Query("desc", description="Sort order (asc or desc)"),
     ) -> List[ThreadSummary]:
-        
         if not user_id and self.user:
             LOG.debug(
                 f"User ID not provided, using user ID from session: {self.user.user_id}"
