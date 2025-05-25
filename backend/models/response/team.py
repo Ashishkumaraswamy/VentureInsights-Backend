@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional, List
 from backend.plot.types import ChartData
 from backend.models.response.base import CitationResponse
@@ -6,26 +6,51 @@ from backend.models.response.base import CitationResponse
 
 # --- Team Overview ---
 class TeamRoleBreakdown(BaseModel):
-    role: str
-    count: int
-    percentage: Optional[float] = None  # Added field for distribution percentage
-    sources: Optional[List[int]] = (
-        None  # Changed to List[int] for indexing into outer sources
+    role: str = Field(..., description="Job role or function category")
+    count: int = Field(..., description="Number of employees in this role category")
+    percentage: Optional[float] = Field(
+        None, description="Percentage of total workforce in this role category"
     )
-    confidence: Optional[float] = None
+    sources: Optional[List[int]] = Field(
+        None, description="List of indices referencing sources in the parent response"
+    )
+    confidence: Optional[float] = Field(
+        None,
+        description="Confidence score between 0 and 1 for the accuracy of this data point",
+    )
 
 
 class TeamOverviewResponse(CitationResponse):
-    company_name: str
-    company_description: Optional[str] = None  # Added field for company context
-    total_employees: int
-    roles_breakdown: List[TeamRoleBreakdown]
-    locations: Optional[List[str]] = None
-    key_hiring_areas: Optional[List[str]] = None  # Added field for current hiring focus
-    growth_rate: Optional[float] = None  # Added field for team expansion rate
-    sources: Optional[List[str]] = None
-    last_updated: Optional[str] = None  # ISO format datetime string
-    plot_url: Optional[str] = None
+    company_name: str = Field(
+        ..., description="Official name of the company being analyzed"
+    )
+    company_description: Optional[str] = Field(
+        None, description="Brief description of the company and its business"
+    )
+    total_employees: int = Field(
+        ..., description="Total number of employees at the company"
+    )
+    roles_breakdown: List[TeamRoleBreakdown] = Field(
+        ..., description="Breakdown of employees by job role or function"
+    )
+    locations: Optional[List[str]] = Field(
+        None,
+        description="List of geographic locations where the company has offices or employees",
+    )
+    key_hiring_areas: Optional[List[str]] = Field(
+        None,
+        description="Areas or roles where the company is currently focusing its hiring efforts",
+    )
+    growth_rate: Optional[float] = Field(
+        None, description="Annual team growth rate as a percentage"
+    )
+    sources: Optional[List[str]] = Field(
+        None, description="List of sources or references for this team data"
+    )
+    last_updated: Optional[str] = Field(
+        None,
+        description="ISO 8601 timestamp indicating when this analysis was last updated",
+    )
 
     def get_plot_data(self) -> ChartData:
         data = [
@@ -47,46 +72,83 @@ class TeamOverviewResponse(CitationResponse):
 
 # --- Individual Performance ---
 class IndividualPerformanceMetric(BaseModel):
-    metric: str
-    value: float
-    sources: Optional[List[int]] = (
-        None  # Changed to List[int] for indexing into outer sources
+    metric: str = Field(
+        ..., description="Name of the performance metric being measured"
     )
-    confidence: Optional[float] = None
+    value: float = Field(
+        ..., description="Value or score for the specified performance metric"
+    )
+    sources: Optional[List[int]] = Field(
+        None, description="List of indices referencing sources in the parent response"
+    )
+    confidence: Optional[float] = Field(
+        None,
+        description="Confidence score between 0 and 1 for the accuracy of this data point",
+    )
 
 
 class PreviousCompany(BaseModel):
-    name: str
-    title: str
-    duration: Optional[str] = None
-    dates: Optional[str] = None
+    name: str = Field(..., description="Name of the previous employer")
+    title: str = Field(..., description="Job title held at the previous company")
+    duration: Optional[str] = Field(
+        None, description="Duration of employment (e.g., '2 years 3 months')"
+    )
+    dates: Optional[str] = Field(
+        None, description="Employment period formatted as 'YYYY-MM to YYYY-MM'"
+    )
 
 
 class Education(BaseModel):
-    institution: str
-    degree: Optional[str] = None
-    field_of_study: Optional[str] = None
-    dates: Optional[str] = None
+    institution: str = Field(..., description="Name of the educational institution")
+    degree: Optional[str] = Field(
+        None, description="Degree type obtained (e.g., 'Bachelor's', 'Master's', 'PhD')"
+    )
+    field_of_study: Optional[str] = Field(
+        None, description="Major or specialization area of study"
+    )
+    dates: Optional[str] = Field(
+        None,
+        description="Period of study formatted as 'YYYY-MM to YYYY-MM' or 'YYYY to YYYY'",
+    )
 
 
 class IndividualPerformanceResponse(CitationResponse):
-    company_name: str
-    individual_name: str
-    title: Optional[str] = None
-    image_url: Optional[str] = None  # Added field for profile image
-    tenure_years: Optional[float] = None
-    performance_metrics: List[IndividualPerformanceMetric]
-    previous_companies: Optional[List[PreviousCompany]] = (
-        None  # Added field for work history
+    company_name: str = Field(
+        ..., description="Official name of the company where the individual works"
     )
-    key_strengths: Optional[List[str]] = None  # Added field for core capabilities
-    development_areas: Optional[List[str]] = (
-        None  # Added field for growth opportunities
+    individual_name: str = Field(..., description="Full name of the individual")
+    title: Optional[str] = Field(
+        None, description="Current job title or position of the individual"
     )
-    education: Optional[List[Education]] = None  # Added field for background context
-    sources: Optional[List[str]] = None
-    last_updated: Optional[str] = None  # ISO format datetime string
-    plot_url: Optional[str] = None
+    image_url: Optional[str] = Field(
+        None, description="URL to the individual's professional profile image"
+    )
+    tenure_years: Optional[float] = Field(
+        None, description="Number of years the individual has been with the company"
+    )
+    performance_metrics: List[IndividualPerformanceMetric] = Field(
+        ...,
+        description="List of quantifiable performance indicators for the individual",
+    )
+    previous_companies: Optional[List[PreviousCompany]] = Field(
+        None, description="Previous employment history of the individual"
+    )
+    key_strengths: Optional[List[str]] = Field(
+        None, description="Core competencies and strengths of the individual"
+    )
+    development_areas: Optional[List[str]] = Field(
+        None, description="Areas where the individual has opportunities for growth"
+    )
+    education: Optional[List[Education]] = Field(
+        None, description="Educational background and qualifications"
+    )
+    sources: Optional[List[str]] = Field(
+        None, description="List of sources or references for this individual's data"
+    )
+    last_updated: Optional[str] = Field(
+        None,
+        description="ISO 8601 timestamp indicating when this analysis was last updated",
+    )
 
     def get_plot_data(self) -> ChartData:
         data = [
@@ -103,44 +165,73 @@ class IndividualPerformanceResponse(CitationResponse):
 
 # --- Org Structure ---
 class OrgNode(BaseModel):
-    name: str
-    title: str
-    department: Optional[str] = None  # Added field for organizational grouping
-    linkedin_url: Optional[str] = None  # Added field for direct profile access
-    reports_to: Optional[str] = None
-    direct_reports: Optional[List[str]] = None
-    sources: Optional[List[int]] = (
-        None  # Changed to List[int] for indexing into outer sources
+    name: str = Field(..., description="Full name of the employee")
+    title: str = Field(..., description="Job title or position within the company")
+    department: Optional[str] = Field(
+        None, description="Department or functional area the employee belongs to"
+    )
+    linkedin_url: Optional[str] = Field(
+        None, description="URL to the employee's LinkedIn profile"
+    )
+    reports_to: Optional[str] = Field(
+        None, description="Name of the person's direct manager or supervisor"
+    )
+    direct_reports: Optional[List[str]] = Field(
+        None, description="List of names of people who report directly to this person"
+    )
+    sources: Optional[List[int]] = Field(
+        None, description="List of indices referencing sources in the parent response"
     )
 
 
 class Department(BaseModel):
-    name: str
-    head: Optional[str] = None
-    employee_count: Optional[int] = None
-    sub_departments: Optional[List[str]] = None
+    name: str = Field(..., description="Name of the department or functional area")
+    head: Optional[str] = Field(
+        None, description="Name of the department head or leader"
+    )
+    employee_count: Optional[int] = Field(
+        None, description="Total number of employees in the department"
+    )
+    sub_departments: Optional[List[str]] = Field(
+        None, description="List of sub-departments or teams within this department"
+    )
 
 
 class LeadershipTeamMember(BaseModel):
-    name: str
-    title: str
-    linkedin_url: Optional[str] = None
-    department: Optional[str] = None
+    name: str = Field(..., description="Full name of the leadership team member")
+    title: str = Field(..., description="Executive or leadership title")
+    linkedin_url: Optional[str] = Field(
+        None, description="URL to the leader's LinkedIn profile"
+    )
+    department: Optional[str] = Field(
+        None, description="Department or functional area the leader oversees"
+    )
 
 
 class OrgStructureResponse(CitationResponse):
-    company_name: str
-    org_chart: List[OrgNode]
-    ceo: Optional[str] = None  # Added field to highlight top leadership
-    departments: Optional[List[Department]] = (
-        None  # Added field to show organizational divisions
+    company_name: str = Field(
+        ..., description="Official name of the company being analyzed"
     )
-    leadership_team: Optional[List[LeadershipTeamMember]] = (
-        None  # Added field to highlight key executives
+    org_chart: List[OrgNode] = Field(
+        ...,
+        description="Nodes representing employees and their reporting relationships",
     )
-    sources: Optional[List[str]] = None
-    last_updated: Optional[str] = None  # ISO format datetime string
-    plot_url: Optional[str] = None
+    ceo: Optional[str] = Field(
+        None, description="Name of the Chief Executive Officer or equivalent"
+    )
+    departments: Optional[List[Department]] = Field(
+        None, description="List of departments or major organizational divisions"
+    )
+    leadership_team: Optional[List[LeadershipTeamMember]] = Field(
+        None, description="List of executive or senior leadership team members"
+    )
+    sources: Optional[List[str]] = Field(
+        None, description="List of sources or references for this organizational data"
+    )
+    last_updated: Optional[str] = Field(
+        None,
+        description="ISO 8601 timestamp indicating when this analysis was last updated",
+    )
 
     def get_plot_data(self) -> ChartData:
         if self.departments:
@@ -161,62 +252,116 @@ class OrgStructureResponse(CitationResponse):
 
 # --- Team Growth ---
 class TeamGrowthTimeSeriesPoint(BaseModel):
-    period_start: str  # ISO format date string
-    period_end: str  # ISO format date string
-    hires: int
-    attrition: int
-    net_growth: int
-    growth_rate: Optional[float] = None  # Added field for growth rate at each point
-    sources: Optional[List[int]] = (
-        None  # Changed to List[int] for indexing into outer sources
+    period_start: str = Field(
+        ..., description="ISO 8601 formatted start date of the reporting period"
     )
-    confidence: Optional[float] = None
+    period_end: str = Field(
+        ..., description="ISO 8601 formatted end date of the reporting period"
+    )
+    hires: int = Field(
+        ..., description="Number of new employees hired during this period"
+    )
+    attrition: int = Field(
+        ..., description="Number of employees who left during this period"
+    )
+    net_growth: int = Field(
+        ..., description="Net change in headcount (hires minus attrition)"
+    )
+    growth_rate: Optional[float] = Field(
+        None, description="Growth rate as a percentage for this specific period"
+    )
+    sources: Optional[List[int]] = Field(
+        None, description="List of indices referencing sources in the parent response"
+    )
+    confidence: Optional[float] = Field(
+        None,
+        description="Confidence score between 0 and 1 for the accuracy of this data point",
+    )
 
 
 class DepartmentAttrition(BaseModel):
-    department: str
-    attrition_count: int
-    attrition_rate: Optional[float] = None
+    department: str = Field(
+        ..., description="Name of the department or functional area"
+    )
+    attrition_count: int = Field(
+        ..., description="Number of employees who left this department"
+    )
+    attrition_rate: Optional[float] = Field(
+        None, description="Attrition rate as a percentage for this department"
+    )
 
 
 class HiringTrendSupportingData(BaseModel):
     """Supporting data for hiring trends with defined properties instead of Dict[str, Any]"""
 
-    percentage: Optional[float] = None
-    count: Optional[int] = None
-    year_over_year_change: Optional[float] = None
-    previous_value: Optional[float] = None
-    current_value: Optional[float] = None
-    description: Optional[str] = None
+    percentage: Optional[float] = Field(
+        None, description="Percentage value related to the trend"
+    )
+    count: Optional[int] = Field(
+        None, description="Count or numeric value related to the trend"
+    )
+    year_over_year_change: Optional[float] = Field(
+        None, description="Annual percentage change in the metric"
+    )
+    previous_value: Optional[float] = Field(
+        None, description="Previous period's value for comparison"
+    )
+    current_value: Optional[float] = Field(
+        None, description="Current period's value being analyzed"
+    )
+    description: Optional[str] = Field(
+        None, description="Textual description of the supporting data"
+    )
 
 
 class HiringTrend(BaseModel):
-    trend: str
-    description: str
-    supporting_data: Optional[HiringTrendSupportingData] = None
+    trend: str = Field(..., description="Name or title of the hiring trend")
+    description: str = Field(
+        ..., description="Detailed description of the observed hiring trend"
+    )
+    supporting_data: Optional[HiringTrendSupportingData] = Field(
+        None, description="Quantitative data supporting the trend observation"
+    )
 
 
 class TeamGrowthResponse(CitationResponse):
-    company_name: str
-    team_growth_timeseries: List[TeamGrowthTimeSeriesPoint]
-    total_hires: int
-    total_attrition: int
-    net_growth: int
-    growth_rate_annualized: Optional[float] = (
-        None  # Added field for year-over-year comparison
+    company_name: str = Field(
+        ..., description="Official name of the company being analyzed"
     )
-    key_hiring_areas: Optional[List[str]] = (
-        None  # Added field to show focus of recent growth
+    team_growth_timeseries: List[TeamGrowthTimeSeriesPoint] = Field(
+        ...,
+        description="Time series data points showing team growth over different periods",
     )
-    attrition_by_department: Optional[List[DepartmentAttrition]] = (
-        None  # Added field for deeper analysis
+    total_hires: int = Field(
+        ..., description="Total number of new hires across all analyzed periods"
     )
-    hiring_trends: Optional[List[HiringTrend]] = (
-        None  # Added field to show directional changes
+    total_attrition: int = Field(
+        ...,
+        description="Total number of employees who left across all analyzed periods",
     )
-    sources: Optional[List[str]] = None
-    last_updated: Optional[str] = None  # ISO format datetime string
-    plot_url: Optional[str] = None
+    net_growth: int = Field(
+        ..., description="Net change in headcount (total_hires minus total_attrition)"
+    )
+    growth_rate_annualized: Optional[float] = Field(
+        None, description="Annualized growth rate as a percentage"
+    )
+    key_hiring_areas: Optional[List[str]] = Field(
+        None,
+        description="Areas or roles where the company has focused its recent hiring",
+    )
+    attrition_by_department: Optional[List[DepartmentAttrition]] = Field(
+        None, description="Breakdown of employee attrition by department"
+    )
+    hiring_trends: Optional[List[HiringTrend]] = Field(
+        None, description="Notable trends in the company's hiring patterns"
+    )
+    sources: Optional[List[str]] = Field(
+        None, description="List of sources or references for this team growth data"
+    )
+    last_updated: Optional[str] = Field(
+        None,
+        description="ISO 8601 timestamp indicating when this analysis was last updated",
+    )
 
     def get_plot_data(self) -> ChartData:
         data = [
@@ -228,5 +373,5 @@ class TeamGrowthResponse(CitationResponse):
             title=f"Team Net Growth Over Time for {self.company_name}",
             x="period_start",
             y="net_growth",
-            kind="line",
+            kind="area",
         )
