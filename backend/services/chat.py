@@ -1,4 +1,4 @@
-from agno.agent import Agent
+from agno.agent import Agent, AgentMemory
 from agno.tools.mcp import MCPTools
 from backend.settings import LLMConfig, MongoConnectionDetails
 from backend.utils.llm import get_model
@@ -31,7 +31,7 @@ class ChatService:
         llm_config: LLMConfig,
         db_config: MongoConnectionDetails,
         mcp_url: str,
-        history_runs: int = 3,
+        history_runs: int = 10,
         timeout: int = 300,
     ):
         self.llm_config = llm_config
@@ -44,6 +44,14 @@ class ChatService:
             collection_name="chat_agent",
             db_name=db_config.dbname,
             db_url=db_config.get_connection_string(),
+            mode="agent",
+        )
+        self.memory = AgentMemory(
+            create_user_memories=True,
+            storage=self.storage,
+            update_user_memories_after_run=True,
+            create_session_summaries=True,
+            update_session_summaries_after_run=True,
         )
         self.mongo = MongoDBConnector(db_config)
 
@@ -95,6 +103,7 @@ Always prioritize delivering accurate, relevant information from Venture Insight
     ) -> Agent:
         return Agent(
             session_id=session_id,
+            agent_id=session_id,
             user_id=user_id,
             model=get_model(self.llm_config),
             tools=[mcp_tools],
@@ -102,8 +111,7 @@ Always prioritize delivering accurate, relevant information from Venture Insight
             description=self.system_agent_prompt(),
             instructions=self.system_instructions(),
             storage=self.storage,
-            add_history_to_messages=True,
-            num_history_runs=self.history_runs,
+            memory=self.memory,
         )
 
     async def process_query(
@@ -147,12 +155,9 @@ Always prioritize delivering accurate, relevant information from Venture Insight
             await agent.aprint_response(user_message, stream=stream)
 
     async def _format_thread(self, thread: dict) -> ChatThreadWithMessages:
-        runs = thread.get("memory", {}).get("runs", [])
-        last_run = runs[-1] if runs else {}
+        runs = thread.get("memory", {}).get("messages", [])
         messages = [
-            m
-            for m in last_run.get("messages", [])
-            if m.get("role") not in ("system") and m.get("content")
+            m for m in runs if m.get("role") not in ("system") and m.get("content")
         ]
         return ChatThreadWithMessages(
             id=thread["session_id"],
