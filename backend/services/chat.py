@@ -177,12 +177,9 @@ Always prioritize delivering accurate, relevant information from Venture Insight
         )
 
     async def _format_thread_summary(self, thread: dict) -> ThreadSummary:
-        runs = thread.get("memory", {}).get("runs", [])
-        last_run = runs[-1] if runs else {}
+        runs = thread.get("memory", {}).get("messages", [])
         messages = [
-            m
-            for m in last_run.get("messages", [])
-            if m.get("role") not in ("system", "tool") and m.get("content")
+            m for m in runs if m.get("role") not in ("system") and m.get("content")
         ]
 
         # Get the last message if any
