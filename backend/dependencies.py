@@ -23,7 +23,7 @@ from backend.agents.netlify import NetlifyAgent
 from backend.services.search_service import SearchService
 
 
-def get_user(request: Request):
+async def get_user(request: Request):
     if "user" in request.scope:
         return request.scope["user"]
 

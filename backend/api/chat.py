@@ -36,10 +36,12 @@ class ChatAPI:
         ),
         sort_order: str = Query("desc", description="Sort order (asc or desc)"),
     ) -> List[ThreadSummary]:
-        LOG.debug(f"Getting threads for user {user_id}")
-
+        
         if not user_id and self.user:
-            user_id = self.user.email
+            LOG.debug(
+                f"User ID not provided, using user ID from session: {self.user.user_id}"
+            )
+            user_id = self.user.user_id
 
         return await self.chat_service.get_threads(
             limit, offset, user_id, sort_by=sort_by, sort_order=sort_order
@@ -51,18 +53,39 @@ class ChatAPI:
         return {"thread_id": str(uuid.uuid4())}
 
     @chat_router.get("/threads/{thread_id}", response_model=ChatThreadWithMessages)
-    async def get_thread(self, thread_id: str = Path(...)) -> ChatThreadWithMessages:
-        LOG.debug(f"Getting thread {thread_id}")
+    async def get_thread(
+        self,
+        thread_id: str = Path(...),
+        user_id: str = Query(None, description="User ID"),
+    ) -> ChatThreadWithMessages:
+        LOG.debug(f"Getting thread {thread_id} for user {user_id}")
+        if not user_id and self.user:
+            user_id = self.user.user_id
+            LOG.debug(
+                f"User ID not provided, using user ID from session: {self.user.user_id}"
+            )
+
         try:
-            return await self.chat_service.get_thread(thread_id)
+            return await self.chat_service.get_thread(thread_id, user_id)
         except HTTPException as e:
             LOG.warning(f"Error retrieving thread {thread_id}: {e.detail}")
             raise e
 
     @chat_router.delete("/threads/{thread_id}")
-    async def delete_thread(self, thread_id: str = Path(...)) -> dict:
-        LOG.debug(f"Deleting thread {thread_id}")
-        success = await self.chat_service.delete_thread(thread_id)
+    async def delete_thread(
+        self,
+        thread_id: str = Path(...),
+        user_id: str = Query(None, description="User ID"),
+    ) -> dict:
+        LOG.debug(f"Deleting thread {thread_id} for user {user_id}")
+
+        if not user_id and self.user:
+            user_id = self.user.user_id
+            LOG.debug(
+                f"User ID not provided, using user ID from session: {self.user.user_id}"
+            )
+
+        success = await self.chat_service.delete_thread(thread_id, user_id)
         return {"success": success}
 
     @chat_router.post("/threads/{thread_id}/messages", response_model=MessageResponse)
@@ -76,7 +99,9 @@ class ChatAPI:
 
         # Add user info if not provided in request
         if not request.user_id and self.user:
-            request.user_id = self.user.email
-            request.user_name = f"{self.user.first_name} {self.user.last_name}".strip()
+            request.user_id = self.user.user_id
+            LOG.debug(
+                f"User ID not provided, using user ID from session: {self.user.user_id}"
+            )
 
         return await self.chat_service.add_message(thread_id, request, stream)

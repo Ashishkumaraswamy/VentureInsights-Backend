@@ -233,14 +233,19 @@ Always prioritize delivering accurate, relevant information from Venture Insight
 
         return [await self._format_thread_summary(t) for t in paginated_threads]
 
-    async def get_thread(self, thread_id: str) -> ChatThreadWithMessages:
-        threads = await self.mongo.aquery("chat_agent", {"session_id": thread_id})
+    async def get_thread(self, thread_id: str, user_id: str) -> ChatThreadWithMessages:
+        threads = await self.mongo.aquery(
+            "chat_agent", {"session_id": thread_id, "user_id": user_id}
+        )
+        LOG.debug(f"Found {len(threads)} threads for user {user_id}")
         if not threads:
             return ChatThreadWithMessages(messages=[], id=thread_id)
         return await self._format_thread(threads[0])
 
-    async def delete_thread(self, thread_id: str) -> bool:
-        await self.mongo.adelete_records("chat_agent", {"session_id": thread_id})
+    async def delete_thread(self, thread_id: str, user_id: str) -> bool:
+        await self.mongo.adelete_records(
+            "chat_agent", {"session_id": thread_id, "user_id": user_id}
+        )
         return True
 
     async def add_message(

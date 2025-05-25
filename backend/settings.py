@@ -132,7 +132,7 @@ class AppSettings(BaseSettings):
                 site_id=os.environ.get("NETLIFY_SITE_ID"),
                 auth_token=os.environ.get("NETLIFY_AUTH_TOKEN"),
             ),
-            local_user=os.environ.get("LOCAL_USER"),
+            local_user_email=os.environ.get("LOCAL_USER_EMAIL"),
             local=os.environ.get("LOCAL"),
             mcp_url=os.environ.get("MCP_URL"),
         )
