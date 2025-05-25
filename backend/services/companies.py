@@ -11,6 +11,9 @@ from backend.models.response.research import (
     ResearchResponse,
 )
 from typing import Optional
+import aiohttp
+from urllib.parse import quote
+import asyncio
 
 
 class CompaniesService:
@@ -59,6 +62,35 @@ class CompaniesService:
             # Return empty ResearchResponse with just the company name
             return ResearchResponse(company_name=company_name)
 
+    @staticmethod
+    async def get_company_logo(company_name: str) -> str:
+        fallback_logo = "https://pngimg.com/uploads/google/google_PNG19635.png"
+
+        domain_base = (
+            company_name.lower().replace(" ", "").replace(",", "").replace(".", "")
+        )
+
+        extensions = [".com", ".io", ".co", ".ai", ".org", ".net", ".app"]
+
+        if len(domain_base) <= 3:
+            return fallback_logo
+
+        async with aiohttp.ClientSession() as session:
+            for ext in extensions:
+                try:
+                    domain = f"{domain_base}{ext}"
+                    logo_url = f"https://s2.googleusercontent.com/s2/favicons?domain={domain}&sz=128"
+
+                    async with session.head(
+                        f"https://{domain}", timeout=1.0
+                    ) as response:
+                        if response.status < 400:  # Any successful or redirect response
+                            return logo_url
+                except Exception:
+                    continue
+
+            return f"https://s2.googleusercontent.com/s2/favicons?domain={quote(company_name)}&sz=128"
+
     @cacheable()
     async def get_companies(self, limit: int = 100) -> list[CompanySearchResult]:
         """
@@ -69,29 +101,33 @@ class CompaniesService:
 
         Returns:
             List of CompanySearchResult with company name and logo URL
+
+        ! TODO Fix: the logo fetching is temporary and will be fixed in the future with a better solution
         """
         pipeline = [
             {
                 "$project": {
                     "company_name": 1,
-                    "logoUrl": {
-                        "$ifNull": [
-                            "$card_info.logoUrl",
-                            "https://pngimg.com/uploads/google/google_PNG19635.png",
-                        ]
-                    },
                 }
             },
             {"$sort": {"company_name": 1}},
             {"$limit": limit},
         ]
         res = await self.mongo_db.aaggregate("company_info", pipeline)
-        return [
-            CompanySearchResult(
-                name=company["company_name"], logoUrl=company["logoUrl"]
-            )
-            for company in res
+
+        # Use asyncio.gather to fetch all logos concurrently
+        company_names = [company["company_name"] for company in res]
+        logo_urls = await asyncio.gather(
+            *[self.get_company_logo(name) for name in company_names]
+        )
+
+        # Create company results with fetched logos
+        companies = [
+            CompanySearchResult(name=name, logoUrl=logo_url)
+            for name, logo_url in zip(company_names, logo_urls)
         ]
+
+        return companies
 
     @cacheable()
     async def get_featured_companies(
