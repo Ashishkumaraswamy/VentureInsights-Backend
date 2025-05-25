@@ -1,4 +1,4 @@
-from backend.services.linkedin_team import LinkedInTeamService
+from backend.services.team import TeamService
 from backend.agents.base import BaseAgent
 from backend.settings import LLMConfig
 from backend.models.response.chat import AnalysisResponse
@@ -18,10 +18,8 @@ def syncify(async_fn):
     return wrapper
 
 
-class LinkedInTeamAgent(BaseAgent):
-    def __init__(
-        self, linkedin_team_service: LinkedInTeamService, llm_config: LLMConfig
-    ):
+class TeamAgent(BaseAgent):
+    def __init__(self, linkedin_team_service: TeamService, llm_config: LLMConfig):
         super().__init__(llm_config)
         self.linkedin_team_service = linkedin_team_service
 

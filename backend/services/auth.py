@@ -5,7 +5,11 @@ import bcrypt
 
 from backend.database.mongo import MongoDBConnector
 from backend.models.base.exceptions import Status
-from backend.models.requests.auth import SignUpRequest, LoginRequest, FounderSignupRequest
+from backend.models.requests.auth import (
+    SignUpRequest,
+    LoginRequest,
+    FounderSignupRequest,
+)
 from backend.models.response.auth import UserResponse
 from backend.settings import MongoConnectionDetails, JWTConfig
 from backend.utils.exceptions import ServiceException
@@ -70,14 +74,14 @@ class AuthService:
             "user_type": "founder",
             "linkedin_url": personal_info.linkedin_url,
             "role": personal_info.role,
-            "phone_number": personal_info.phone_number
+            "phone_number": personal_info.phone_number,
         }
 
         # Create the company record
         company_info = founder_signup_request.company_info
         funding_details = founder_signup_request.funding_details
         company_status = founder_signup_request.company_status
-        
+
         company_record = {
             "founder_email": personal_info.email,
             "company_name": company_info.company_name,
@@ -91,45 +95,60 @@ class AuthService:
             "is_incorporated": company_status.is_incorporated,
             "description": company_status.description,
         }
-        
+
         if company_status.website_url:
             company_record["website_url"] = company_status.website_url
-            
+
         # Add documents if they exist
         if founder_signup_request.documents:
             documents = founder_signup_request.documents
             company_record["documents"] = {}
-            
+
             if documents.pitch_deck_file_id:
-                company_record["documents"]["pitch_deck_file_id"] = documents.pitch_deck_file_id
-                
+                company_record["documents"]["pitch_deck_file_id"] = (
+                    documents.pitch_deck_file_id
+                )
+
             if documents.business_plan_file_id:
-                company_record["documents"]["business_plan_file_id"] = documents.business_plan_file_id
-                
+                company_record["documents"]["business_plan_file_id"] = (
+                    documents.business_plan_file_id
+                )
+
             if documents.financial_model_file_id:
-                company_record["documents"]["financial_model_file_id"] = documents.financial_model_file_id
-                
+                company_record["documents"]["financial_model_file_id"] = (
+                    documents.financial_model_file_id
+                )
+
             if documents.product_demo_file_id:
-                company_record["documents"]["product_demo_file_id"] = documents.product_demo_file_id
+                company_record["documents"]["product_demo_file_id"] = (
+                    documents.product_demo_file_id
+                )
 
         # Insert records to DB
         try:
             users_collection = await self.mongo_connector.aget_collection("users")
-            companies_collection = await self.mongo_connector.aget_collection("companies")
-            
+            companies_collection = await self.mongo_connector.aget_collection(
+                "companies"
+            )
+
             # Check if user already exists
-            existing_user = await self.mongo_connector.aquery("users", {"email": personal_info.email})
+            existing_user = await self.mongo_connector.aquery(
+                "users", {"email": personal_info.email}
+            )
             if existing_user:
                 raise ServiceException(
                     status=Status.ALREADY_EXISTS,
                     message="User with this email already exists",
                 )
-                
+
             # Insert user and company data
             await users_collection.insert_one(user_record)
             await companies_collection.insert_one(company_record)
-            
-            return {"status": Status.SUCCESS, "message": "Founder and Company Created Successfully"}
+
+            return {
+                "status": Status.SUCCESS,
+                "message": "Founder and Company Created Successfully",
+            }
         except ServiceException:
             raise
         except Exception as e:

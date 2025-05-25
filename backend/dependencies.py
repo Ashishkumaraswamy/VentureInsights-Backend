@@ -11,7 +11,7 @@ from backend.settings import get_app_settings, AppSettings
 from fastapi import Request, Depends
 from backend.services.finance import FinanceService
 from backend.services.market_analysis import MarketAnalysisService
-from backend.services.linkedin_team import LinkedInTeamService
+from backend.services.team import TeamService
 from backend.services.customer_sentiment import CustomerSentimentService
 from backend.utils.llm import get_model
 from backend.services.knowledge import KnowledgeBaseService
@@ -139,7 +139,7 @@ def get_linkedin_team_service(
     netlify_agent=Depends(get_netlify_agent),
     cache_service: CacheService = Depends(get_cache_service),
 ):
-    service = LinkedInTeamService(
+    service = TeamService(
         app_settings.llm_config,
         app_settings.sonar_config,
         netlify_agent,
@@ -204,7 +204,6 @@ def get_risk_analysis_service(
 
 
 def get_research_service(
-    app_settings=Depends(get_app_settings),
     finance_service=Depends(get_finance_service),
     linkedin_team_service=Depends(get_linkedin_team_service),
     market_analysis_service=Depends(get_market_analysis_service),
@@ -212,13 +211,23 @@ def get_research_service(
     customer_sentiment_service=Depends(get_customer_sentiment_service),
     regulatory_compliance_service=Depends(get_regulatory_compliance_service),
     risk_analysis_service=Depends(get_risk_analysis_service),
+    cache_service: CacheService = Depends(get_cache_service),
+    app_settings: AppSettings = Depends(get_app_settings),
+    knowledge_base_service=Depends(get_knowledge_base_service),
 ):
     service = ResearchService(
-        db_config=app_settings.db_config,
         finance_service=finance_service,
         linkedin_team_service=linkedin_team_service,
         market_analysis_service=market_analysis_service,
+        partnership_network_service=partnership_network_service,
+        customer_sentiment_service=customer_sentiment_service,
+        regulatory_compliance_service=regulatory_compliance_service,
+        risk_analysis_service=risk_analysis_service,
+        db_config=app_settings.db_config,
+        llm_config=app_settings.llm_config,
+        knowledge_base_service=knowledge_base_service,
     )
+    service.cache_service = cache_service
     return service
 
 

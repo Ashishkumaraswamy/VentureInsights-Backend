@@ -4,13 +4,19 @@ from fastapi_utils.cbv import cbv
 from starlette import status
 
 from backend.dependencies import get_auth_service_settings
-from backend.models.requests.auth import SignUpRequest, LoginRequest, FounderSignupRequest
+from backend.models.requests.auth import (
+    SignUpRequest,
+    LoginRequest,
+    FounderSignupRequest,
+)
 from backend.services.auth import AuthService
 from backend.utils.logger import get_logger
 
 auth_router = APIRouter(prefix="/auth", tags=["auth"])
 
 LOG = get_logger("Auth API")
+
+
 @cbv(auth_router)
 class AuthorizationApi:
     auth_service: AuthService = Depends(get_auth_service_settings)

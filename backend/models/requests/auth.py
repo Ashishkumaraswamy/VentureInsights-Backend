@@ -40,16 +40,26 @@ class FundingDetails(BaseModel):
 
 
 class CompanyStatus(BaseModel):
-    is_incorporated: bool = Field(..., description="Whether the company is incorporated")
+    is_incorporated: bool = Field(
+        ..., description="Whether the company is incorporated"
+    )
     website_url: Optional[str] = Field(None, description="URL of the company website")
     description: str = Field(..., description="Description of the company")
 
 
 class Documents(BaseModel):
-    pitch_deck_file_id: Optional[str] = Field(None, description="File ID of the pitch deck")
-    business_plan_file_id: Optional[str] = Field(None, description="File ID of the business plan")
-    financial_model_file_id: Optional[str] = Field(None, description="File ID of the financial model")
-    product_demo_file_id: Optional[str] = Field(None, description="File ID of the product demo")
+    pitch_deck_file_id: Optional[str] = Field(
+        None, description="File ID of the pitch deck"
+    )
+    business_plan_file_id: Optional[str] = Field(
+        None, description="File ID of the business plan"
+    )
+    financial_model_file_id: Optional[str] = Field(
+        None, description="File ID of the financial model"
+    )
+    product_demo_file_id: Optional[str] = Field(
+        None, description="File ID of the product demo"
+    )
 
 
 class FounderSignupRequest(BaseModel):

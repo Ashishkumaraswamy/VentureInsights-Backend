@@ -14,6 +14,8 @@ from agno.agent import Agent
 from agno.models.azure import AzureOpenAI
 import cloudinary
 import cloudinary.uploader
+
+from backend.models.response.files import DoucmentParseResponse
 from backend.settings import StorageConfig, get_app_settings
 from backend.utils.llm import get_model
 from agno.document import Document
@@ -30,7 +32,17 @@ class DocumentProcessingEngine:
 
     def __init__(self, model: AzureOpenAI, storage_config: StorageConfig):
         self.model = model
-        self.agent = Agent(model=model, markdown=True)
+        self.agent = Agent(
+            model=model,
+            markdown=True,
+            instructions="""
+            You are a document parser engine. For the given page, output strictly:
+            - A heading for the page which you must generate based on the contents of the page.
+            - A detailed description of all content and data points on the page.
+            Only maintain headings and descriptions. Do not include anything else in the output.
+            """,
+            response_model=DoucmentParseResponse,
+        )
         self.storage_config = storage_config
         # Set Cloudinary config for upload/download
         cloudinary.config(
@@ -77,9 +89,7 @@ class DocumentProcessingEngine:
                     {"type": "image_url", "image_url": {"url": img_data_url}},
                 ]
                 response = self.agent.run(prompt)
-                text = (
-                    response.content if hasattr(response, "content") else str(response)
-                )
+                text = f"Heading: {response.content.heading}\nContent: {response.content.content}"
                 LOG.info(f"Parsed page {i + 1} text")
                 text = text.strip()
                 if text:

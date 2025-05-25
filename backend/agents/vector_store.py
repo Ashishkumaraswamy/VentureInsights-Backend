@@ -23,8 +23,11 @@ class VectorStore:
         self.vectorstore._get_client()
         self.agent_knowledge = AgentKnowledge(vector_db=self.vectorstore)
 
-    async def add_documents(self, documents: List[Document]):
+    async def add_documents(self, documents: List[Document], company: str):
         """
         For each Document, embed the content and set the embedding field, then load all documents to the DB.
         """
-        return await self.agent_knowledge.async_load_documents(documents)
+        filters = {"company": company}
+        return await self.agent_knowledge.async_load_documents(
+            documents, filters=filters
+        )

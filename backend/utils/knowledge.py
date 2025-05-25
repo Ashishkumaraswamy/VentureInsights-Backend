@@ -18,15 +18,12 @@ if __name__ == "__main__":
         collection_name="vector_store",
         database=db_config.dbname,
         db_url=db_config.get_connection_string(),
-        wait_until_index_ready=60,
-        wait_after_insert=300,
         embedder=embedder,
     )
     vector_db._get_client()
 
-    knowledge_base = AgentKnowledge(
-        vector_db=vector_db
-    )  # adjust wait_after_insert and wait_until_index_ready to your needs
+    knowledge_base = AgentKnowledge(vector_db=vector_db)
+    # adjust wait_after_insert and wait_until_index_ready to your needs
     # document = Document(
     #     content="Mavi is a software engineer who specializes in developing web applications.",
     #     name="Mavi",
@@ -34,8 +31,16 @@ if __name__ == "__main__":
     #         "company": "mavi"
     #     }
     # )
-    #
+    # knowledge_base.load(recreate=True)
+
     # knowledge_base.load_documents([document])  # Comment out after first run
 
-    agent = Agent(model=model, knowledge=knowledge_base, show_tool_calls=True)
-    agent.print_response("Tell about causal analysis", markdown=True)
+    agent = Agent(
+        model=model,
+        knowledge=knowledge_base,
+        show_tool_calls=True,
+        search_knowledge=True,
+    )
+    agent.print_response(
+        "Tell about the revenue over time of TechInnovate", markdown=True
+    )

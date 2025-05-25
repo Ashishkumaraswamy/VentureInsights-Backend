@@ -21,7 +21,7 @@ from dotenv import load_dotenv
 from fastapi.responses import JSONResponse
 from starlette import status
 from backend.api.finance import finance_router
-from backend.api.linkedin_team import linkedin_team_router
+from backend.api.team import linkedin_team_router
 from backend.api.market_analysis import market_analysis_router
 from backend.api.risk_analysis import risk_analysis_router
 from backend.api.customer_sentiment import customer_sentiment_router
