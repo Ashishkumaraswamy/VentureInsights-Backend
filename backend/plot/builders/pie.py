@@ -93,24 +93,13 @@ class PieBuilder(IBuilder):
             },
             # Font configuration
             font=dict(family="Inter, Arial, sans-serif", size=12, color="#212121"),
-            # Legend configuration
-            legend=dict(
-                orientation="h",
-                yanchor="bottom",
-                y=-0.15,  # Move below the chart
-                xanchor="center",
-                x=0.5,  # Center aligned
-                bgcolor="rgba(255,255,255,0.8)",
-                bordercolor="#E0E0E0",
-                borderwidth=1,
-                font=dict(size=11),
-            ),
             # Margins and background
             margin=dict(l=20, r=20, t=80, b=80),  # More space at bottom for legend
             plot_bgcolor="#ffffff",
             paper_bgcolor="#ffffff",
             # Additional layout improvements
             uniformtext=dict(minsize=10, mode="hide"),  # Ensure readable text
+            showlegend=False,  # Turn off legends
             annotations=[
                 dict(
                     text="<b>Total</b>",
