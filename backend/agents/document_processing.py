@@ -37,8 +37,8 @@ class DocumentProcessingEngine:
             markdown=True,
             instructions="""
             You are a document parser engine. For the given page, output strictly:
-            - A heading for the page which you must generate based on the contents of the page.
-            - A detailed description of all content and data points on the page.
+            - A heading for the page which you must generate based on the contents of the page, use the company name passed in all headings along with the title
+            - A detailed description of all content and data points on the page. Don't put details like this slide shows and just the description is enough
             Only maintain headings and descriptions. Do not include anything else in the output.
             """,
             response_model=DoucmentParseResponse,
@@ -85,7 +85,10 @@ class DocumentProcessingEngine:
                 img_data_url = f"data:image/png;base64,{img_base64}"
 
                 prompt = [
-                    {"type": "text", "text": "Extract text from this slide."},
+                    {
+                        "type": "text",
+                        "text": f"Extract text from this slide for the company {company_name}",
+                    },
                     {"type": "image_url", "image_url": {"url": img_data_url}},
                 ]
                 response = self.agent.run(prompt)

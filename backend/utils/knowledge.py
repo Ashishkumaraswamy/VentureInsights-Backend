@@ -1,6 +1,6 @@
 from agno.agent import Agent
-from agno.vectordb.mongodb import MongoDb
 from agno.knowledge import AgentKnowledge
+from agno.vectordb.mongodb import MongoDb
 from dotenv import load_dotenv
 
 from backend.settings import get_app_settings
@@ -41,6 +41,4 @@ if __name__ == "__main__":
         show_tool_calls=True,
         search_knowledge=True,
     )
-    agent.print_response(
-        "Tell about the revenue over time of TechInnovate", markdown=True
-    )
+    agent.print_response("Tell about the revenue over time of asapp", markdown=True)

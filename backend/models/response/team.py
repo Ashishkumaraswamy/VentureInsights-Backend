@@ -116,7 +116,9 @@ class IndividualPerformanceResponse(CitationResponse):
     company_name: str = Field(
         ..., description="Official name of the company where the individual works"
     )
-    individual_name: str = Field(..., description="Full name of the individual")
+    individual_name: Optional[str] = Field(
+        None, description="Full name of the individual"
+    )
     title: Optional[str] = Field(
         None, description="Current job title or position of the individual"
     )

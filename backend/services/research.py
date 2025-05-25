@@ -42,6 +42,7 @@ from backend.models.response.market_analysis import (
     GrowthProjectionsResponse,
     RegionalTrendsResponse,
 )
+from backend.utils.cache_decorator import cacheable
 from backend.utils.exceptions import ServiceException
 from backend.utils.llm import get_model
 
@@ -54,18 +55,13 @@ patch_openai_client()
 # Common base system prompt for all section/field LLMs
 def BASE_SYSTEM_PROMPT():
     return """
-You are a research agent. Your job is to extract, synthesize, and update company research details using the knowledge base as your primary source of truth.
+You are a research agent. Your job is to extract, synthesize, and update company research details using ONLY the knowledge base as your source of truth.
 
 General Instructions:
 - For the field you are responsible for, actively search for and extract the most relevant and up-to-date information from the knowledge base.
-- If the knowledge base contains relevant information for your field, you MUST:
-    - Replace all basic info for that field with the knowledge base data.
-    - Remove all basic info and citations for that field.
-    - Set the only source for that field to 'Knowledge Base'.
-    - Give extremely low weight to the basic info—use it ONLY if the knowledge base is empty for that field.
-- Only if the knowledge base does not have information for your field, use the basic info as a fallback.
-- This is a mandatory, high-priority rule: always check the knowledge base first and use its data if available. Be explicit and exhaustive in your search for your field.
-- Your output must be a single, valid JSON object that exactly matches the schema provided below. Do not include any explanations or text outside the JSON.
+- You MUST use only the knowledge base to generate your output. Do not use or invent any information that is not present in the knowledge base.
+- Be explicit and exhaustive in your search for your field.
+- Your output must be a single, valid response model object that exactly matches the schema provided below. Do not include any explanations or text outside the JSON. Don't give string output.
 """
 
 
@@ -78,8 +74,7 @@ You are responsible for the field: **{field_name}** in the response model **{sch
 Instructions for this field:
 - Focus your search and extraction on information relevant to **{field_name}**.
 - Highlight and use any knowledge base facts/documents that mention or relate to **{field_name}** or its subfields.
-- If the knowledge base contains information for **{field_name}**, you MUST replace all basic info and citations for that field with the knowledge base data, and set the only source to 'Knowledge Base'.
-- Only use the basic info if the knowledge base is empty for this field, and give it extremely low weight.
+- You MUST use only the knowledge base to generate your output for **{field_name}**. Do not use or invent any information that is not present in the knowledge base.
 
 Below is the schema for your field:
 ```json
@@ -118,7 +113,7 @@ class ResearchService:
         self.netlify_agent = netlify_agent
 
     async def _llm_field(
-        self, company: str, section_name, field_name, schema, knowledge, basic_info
+        self, company: str, section_name, field_name, schema, knowledge
     ):
         prompt = FIELD_SYSTEM_PROMPT(field_name, schema)
         agent = Agent(
@@ -223,12 +218,9 @@ class ResearchService:
             (valuation, "valuation"),
             (funding, "funding"),
         ]
-        for response, field_name in finance_fields:
-            if (
-                response is not None
-                and not isinstance(response, Exception)
-                and hasattr(response, "get_plot_data")
-            ):
+        for idx, (field_name, _) in enumerate(finance_fields):
+            response = results[idx]
+            if response is not None and hasattr(response, "get_plot_data"):
                 try:
                     chart_data = response.get_plot_data()
                     builder = get_builder(chart_data.kind, self.netlify_agent)
@@ -289,6 +281,7 @@ class ResearchService:
 
         return research_response
 
+    @cacheable()
     async def get_deep_research(
         self, company_name: str, use_knowledge_base: bool = False
     ):
@@ -299,7 +292,6 @@ class ResearchService:
             raise ServiceException(
                 status=Status.NOT_FOUND, message="Company not found."
             )
-        basic_info = get_basic_company_info[0]
 
         # Finance fields
         finance_fields = [
@@ -311,12 +303,7 @@ class ResearchService:
         ]
         finance_tasks = [
             self._llm_field(
-                company_name,
-                "Finance",
-                fname,
-                fschema,
-                self.knowledge_base,
-                basic_info.get("finance", {}),
+                company_name, "Finance", fname, fschema, self.knowledge_base
             )
             for fname, fschema in finance_fields
         ]
@@ -334,7 +321,6 @@ class ResearchService:
                 fname,
                 fschema,
                 self.knowledge_base,
-                basic_info.get("linkedin_team", {}),
             )
             for fname, fschema in team_fields
         ]
@@ -347,12 +333,7 @@ class ResearchService:
         ]
         market_tasks = [
             self._llm_field(
-                company_name,
-                "MarketAnalysis",
-                fname,
-                fschema,
-                self.knowledge_base,
-                basic_info.get("market_analysis", {}),
+                company_name, "MarketAnalysis", fname, fschema, self.knowledge_base
             )
             for fname, fschema in market_fields
         ]
@@ -368,10 +349,35 @@ class ResearchService:
         for task in market_tasks:
             market_results.append(await task)
 
-        # Assemble section responses
         # For each finance field, try to build the plot and set iframe_url
         for idx, (field_name, _) in enumerate(finance_fields):
             response = finance_results[idx]
+            if response is not None and hasattr(response, "get_plot_data"):
+                try:
+                    chart_data = response.get_plot_data()
+                    builder = get_builder(chart_data.kind, self.netlify_agent)
+                    print("chart_data.kind", chart_data.kind)
+                    response.iframe_url = await builder.plot(chart_data, company_name)
+                except Exception as e:
+                    print(f"Plot build failed for {field_name}: {e}")
+                    response.iframe_url = None
+
+        # For each team field, try to build the plot and set iframe_url
+        for idx, (field_name, _) in enumerate(team_fields):
+            response = team_results[idx]
+            if response is not None and hasattr(response, "get_plot_data"):
+                try:
+                    chart_data = response.get_plot_data()
+                    builder = get_builder(chart_data.kind, self.netlify_agent)
+                    print("chart_data.kind", chart_data.kind)
+                    response.iframe_url = await builder.plot(chart_data, company_name)
+                except Exception as e:
+                    print(f"Plot build failed for {field_name}: {e}")
+                    response.iframe_url = None
+
+        # For each market analysis field, try to build the plot and set iframe_url
+        for idx, (field_name, _) in enumerate(market_fields):
+            response = market_results[idx]
             if response is not None and hasattr(response, "get_plot_data"):
                 try:
                     chart_data = response.get_plot_data()

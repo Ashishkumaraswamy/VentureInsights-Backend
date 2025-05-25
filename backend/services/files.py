@@ -4,12 +4,13 @@ from backend.models.base.exceptions import NotFoundException
 from backend.agents.document_processing import DocumentProcessingEngine
 from backend.agents.vector_store import VectorStore
 from backend.models.requests.auth import Documents
-from backend.models.response.files import CompanyDocumentsResponse
 from backend.settings import MongoConnectionDetails, get_app_settings
 from backend.database.mongo import MongoDBConnector
 from cloudinary.utils import cloudinary_url
 import uuid
 import requests
+
+from backend.utils.cache_decorator import cacheable
 
 
 class FilesService:
@@ -40,13 +41,17 @@ class FilesService:
         )
         return {"cloud_url": cloud_url}
 
+    @cacheable()
     async def get_company_docs(self, company_name: str) -> Documents:
-        company_details = await self.mongo_connector.aquery("companies", {"company_name": company_name})
+        company_details = await self.mongo_connector.aquery(
+            "companies", {"company_name": company_name}
+        )
         if not company_details:
             raise NotFoundException("Company not found")
-        documents = company_details[0]['documents']
+        documents = company_details[0]["documents"]
         return Documents(**documents)
 
+    @cacheable()
     async def download_file(self, cloud_url: str) -> str:
         temp_path = "/tmp/downloaded_file"
         self.doc_engine.download_from_cloudinary(cloud_url, temp_path)
