@@ -3,6 +3,7 @@ import os
 from backend.models.base.exceptions import NotFoundException
 from backend.agents.document_processing import DocumentProcessingEngine
 from backend.agents.vector_store import VectorStore
+from backend.models.requests.auth import Documents
 from backend.models.response.files import CompanyDocumentsResponse
 from backend.settings import MongoConnectionDetails, get_app_settings
 from backend.database.mongo import MongoDBConnector
@@ -39,14 +40,12 @@ class FilesService:
         )
         return {"cloud_url": cloud_url}
 
-    async def get_company_docs(self, company_name: str) -> CompanyDocumentsResponse:
-        company_docs_collection = self.mongo_connector.db["company_docs"]
-        doc = company_docs_collection.find_one({"company_name": company_name})
-        if not doc:
+    async def get_company_docs(self, company_name: str) -> Documents:
+        company_details = await self.mongo_connector.aquery("companies", {"company_name": company_name})
+        if not company_details:
             raise NotFoundException("Company not found")
-        return CompanyDocumentsResponse(
-            company_name=company_name, document_urls=doc.get("document_urls", [])
-        )
+        documents = company_details[0]['documents']
+        return Documents(**documents)
 
     async def download_file(self, cloud_url: str) -> str:
         temp_path = "/tmp/downloaded_file"

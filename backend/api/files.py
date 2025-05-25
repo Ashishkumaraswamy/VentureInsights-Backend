@@ -1,4 +1,6 @@
 from fastapi import APIRouter, UploadFile, HTTPException, Query, Depends
+
+from backend.models.requests.auth import Documents
 from backend.services.files import FilesService
 from fastapi.responses import FileResponse, Response
 from backend.dependencies import get_files_service
@@ -16,7 +18,7 @@ class FilesAPI:
     async def upload_file(self, company_name: str, file: UploadFile):
         return await self.files_service.upload_file(file, company_name)
 
-    @files_router.get("/get-files/{company_name}")
+    @files_router.get("/get-files/{company_name}", response_model=Documents)
     async def get_company_docs(self, company_name: str):
         try:
             return await self.files_service.get_company_docs(company_name)
