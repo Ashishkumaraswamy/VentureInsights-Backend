@@ -48,16 +48,16 @@ class CompanyStatus(BaseModel):
 
 
 class Documents(BaseModel):
-    pitch_deck_file_id: Optional[str] = Field(
+    pitch_deck_file_url: Optional[str] = Field(
         None, description="File ID of the pitch deck"
     )
-    business_plan_file_id: Optional[str] = Field(
+    business_plan_file_url: Optional[str] = Field(
         None, description="File ID of the business plan"
     )
-    financial_model_file_id: Optional[str] = Field(
+    financial_model_file_url: Optional[str] = Field(
         None, description="File ID of the financial model"
     )
-    product_demo_file_id: Optional[str] = Field(
+    product_demo_file_url: Optional[str] = Field(
         None, description="File ID of the product demo"
     )
 

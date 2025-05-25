@@ -12,6 +12,7 @@ class CitationResponse(BaseModel):
     iframe_url: Optional[str] = Field(
         None, description="URL of the iframe for the response"
     )
+    summary: str = Field(..., description="Summary of the response")
 
     @model_validator(mode="after")
     def validate_citations(self):

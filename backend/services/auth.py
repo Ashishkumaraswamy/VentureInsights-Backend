@@ -104,24 +104,24 @@ class AuthService:
             documents = founder_signup_request.documents
             company_record["documents"] = {}
 
-            if documents.pitch_deck_file_id:
-                company_record["documents"]["pitch_deck_file_id"] = (
-                    documents.pitch_deck_file_id
+            if documents.pitch_deck_file_url:
+                company_record["documents"]["pitch_deck_file_url"] = (
+                    documents.pitch_deck_file_url
                 )
 
-            if documents.business_plan_file_id:
-                company_record["documents"]["business_plan_file_id"] = (
-                    documents.business_plan_file_id
+            if documents.business_plan_file_url:
+                company_record["documents"]["business_plan_file_url"] = (
+                    documents.business_plan_file_url
                 )
 
-            if documents.financial_model_file_id:
-                company_record["documents"]["financial_model_file_id"] = (
-                    documents.financial_model_file_id
+            if documents.financial_model_file_url:
+                company_record["documents"]["financial_model_file_url"] = (
+                    documents.financial_model_file_url
                 )
 
-            if documents.product_demo_file_id:
-                company_record["documents"]["product_demo_file_id"] = (
-                    documents.product_demo_file_id
+            if documents.product_demo_file_url:
+                company_record["documents"]["product_demo_file_url"] = (
+                    documents.product_demo_file_url
                 )
 
         # Insert records to DB

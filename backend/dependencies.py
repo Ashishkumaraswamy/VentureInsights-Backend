@@ -214,6 +214,7 @@ def get_research_service(
     cache_service: CacheService = Depends(get_cache_service),
     app_settings: AppSettings = Depends(get_app_settings),
     knowledge_base_service=Depends(get_knowledge_base_service),
+    netlify_agent=Depends(get_netlify_agent)
 ):
     service = ResearchService(
         finance_service=finance_service,
@@ -226,6 +227,7 @@ def get_research_service(
         db_config=app_settings.db_config,
         llm_config=app_settings.llm_config,
         knowledge_base_service=knowledge_base_service,
+        netlify_agent=netlify_agent
     )
     service.cache_service = cache_service
     return service

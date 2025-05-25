@@ -1,7 +1,10 @@
 from agno.agent import Agent
+
+from backend.agents.netlify import NetlifyAgent
 from backend.agents.output_parser import LLMOutputParserAgent
 from backend.database.mongo import MongoDBConnector
 from backend.models.base.exceptions import Status
+from backend.plot.factory import get_builder
 from backend.services.knowledge import KnowledgeBaseService
 from backend.settings import MongoConnectionDetails, LLMConfig
 import asyncio
@@ -42,7 +45,10 @@ from backend.models.response.market_analysis import (
 )
 from backend.utils.exceptions import ServiceException
 from backend.utils.llm import get_model
+# Apply OpenAI client patch to fix AttributeError during garbage collection
+from backend.utils.openai_patch import patch_openai_client
 
+patch_openai_client()
 
 # Common base system prompt for all section/field LLMs
 def BASE_SYSTEM_PROMPT():
@@ -94,6 +100,7 @@ class ResearchService:
         knowledge_base_service: KnowledgeBaseService,
         db_config: MongoConnectionDetails,
         llm_config: LLMConfig,
+        netlify_agent: NetlifyAgent
     ):
         self.finance_service = finance_service
         self.linkedin_team_service = linkedin_team_service
@@ -107,6 +114,7 @@ class ResearchService:
         self.mongo_connector = MongoDBConnector(db_config)
         self.llm_model = get_model(llm_config)
         self.llm_output_parser = LLMOutputParserAgent(self.llm_model)
+        self.netlify_agent = netlify_agent
 
     async def _llm_field(
         self, company: str, section_name, field_name, schema, knowledge, basic_info
@@ -288,12 +296,33 @@ class ResearchService:
         ) = remaining_results
 
         # Process finance results
+        # For each finance field, try to build the plot and set iframe_url
+        finance_fields = [
+            ("revenue", RevenueAnalysisResponse),
+            ("expenses", ExpenseAnalysisResponse),
+            ("margins", ProfitMarginsResponse),
+            ("valuation", ValuationEstimationResponse),
+            ("funding", FundingHistoryResponse),
+        ]
+        finance_results = [revenue, expenses, margins, valuation, funding]
+        for idx, (field_name, _) in enumerate(finance_fields):
+            response = finance_results[idx]
+            if response is not None and hasattr(response, 'get_plot_data'):
+                try:
+                    chart_data = response.get_plot_data()
+                    builder = get_builder(chart_data.kind, self.netlify_agent)
+                    print("chart_data.kind", chart_data.kind)
+                    response.iframe_url = await builder.plot(chart_data, company_name)
+                except Exception as e:
+                    print(f"Plot build failed for {field_name}: {e}")
+                    response.iframe_url = None
+
         finance_response = FinanceResponse(
-            revenue=revenue if not isinstance(revenue, Exception) else None,
-            expenses=expenses if not isinstance(expenses, Exception) else None,
-            margins=margins if not isinstance(margins, Exception) else None,
-            valuation=valuation if not isinstance(valuation, Exception) else None,
-            funding=funding if not isinstance(funding, Exception) else None,
+            revenue=finance_results[0],
+            expenses=finance_results[1],
+            margins=finance_results[2],
+            valuation=finance_results[3],
+            funding=finance_results[4],
         )
 
         # Process LinkedIn team results
@@ -336,9 +365,9 @@ class ResearchService:
 
         # Save to MongoDB - save research to a collection named after the company
         try:
-            research_dict = research_response.dict()
+            research_dict = research_response.model_dump_json()
             self.mongo_connector.insert_records(
-                f"research_{company_name.lower().replace(' ', '_')}", research_dict
+                f"research_{company_name.lower().replace(' ', '_')}", [research_dict]
             )
             print(f">>> SAVED research data for {company_name} to MongoDB")
         except Exception as e:
@@ -426,6 +455,19 @@ class ResearchService:
             market_results.append(await task)
 
         # Assemble section responses
+        # For each finance field, try to build the plot and set iframe_url
+        for idx, (field_name, _) in enumerate(finance_fields):
+            response = finance_results[idx]
+            if response is not None and hasattr(response, 'get_plot_data'):
+                try:
+                    chart_data = response.get_plot_data()
+                    builder = get_builder(chart_data.kind, self.netlify_agent)
+                    print("chart_data.kind", chart_data.kind)
+                    response.iframe_url = await builder.plot(chart_data, company_name)
+                except Exception as e:
+                    print(f"Plot build failed for {field_name}: {e}")
+                    response.iframe_url = None
+
         finance_response = FinanceResponse(
             revenue=finance_results[0],
             expenses=finance_results[1],
