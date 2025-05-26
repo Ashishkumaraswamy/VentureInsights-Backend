@@ -226,10 +226,47 @@ The conversation history is stored in MongoDB, which is the same database used f
 
 The system can be run locally for development or deployed in a production environment:
 
+### Setup with Poetry
+
+1. Install Poetry (dependency management tool):
 ```bash
-# Run locally
+curl -sSL https://install.python-poetry.org | python3 -
+```
+
+2. Clone the repository and navigate to the project directory:
+```bash
+git clone <repository-url>
+cd VentureInsights-Backend
+```
+
+3. Install dependencies:
+```bash
+poetry install
+```
+
+4. Activate the virtual environment:
+```bash
+poetry shell
+```
+
+5. Set up environment variables:
+```bash
+cp .env.example .env
+# Edit .env with your configuration
+```
+
+### Running the Application
+
+```bash
+# Run locally with poetry
+poetry run python main.py
+poetry run python mcp_server.py
+
+# Or after activating poetry shell
 python main.py
+python mcp_server.py
 
 # Production deployment with gunicorn
-gunicorn -k uvicorn.workers.UvicornWorker -w 4 -b 0.0.0.0:8080 main:app
+poetry run gunicorn -k uvicorn.workers.UvicornWorker -w 4 -b 0.0.0.0:8080 main:app
+poetry run python mcp_server.py
 ```
