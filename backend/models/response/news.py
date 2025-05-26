@@ -1,13 +1,25 @@
-from datetime import datetime
-
-from pydantic import HttpUrl, BaseModel
+from typing import Optional
+from pydantic import BaseModel, model_validator
+import uuid
+from agno.models.message import UrlCitation
 
 
 class NewsItem(BaseModel):
-    id: str
+    id: Optional[str] = None
     title: str
     content: str
-    source: list[HttpUrl]
-    publishedAt: datetime
+    source: list[str]
+    published_at: str
     category: str
-    image: HttpUrl
+    image_url: str
+    citations: list[UrlCitation]
+
+
+class NewsItemList(BaseModel):
+    news_items: list[NewsItem]
+
+    @model_validator(mode="after")
+    def set_id(self):
+        for news_item in self.news_items:
+            news_item.id = str(uuid.uuid4())
+        return self

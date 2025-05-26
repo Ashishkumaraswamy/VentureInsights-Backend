@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List, Dict, Any, Optional, Literal
+from typing import List, Optional, Literal
 from datetime import datetime
 
 
@@ -71,4 +71,14 @@ class FileResponse(BaseModel):
 
 class FileListResponse(BaseModel):
     files: List[FileResponse]
-    total: int 
+    total: int
+
+
+class CompanyDocumentsResponse(BaseModel):
+    company_name: str
+    document_urls: List[str]
+
+
+class DoucmentParseResponse(BaseModel):
+    heading: str
+    content: str
