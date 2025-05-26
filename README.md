@@ -6,7 +6,7 @@ Venture Insights is an AI-powered platform for comprehensive company analysis an
 
 ## Architecture
 
-![Venture Insights Architecture Diagram](./docs/Intersectx Backend Architecture.jpg)
+![Venture Insights Architecture Diagram](./docs/Intersectx_Backend_Architecture.jpg)
 
 The diagram above illustrates our architecture with five main components:
 
