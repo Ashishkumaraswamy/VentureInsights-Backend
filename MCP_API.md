@@ -663,3 +663,31 @@ This document describes the MCP tool interface for all Venture Insights agents. 
   "id": 1
 }
 ```
+
+<a name="readme-top"></a>
+
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+
+
+
+<br />
+<div align="center">
+<h3 align="center">CodeForHer</h3>
+
+  <p align="center">
+    A platform dedicated to empowering women in technology through coding education and community support.
+    <br />
+    <a href="https://github.com/Ashishkumaraswamy/CodeForHer-Frontend"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="YOUR_DEMO_LINK">View Demo</a>
+    ·
+    <a href="https://github.com/Ashishkumaraswamy/CodeForHer-Frontend/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/Ashishkumaraswamy/CodeForHer-Frontend/issues">Request Feature</a>
+  </p>
+</div>
