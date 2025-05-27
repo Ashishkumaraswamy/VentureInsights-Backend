@@ -187,6 +187,7 @@ class CompaniesService:
             "limit": limit,
         }
 
+    @cacheable()
     async def get_top_investors(self, limit: int = 10) -> TopInvestorsListResponse:
         users_collection = await self.mongo_db.aget_collection("users")
         cursor = (
