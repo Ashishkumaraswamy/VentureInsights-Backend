@@ -95,17 +95,12 @@ async def not_found_exception_handler(request, exc):
     )
 
 
-origins = [
-    "https://intersectx.netlify.app",
-    "http://localhost:5173",  # Optional: for local development
-]
-
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins,           # ✅ required for credentials
-    allow_credentials=True,          # ✅ allows cookies or auth headers
-    allow_methods=["*"],             # allow all HTTP methods
-    allow_headers=["*"],             # allow all headers
+    allow_origins=["*"],  # Or specify ["http://localhost:5173"] for more security
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
