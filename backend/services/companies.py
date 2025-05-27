@@ -22,6 +22,7 @@ class CompaniesService:
         self.mongo_db = MongoDBConnector(mongo_config)
         # cache_service will be injected by the dependency injection system
 
+    @cacheable()
     async def get_company_analysis(self, company_name: str) -> ResearchResponse:
         """
         Retrieve company analysis data from MongoDB.
@@ -62,6 +63,7 @@ class CompaniesService:
             # Return empty ResearchResponse with just the company name
             return ResearchResponse(company_name=company_name)
 
+    @cacheable()
     @staticmethod
     async def get_company_logo(company_name: str) -> str:
         fallback_logo = "https://pngimg.com/uploads/google/google_PNG19635.png"
@@ -187,6 +189,7 @@ class CompaniesService:
             "limit": limit,
         }
 
+    @cacheable()
     async def get_top_investors(self, limit: int = 10) -> TopInvestorsListResponse:
         users_collection = await self.mongo_db.aget_collection("users")
         cursor = (
