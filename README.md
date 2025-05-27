@@ -1,4 +1,81 @@
-# Venture Insights Backend
+<a name="readme-top"></a>
+
+<!-- PROJECT SHIELDS -->
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+
+<br />
+<div align="center">
+  <a href="https://github.com/Ashishkumaraswamy/VentureInsights-Backend">
+    <img src="src/asessts/logo.png" alt="Logo" width="100" height="100">
+  </a>
+
+  <h3 align="center">Intersectx Backend</h3>
+
+  <p align="center">
+    An AI-powered platform for comprehensive company analysis and investment insights.
+    <br />
+    <a href="https://github.com/Ashishkumaraswamy/VentureInsights-Backend#readme"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <!-- <a href="YOUR_DEMO_LINK">View Demo</a> -->
+    ·
+    <a href="https://github.com/Ashishkumaraswamy/VentureInsights-Backend/issues">Report Bug</a>
+    ·
+    <a href="https://github.com/Ashishkumaraswamy/VentureInsights-Backend/issues">Request Feature</a>
+  </p>
+</div>
+
+---
+<br />
+<div align="center">
+  <img src="src/asessts/cover_image.png" alt="Venture Insights Cover Image" style="width: 728px; max-width: 100%;">
+</div>
+<br />
+
+<!-- TABLE OF CONTENTS -->
+<details>
+  <summary>Table of Contents</summary>
+  <ol>
+    <li><a href="#overview">Overview</a></li>
+    <li><a href="#architecture">Architecture</a></li>
+    <li><a href="#system-components">System Components</a></li>
+    <li><a href="#operational-flows">Operational Flows</a></li>
+    <li>
+      <a href="#agentic-framework">Agentic Framework</a>
+      <ul>
+        <li><a href="#agent-types">Agent Types</a></li>
+        <li><a href="#agent-architecture">Agent Architecture</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#ai-integration">AI Integration</a>
+      <ul>
+        <li><a href="#mcp-orchestration">MCP Orchestration</a></li>
+        <li><a href="#data-flow-and-knowledge-management">Data Flow and Knowledge Management</a></li>
+      </ul>
+    </li>
+    <li><a href="#api-structure">API Structure</a></li>
+    <li><a href="#chat-api-architecture">Chat API Architecture</a></li>
+    <li><a href="#database-structure">Database Structure</a></li>
+    <li>
+        <a href="#vision-and-future-development">Vision and Future Development</a>
+        <ul>
+            <li><a href="#roadmap">Roadmap</a></li>
+        </ul>
+    </li>
+    <li><a href="#development">Development</a></li>
+    <li><a href="#deployment">Deployment</a></li>
+  </ol>
+</details>
+
+<br />
+
+---
+<br />
 
 ## Overview
 
@@ -270,3 +347,15 @@ python mcp_server.py
 poetry run gunicorn -k uvicorn.workers.UvicornWorker -w 4 -b 0.0.0.0:8080 main:app
 poetry run python mcp_server.py
 ```
+
+<!-- MARKDOWN LINKS & IMAGES -->
+[contributors-shield]: https://img.shields.io/github/contributors/Ashishkumaraswamy/VentureInsights-Backend.svg?style=for-the-badge
+[contributors-url]: https://github.com/Ashishkumaraswamy/VentureInsights-Backend/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/Ashishkumaraswamy/VentureInsights-Backend.svg?style=for-the-badge
+[forks-url]: https://github.com/Ashishkumaraswamy/VentureInsights-Backend/network/members
+[stars-shield]: https://img.shields.io/github/stars/Ashishkumaraswamy/VentureInsights-Backend.svg?style=for-the-badge
+[stars-url]: https://github.com/Ashishkumaraswamy/VentureInsights-Backend/stargazers
+[issues-shield]: https://img.shields.io/github/issues/Ashishkumaraswamy/VentureInsights-Backend.svg?style=for-the-badge
+[issues-url]: https://github.com/Ashishkumaraswamy/VentureInsights-Backend/issues
+[license-shield]: https://img.shields.io/github/license/Ashishkumaraswamy/VentureInsights-Backend.svg?style=for-the-badge
+[license-url]: https://github.com/Ashishkumaraswamy/VentureInsights-Backend/blob/main/LICENSE
