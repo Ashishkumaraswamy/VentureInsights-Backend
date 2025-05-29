@@ -83,12 +83,16 @@ Venture Insights is an AI-powered platform for comprehensive company analysis an
 
 ## VC sample CREDS 
 
-email: pradeep@gmail.com
+```
+email: pradeep@gmail.com  
 password: Test123
+```
 
 ## FOUNDER sample CREDS
-email: kuberan@gmail.com
+```
+email: kuberan@gmail.com  
 password: Test123
+```
 
 ## Architecture
 
