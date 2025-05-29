@@ -242,6 +242,7 @@ class AuthService:
             "portfolio": getattr(vc_signup_request, "portfolio", []),
             "companies_invested": getattr(vc_signup_request, "companies_invested", []),
             "description": getattr(vc_signup_request, "description", None),
+            "linkedin_url": getattr(vc_signup_request, "linkedin_url", None),
             "website_url": getattr(vc_signup_request, "website_url", None),
         }
         collection = await self.mongo_connector.aget_collection("users")
