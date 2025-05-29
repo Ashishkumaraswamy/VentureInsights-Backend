@@ -81,7 +81,7 @@
 
 Venture Insights is an AI-powered platform for comprehensive company analysis and investment insights. The backend system leverages a sophisticated agentic framework that integrates multiple specialized AI agents to analyze various aspects of companies and markets. Our architecture employs a central orchestration system (MCP) that coordinates between different data sources, specialized agents, and AI services to deliver comprehensive investment insights.
 
-## LOGIN sample CREDS 
+## VC sample CREDS 
 
 email: pradeep@gmail.com
 password: Test123
